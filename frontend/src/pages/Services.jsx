@@ -157,40 +157,97 @@ const Services = () => {
       {/* Pricing Note */}
       <section className="py-16">
         <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto p-8 bg-gradient-to-br from-purple-50 to-amber-50 border-2 border-purple-200">
-            <div className="text-center">
-              <h2 className="text-2xl md:text-3xl font-bold text-purple-900 mb-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
                 Consultation Fees
               </h2>
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                Consultation fees depend on the client's requirements and type of service. 
-                Pricing varies accordingly based on the complexity and depth of analysis needed.
+              <p className="text-lg text-gray-600">
+                Transparent time-based pricing for personalized astrological guidance
               </p>
-              <p className="text-gray-600 mb-8">
-                Please contact us for a detailed quotation tailored to your specific needs.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/booking">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 shadow-lg transform hover:scale-105 transition-all duration-300"
-                  >
-                    Book Consultation
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </Link>
-                <Link to="/contact">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-2 border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white px-8 transform hover:scale-105 transition-all duration-300"
-                  >
-                    Get Quote
-                  </Button>
-                </Link>
-              </div>
             </div>
-          </Card>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {consultationPricing.map((plan, index) => (
+                <Card
+                  key={index}
+                  className={`p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ${
+                    plan.badge === 'Popular' ? 'border-2 border-purple-600 relative' : 'border-purple-100'
+                  }`}
+                >
+                  {plan.badge && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className={`px-4 py-1 rounded-full text-sm font-semibold ${
+                        plan.badge === 'Popular' ? 'bg-purple-600 text-white' :
+                        plan.badge === 'First Time Only' ? 'bg-green-600 text-white' :
+                        'bg-amber-600 text-white'
+                      }`}>
+                        {plan.badge}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="text-center mb-6">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Clock className="w-6 h-6 text-purple-600" />
+                      <h3 className="text-2xl font-bold text-purple-900">{plan.duration}</h3>
+                    </div>
+                    <div className="flex items-center justify-center mb-2">
+                      {plan.price === 'Free' ? (
+                        <span className="text-4xl font-bold text-green-600">{plan.price}</span>
+                      ) : (
+                        <>
+                          <IndianRupee className="w-6 h-6 text-purple-900" />
+                          <span className="text-4xl font-bold text-purple-900">
+                            {plan.price.replace('₹', '')}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <p className="text-gray-600">{plan.description}</p>
+                  </div>
+
+                  <div className="space-y-3 mb-6">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link to="/booking" className="block">
+                    <Button
+                      className={`w-full ${
+                        plan.badge === 'Popular'
+                          ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white'
+                          : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white'
+                      }`}
+                    >
+                      Book Now
+                    </Button>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Card className="p-6 bg-gradient-to-br from-amber-50 to-purple-50 border-amber-200 inline-block">
+                <div className="flex items-start gap-3">
+                  <BadgeCheck className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
+                  <div className="text-left">
+                    <p className="text-gray-700 font-medium mb-1">
+                      Special Services Pricing
+                    </p>
+                    <p className="text-gray-600 text-sm">
+                      Gemstone consultations and purchases are priced separately based on the gemstone type and quality. 
+                      Childbirth timing (Muhurat) consultations are customized based on detailed analysis requirements.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
 
