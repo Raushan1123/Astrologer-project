@@ -50,7 +50,7 @@ const About = () => {
                     <Award className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-3xl font-bold text-purple-900">9+</p>
+                    <p className="text-3xl font-bold text-purple-900">20+</p>
                     <p className="text-sm text-gray-600">Years Experience</p>
                   </div>
                 </div>
@@ -63,13 +63,13 @@ const About = () => {
               </h2>
               <div className="space-y-4 text-gray-700 leading-relaxed">
                 <p>
-                  My journey into the mystical world of Vedic astrology began over nine years ago, 
+                  My journey into the mystical world of Vedic astrology began over two decades ago, 
                   driven by a deep fascination with the cosmic patterns that shape our lives. What 
                   started as a personal quest for understanding has blossomed into a profound calling 
                   to guide others.
                 </p>
                 <p>
-                  Through years of dedicated study under renowned Vedic scholars and countless hours 
+                  Through 20+ years of dedicated study under renowned Vedic scholars and countless hours 
                   of chart analysis, I have developed a unique approach that combines traditional 
                   wisdom with practical, modern-day applications. My practice is rooted in authenticity, 
                   compassion, and a genuine desire to help people find clarity in their life's journey.
