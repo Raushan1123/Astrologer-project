@@ -13,6 +13,8 @@ import Blog from "./pages/Blog";
 import Booking from "./pages/Booking";
 import BookingSuccess from "./pages/BookingSuccess";
 import Contact from "./pages/Contact";
+import Gemstones from "./pages/Gemstones";
+import Admin from "./pages/Admin";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route path="/booking" element={<Booking />} />
           <Route path="/booking-success/:bookingId" element={<BookingSuccess />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/gemstones" element={<Gemstones />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
         <Footer />
         <Toaster />
