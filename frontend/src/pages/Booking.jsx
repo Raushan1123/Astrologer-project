@@ -56,8 +56,10 @@ const Booking = () => {
       dateOfBirth: null,
       timeOfBirth: '',
       placeOfBirth: '',
+      astrologer: '',
       service: '',
       consultationType: '',
+      consultationDuration: '',
       preferredDate: null,
       preferredTime: '',
       message: ''
