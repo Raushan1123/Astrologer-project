@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Label } from '../components/ui/label';
@@ -12,8 +13,16 @@ import { CalendarIcon, CheckCircle, Clock, Video, MapPin, Sparkles } from 'lucid
 import { format } from 'date-fns';
 import { cn } from '../lib/utils';
 import { mockServices, astrologers } from '../mockData';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Booking = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [razorpayKey, setRazorpayKey] = useState('');
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,6 +38,71 @@ const Booking = () => {
     preferredTime: '',
     message: ''
   });
+
+  // Load Razorpay script
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Handle Razorpay payment
+  const handlePayment = async (bookingData) => {
+    const res = await loadRazorpay();
+    if (!res) {
+      toast.error('Razorpay SDK failed to load');
+      return;
+    }
+
+    // Get Razorpay key from backend
+    try {
+      const keyResponse = await axios.get(`${API}/razorpay-key`);
+      const key = keyResponse.data.key;
+
+      const options = {
+        key: key,
+        amount: bookingData.amount,
+        currency: 'INR',
+        name: 'Mrs. Indira Pandey Astrology',
+        description: `${bookingData.service} - ${bookingData.consultation_duration} mins`,
+        order_id: bookingData.razorpay_order_id,
+        handler: async function (response) {
+          try {
+            // Verify payment
+            await axios.post(`${API}/verify-payment`, {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              booking_id: bookingData.id
+            });
+
+            toast.success('Payment successful! Booking confirmed.');
+            navigate(`/booking-success/${bookingData.id}`);
+          } catch (error) {
+            toast.error('Payment verification failed');
+          }
+        },
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone
+        },
+        theme: {
+          color: '#7c3aed'
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Payment initialization failed');
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -403,10 +477,20 @@ const Booking = () => {
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-lg font-semibold shadow-xl transform hover:scale-105 transition-all duration-300"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-lg font-semibold shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <CheckCircle className="mr-2 w-5 h-5" />
-                    Submit Booking Request
+                    {loading ? (
+                      <>
+                        <Clock className="mr-2 w-5 h-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="mr-2 w-5 h-5" />
+                        Submit Booking Request
+                      </>
+                    )}
                   </Button>
                   <p className="text-sm text-gray-500 text-center mt-4">
                     We'll review your request and contact you within 24 hours to confirm your consultation.
