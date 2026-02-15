@@ -13,6 +13,10 @@ import {
   AccordionTrigger,
 } from '../components/ui/accordion';
 import { mockFAQs } from '../mockData';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -22,13 +26,14 @@ const Contact = () => {
     subject: '',
     message: ''
   });
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.message) {
@@ -36,16 +41,25 @@ const Contact = () => {
       return;
     }
 
-    toast.success('Message sent successfully! We will get back to you soon.');
-    console.log('Contact form data:', formData);
-    
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
+    setLoading(true);
+
+    try {
+      await axios.post(`${API}/contact`, formData);
+      toast.success('Message sent successfully! We will get back to you soon.');
+      
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -221,10 +235,15 @@ const Contact = () => {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-lg font-semibold shadow-xl transform hover:scale-105 transition-all duration-300"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-lg font-semibold shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50"
                 >
-                  <Send className="mr-2 w-5 h-5" />
-                  Send Message
+                  {loading ? 'Sending...' : (
+                    <>
+                      <Send className="mr-2 w-5 h-5" />
+                      Send Message
+                    </>
+                  )}
                 </Button>
               </form>
             </Card>
