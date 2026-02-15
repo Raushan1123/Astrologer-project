@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { CalendarIcon, CheckCircle, Clock, Video, MapPin, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '../lib/utils';
-import { mockServices } from '../mockData';
+import { mockServices, astrologers } from '../mockData';
 
 const Booking = () => {
   const [formData, setFormData] = useState({
@@ -21,8 +21,10 @@ const Booking = () => {
     dateOfBirth: null,
     timeOfBirth: '',
     placeOfBirth: '',
+    astrologer: '',
     service: '',
     consultationType: '',
+    consultationDuration: '',
     preferredDate: null,
     preferredTime: '',
     message: ''
