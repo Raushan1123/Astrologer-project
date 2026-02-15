@@ -388,7 +388,7 @@ const Booking = () => {
                 {
                   step: '2',
                   title: 'Payment',
-                  description: 'Once you confirm the time slot, we'll send payment details and consultation fee based on your service.',
+                  description: 'Once you confirm the time slot, we will send payment details and consultation fee based on your service.',
                   icon: Clock
                 },
                 {
