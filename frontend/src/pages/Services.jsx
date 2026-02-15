@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { mockServices } from '../mockData';
-import { Star, Briefcase, Heart, Activity, Home, Hash, Sparkles, CheckCircle, Gem, Baby } from 'lucide-react';
+import { mockServices, consultationPricing } from '../mockData';
+import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hash, Sparkles, CheckCircle, Gem, Baby, BadgeCheck, Clock, IndianRupee } from 'lucide-react';
 
 const iconMap = {
   Star,
