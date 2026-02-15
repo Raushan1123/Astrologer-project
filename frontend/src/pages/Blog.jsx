@@ -4,10 +4,17 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { mockBlogs } from '../mockData';
 import { Calendar, Clock, User, ArrowRight, Search, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [subscribing, setSubscribing] = useState(false);
 
   const categories = ['All', 'Astrology Basics', 'Weekly Horoscope', 'Planetary Movements', 'Remedies'];
 
@@ -17,6 +24,32 @@ const Blog = () => {
     const matchesCategory = selectedCategory === 'All' || blog.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!newsletterEmail || !newsletterEmail.includes('@')) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    setSubscribing(true);
+
+    try {
+      await axios.post(`${API}/newsletter`, { email: newsletterEmail });
+      toast.success('Successfully subscribed to newsletter!');
+      setNewsletterEmail('');
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      if (error.response?.data?.message === 'Already subscribed') {
+        toast.info('You are already subscribed to our newsletter');
+      } else {
+        toast.error('Failed to subscribe. Please try again.');
+      }
+    } finally {
+      setSubscribing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
@@ -214,16 +247,23 @@ const Blog = () => {
             <p className="text-lg text-purple-100 mb-8">
               Get weekly horoscopes, astrological insights, and remedies delivered to your inbox
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Enter your email"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                required
               />
-              <Button className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-6 shadow-lg">
-                Subscribe
+              <Button 
+                type="submit"
+                disabled={subscribing}
+                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-6 shadow-lg disabled:opacity-50"
+              >
+                {subscribing ? 'Subscribing...' : 'Subscribe'}
               </Button>
-            </div>
+            </form>
             <p className="text-sm text-purple-200 mt-4">
               We respect your privacy. Unsubscribe at any time.
             </p>
