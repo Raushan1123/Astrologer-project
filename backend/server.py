@@ -166,7 +166,25 @@ async def get_bookings(status: str = None):
         if status:
             query["status"] = status
         
-        bookings = await db.bookings.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+        # Optimized query with projection for required fields only
+        projection = {
+            "_id": 0,
+            "id": 1,
+            "name": 1,
+            "email": 1,
+            "phone": 1,
+            "astrologer": 1,
+            "service": 1,
+            "consultation_duration": 1,
+            "consultation_type": 1,
+            "status": 1,
+            "payment_status": 1,
+            "amount": 1,
+            "created_at": 1,
+            "updated_at": 1
+        }
+        
+        bookings = await db.bookings.find(query, projection).sort("created_at", -1).to_list(100)
         
         # Convert ISO strings back to datetime
         for booking in bookings:
@@ -356,7 +374,18 @@ async def subscribe_newsletter(newsletter: Newsletter):
 @api_router.get("/testimonials")
 async def get_testimonials():
     try:
-        testimonials = await db.testimonials.find({"approved": True}, {"_id": 0}).sort("date", -1).to_list(100)
+        # Optimized query with projection
+        projection = {
+            "_id": 0,
+            "id": 1,
+            "name": 1,
+            "rating": 1,
+            "text": 1,
+            "service": 1,
+            "date": 1,
+            "approved": 1
+        }
+        testimonials = await db.testimonials.find({"approved": True}, projection).sort("date", -1).to_list(50)
         return testimonials
     except Exception as e:
         logger.error(f"Error fetching testimonials: {str(e)}")
@@ -370,7 +399,21 @@ async def get_blog_posts(category: str = None):
         if category and category != "All":
             query["category"] = category
         
-        posts = await db.blog_posts.find(query, {"_id": 0}).sort("date", -1).to_list(100)
+        # Optimized query - exclude content field for list view
+        projection = {
+            "_id": 0,
+            "id": 1,
+            "title": 1,
+            "excerpt": 1,
+            "image": 1,
+            "author": 1,
+            "date": 1,
+            "category": 1,
+            "read_time": 1,
+            "published": 1
+        }
+        
+        posts = await db.blog_posts.find(query, projection).sort("date", -1).to_list(50)
         return posts
     except Exception as e:
         logger.error(f"Error fetching blog posts: {str(e)}")
@@ -393,7 +436,20 @@ async def get_blog_post(post_id: str):
 @api_router.get("/gemstones")
 async def get_gemstones():
     try:
-        gemstones = await db.gemstones.find({"in_stock": True}, {"_id": 0}).to_list(100)
+        # Optimized query with projection
+        projection = {
+            "_id": 0,
+            "id": 1,
+            "name": 1,
+            "description": 1,
+            "price": 1,
+            "benefits": 1,
+            "image": 1,
+            "in_stock": 1,
+            "weight": 1,
+            "quality": 1
+        }
+        gemstones = await db.gemstones.find({"in_stock": True}, projection).sort("price", 1).to_list(50)
         return gemstones
     except Exception as e:
         logger.error(f"Error fetching gemstones: {str(e)}")
