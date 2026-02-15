@@ -394,7 +394,7 @@ const Booking = () => {
                 {
                   step: '3',
                   title: 'Consultation',
-                  description: 'On the scheduled date, we'll connect via your chosen mode for your personalized session.',
+                  description: 'On the scheduled date, we will connect via your chosen mode for your personalized session.',
                   icon: Sparkles
                 }
               ].map((item, index) => (
