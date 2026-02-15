@@ -34,7 +34,7 @@ const Home = () => {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/20 border border-amber-300/30 backdrop-blur-sm mb-6 animate-in fade-in slide-in-from-top duration-700">
               <Award className="w-4 h-4 text-amber-300" />
-              <span className="text-sm font-medium text-amber-100">9+ Years of Trusted Guidance</span>
+              <span className="text-sm font-medium text-amber-100">20+ Years of Trusted Guidance</span>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100">
