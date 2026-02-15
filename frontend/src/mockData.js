@@ -168,7 +168,7 @@ export const mockStats = {
   experience: "20+",
   clients: "800+",
   satisfaction: "95%",
-  consultationsPerWeek: "10-15"
+  consultationsPerWeek: "90-100"
 };
 
 export const astrologers = [

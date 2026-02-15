@@ -181,7 +181,7 @@ const About = () => {
                   icon: Heart,
                   title: 'Compassionate Guidance',
                   description: 'Beyond charts and predictions, I genuinely care about helping you navigate life\'s challenges. My approach is empathetic, non-judgmental, and focused on your wellbeing.',
-                  stats: '10-15 Weekly Sessions'
+                  stats: '90-100 Weekly Consultations'
                 }
               ].map((item, index) => (
                 <Card

@@ -22,7 +22,7 @@ const Footer = () => {
               </div>
             </div>
             <p className="text-sm text-purple-200 leading-relaxed">
-              Guiding lives with 20+ years of Vedic astrology expertise. Trusted by 800+ clients for accurate predictions and personalized remedies.
+              Guiding lives with 20+ years of Vedic astrology expertise. Trusted by 800+ clients with 90-100 weekly consultations for accurate predictions and personalized remedies.
             </p>
           </div>
 
