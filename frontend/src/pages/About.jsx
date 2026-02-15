@@ -162,7 +162,7 @@ const About = () => {
                 {
                   icon: Award,
                   title: 'Proven Accuracy',
-                  description: 'With a 95%+ client satisfaction rate, my predictions are known for their precision and relevance. Years of experience have honed my ability to read charts with remarkable accuracy.',
+                  description: 'With a 95%+ client satisfaction rate and 20+ years of experience, my predictions are known for their precision and relevance. Decades of experience have honed my ability to read charts with remarkable accuracy.',
                   stats: '95% Satisfaction'
                 },
                 {
