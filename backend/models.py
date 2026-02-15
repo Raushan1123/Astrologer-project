@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
+import uuid
 
 class ConsultationDuration(str, Enum):
     SHORT = "5-10"
@@ -108,5 +109,3 @@ class Gemstone(BaseModel):
     in_stock: bool = True
     weight: Optional[str] = None
     quality: Optional[str] = None
-
-import uuid
