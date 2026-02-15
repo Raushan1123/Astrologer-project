@@ -255,6 +255,28 @@ const Booking = () => {
                   <h3 className="text-2xl font-bold text-purple-900 mb-6">Consultation Details</h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
+                      <Label htmlFor="astrologer" className="text-gray-700 font-medium mb-2">
+                        Select Astrologer <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={formData.astrologer}
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, astrologer: value }))}
+                        required
+                      >
+                        <SelectTrigger className="border-purple-200">
+                          <SelectValue placeholder="Choose your astrologer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {astrologers.map((astro) => (
+                            <SelectItem key={astro.id} value={astro.name}>
+                              {astro.name} ({astro.experience} years exp.)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
                       <Label htmlFor="service" className="text-gray-700 font-medium mb-2">
                         Service Required <span className="text-red-500">*</span>
                       </Label>
@@ -272,6 +294,26 @@ const Booking = () => {
                               {service.title}
                             </SelectItem>
                           ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="consultationDuration" className="text-gray-700 font-medium mb-2">
+                        Consultation Duration <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={formData.consultationDuration}
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, consultationDuration: value }))}
+                        required
+                      >
+                        <SelectTrigger className="border-purple-200">
+                          <SelectValue placeholder="Select duration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5-10">5-10 Minutes (Free - First Time)</SelectItem>
+                          <SelectItem value="10-20">10-20 Minutes (₹1,500)</SelectItem>
+                          <SelectItem value="20+">20+ Minutes (₹2,100)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
