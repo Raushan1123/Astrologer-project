@@ -208,7 +208,7 @@ const Gemstones = () => {
                       disabled={!gemstone.in_stock}
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      Inquire Now
+                      Inquire for Price
                     </Button>
                     <Link to="/booking" className="flex-1">
                       <Button variant="outline" className="w-full border-purple-600 text-purple-700 hover:bg-purple-50">
@@ -267,19 +267,33 @@ const Gemstones = () => {
         <div className="container mx-auto px-4">
           <Card className="max-w-4xl mx-auto p-8 bg-gradient-to-br from-purple-50 to-amber-50 text-center">
             <h2 className="text-3xl font-bold text-purple-900 mb-4">
-              Not Sure Which Gemstone is Right for You?
+              Interested in Purchasing a Gemstone?
             </h2>
-            <p className="text-lg text-gray-600 mb-8">
-              Book a consultation with our expert astrologers to get personalized gemstone recommendations based on your birth chart.
+            <p className="text-lg text-gray-600 mb-4">
+              Contact us for pricing and availability. Each gemstone is personally selected and energized by our astrologers.
             </p>
-            <Link to="/booking">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-10 py-6 text-lg font-semibold shadow-xl"
-              >
-                Book Consultation for Gemstone Guidance
-              </Button>
-            </Link>
+            <p className="text-md text-gray-600 mb-8">
+              Book a consultation to get personalized gemstone recommendations based on your birth chart, along with detailed pricing information.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/booking">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-10 py-6 text-lg font-semibold shadow-xl"
+                >
+                  Book Consultation for Gemstone Guidance
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white px-10 py-6 text-lg font-semibold"
+                >
+                  Contact for Pricing
+                </Button>
+              </Link>
+            </div>
           </Card>
         </div>
       </section>
