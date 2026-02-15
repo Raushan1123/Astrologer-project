@@ -11,6 +11,7 @@ import Services from "./pages/Services";
 import Testimonials from "./pages/Testimonials";
 import Blog from "./pages/Blog";
 import Booking from "./pages/Booking";
+import BookingSuccess from "./pages/BookingSuccess";
 import Contact from "./pages/Contact";
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/testimonials" element={<Testimonials />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/booking" element={<Booking />} />
+          <Route path="/booking-success/:bookingId" element={<BookingSuccess />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
         <Footer />
