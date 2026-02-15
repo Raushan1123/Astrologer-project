@@ -365,6 +365,12 @@ const Booking = () => {
                   <p className="text-sm text-gray-500 text-center mt-4">
                     We'll review your request and contact you within 24 hours to confirm your consultation.
                   </p>
+                  <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <p className="text-sm text-gray-700 text-center">
+                      <strong>Consultation Fees:</strong> 5-10 mins (Free for first-time), 10-20 mins (₹1,500), 20+ mins (₹2,100). 
+                      Special services like gemstone consultations priced separately.
+                    </p>
+                  </div>
                 </div>
               </form>
             </Card>
