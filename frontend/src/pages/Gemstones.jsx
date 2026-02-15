@@ -181,11 +181,8 @@ const Gemstones = () => {
                   </p>
 
                   {/* Specs */}
-                  <div className="flex justify-between items-center mb-4 text-sm">
+                  <div className="mb-4 text-sm">
                     <span className="text-gray-600">Weight: {gemstone.weight}</span>
-                    <span className="text-2xl font-bold text-purple-900">
-                      ₹{gemstone.price / 100}
-                    </span>
                   </div>
 
                   {/* Benefits */}
