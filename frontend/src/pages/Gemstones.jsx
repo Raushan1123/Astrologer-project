@@ -18,7 +18,7 @@ const mockGemstones = [
     description: 'Powerful gemstone for Sun. Enhances leadership, confidence, and vitality.',
     price: 500000,  // ₹5,000 in paise
     benefits: ['Boosts confidence', 'Enhances leadership', 'Improves vitality', 'Brings success'],
-    image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a',
+    image: 'https://images.unsplash.com/photo-1761156337771-e80f6dc578b5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA0MTJ8MHwxfHNlYXJjaHwxfHxydWJ5JTIwZ2Vtc3RvbmUlMjBuYXR1cmFsJTIwcmVkfGVufDB8fHx8MTc3MTE4NzQ1NXww&ixlib=rb-4.1.0&q=85',
     in_stock: true,
     weight: '3-5 carats',
     quality: 'AAA Grade Natural'
@@ -29,7 +29,7 @@ const mockGemstones = [
     description: 'Gem for Moon. Brings emotional balance, peace, and mental clarity.',
     price: 300000,  // ₹3,000
     benefits: ['Emotional balance', 'Mental peace', 'Enhances intuition', 'Reduces stress'],
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908',
+    image: 'https://images.unsplash.com/photo-1587049693270-c7560da11218?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwxfHxwZWFybCUyMGdlbXN0b25lJTIwd2hpdGUlMjBuYXR1cmFsfGVufDB8fHx8MTc3MTE4NzQ1NXww&ixlib=rb-4.1.0&q=85',
     in_stock: true,
     weight: '5-7 carats',
     quality: 'Natural South Sea Pearl'
@@ -40,7 +40,7 @@ const mockGemstones = [
     description: 'Mars gemstone. Provides courage, energy, and protection.',
     price: 250000,  // ₹2,500
     benefits: ['Increases courage', 'Boosts energy', 'Protection from enemies', 'Physical strength'],
-    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f',
+    image: 'https://images.unsplash.com/photo-1737387831157-4837512a9c8d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODB8MHwxfHNlYXJjaHwxfHxyZWQlMjBjb3JhbCUyMHN0b25lJTIwbmF0dXJhbHxlbnwwfHx8fDE3NzExODc0NjR8MA&ixlib=rb-4.1.0&q=85',
     in_stock: true,
     weight: '6-8 carats',
     quality: 'Natural Italian Coral'
@@ -51,7 +51,7 @@ const mockGemstones = [
     description: 'Mercury stone. Enhances communication, intelligence, and business success.',
     price: 800000,  // ₹8,000
     benefits: ['Improves communication', 'Enhances intelligence', 'Business success', 'Memory boost'],
-    image: 'https://images.unsplash.com/photo-1583937443566-f3e9f77d86ba',
+    image: 'https://images.unsplash.com/photo-1583937443351-f2f669fbe2cf?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwxfHxlbWVyYWxkJTIwZ2Vtc3RvbmUlMjBncmVlbiUyMG5hdHVyYWx8ZW58MHx8fHwxNzcxMTg3NDU2fDA&ixlib=rb-4.1.0&q=85',
     in_stock: true,
     weight: '3-5 carats',
     quality: 'Colombian Emerald AAA'
@@ -62,7 +62,7 @@ const mockGemstones = [
     description: 'Jupiter gemstone. Brings wisdom, prosperity, and good fortune.',
     price: 1000000,  // ₹10,000
     benefits: ['Brings prosperity', 'Enhances wisdom', 'Good fortune', 'Marital happiness'],
-    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338',
+    image: 'https://images.unsplash.com/photo-1705575472028-d92d0bba6608?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTJ8MHwxfHNlYXJjaHwxfHx5ZWxsb3clMjBzYXBwaGlyZSUyMGdlbXN0b25lJTIwcHVraHJhanxlbnwwfHx8fDE3NzExODc0NTd8MA&ixlib=rb-4.1.0&q=85',
     in_stock: true,
     weight: '4-6 carats',
     quality: 'Ceylon Yellow Sapphire'
@@ -73,7 +73,7 @@ const mockGemstones = [
     description: 'Saturn stone. Powerful for career, discipline, and removing obstacles.',
     price: 1500000,  // ₹15,000
     benefits: ['Career advancement', 'Removes obstacles', 'Financial stability', 'Focus & discipline'],
-    image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e',
+    image: 'https://images.unsplash.com/photo-1736180857448-f166c7e00987?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwxfHxibHVlJTIwc2FwcGhpcmUlMjBzdG9uZSUyMG5hdHVyYWx8ZW58MHx8fHwxNzcxMTg3NDY0fDA&ixlib=rb-4.1.0&q=85',
     in_stock: true,
     weight: '4-6 carats',
     quality: 'Kashmir Blue Sapphire'
