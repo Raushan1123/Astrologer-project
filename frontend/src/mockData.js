@@ -171,6 +171,39 @@ export const mockStats = {
   consultationsPerWeek: "10-15"
 };
 
+export const astrologers = [
+  {
+    id: "1",
+    name: "Mrs. Indira Pandey",
+    role: "Senior Vedic Astrologer",
+    experience: "20+",
+    specialization: ["Birth Chart Analysis", "Career Guidance", "Marriage Compatibility", "Gemstone Remedies"],
+    image: "https://images.unsplash.com/photo-1554355202-11fbc45c7157",
+    bio: "With over 20 years of experience, Mrs. Indira Pandey has guided 800+ clients through accurate predictions and personalized remedies.",
+    available: true
+  },
+  {
+    id: "2",
+    name: "Mr. Ram Nath Tiwari",
+    role: "Master Astrologer & Founder",
+    experience: "40+",
+    specialization: ["Advanced Birth Chart Analysis", "Vedic Rituals", "Childbirth Timing", "Complex Remedies"],
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
+    bio: "A highly respected master astrologer with 40+ years of profound knowledge in Vedic astrology and ancient wisdom.",
+    available: true
+  },
+  {
+    id: "3",
+    name: "Ms. Ankita Pandey",
+    role: "Junior Astrologer",
+    experience: "2+",
+    specialization: ["Basic Consultations", "Numerology", "Vastu Basics", "Young Adults Guidance"],
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
+    bio: "A dedicated and enthusiastic astrologer specializing in guidance for young adults and modern life challenges.",
+    available: true
+  }
+];
+
 export const consultationPricing = [
   {
     duration: "5-10 Minutes",
