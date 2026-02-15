@@ -76,6 +76,20 @@ export const mockServices = [
     description: "Discover the power of numbers in your life and their influence on your destiny.",
     icon: "Hash",
     image: "https://images.unsplash.com/photo-1758926384162-b3783d5fa09e"
+  },
+  {
+    id: "7",
+    title: "Gemstone Remedies & Sales",
+    description: "Personalized gemstone recommendations based on your birth chart. Purchase authentic, energized gemstones directly.",
+    icon: "Gem",
+    image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591"
+  },
+  {
+    id: "8",
+    title: "Auspicious Childbirth Timing (Muhurat)",
+    description: "Select the most auspicious and suitable time for childbirth to ensure a prosperous future for your child.",
+    icon: "Baby",
+    image: "https://images.unsplash.com/photo-1729335511904-9b8690184935"
   }
 ];
 
@@ -151,8 +165,32 @@ export const mockFAQs = [
 ];
 
 export const mockStats = {
-  experience: "9+",
+  experience: "20+",
   clients: "800+",
   satisfaction: "95%",
   consultationsPerWeek: "10-15"
 };
+
+export const consultationPricing = [
+  {
+    duration: "5-10 Minutes",
+    price: "Free",
+    description: "Initial consultation for first-time customers",
+    features: ["Quick guidance", "Basic questions", "Understanding your concerns"],
+    badge: "First Time Only"
+  },
+  {
+    duration: "10-20 Minutes",
+    price: "₹1,500",
+    description: "Standard consultation session",
+    features: ["Birth chart overview", "Specific area guidance", "Basic remedies"],
+    badge: "Popular"
+  },
+  {
+    duration: "20+ Minutes",
+    price: "₹2,100",
+    description: "Comprehensive consultation session",
+    features: ["Detailed birth chart analysis", "Multiple area coverage", "Personalized remedies", "Follow-up support"],
+    badge: "Comprehensive"
+  }
+];
