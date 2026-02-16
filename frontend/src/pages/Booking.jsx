@@ -285,29 +285,20 @@ const Booking = () => {
                   <h3 className="text-2xl font-bold text-purple-900 mb-6">Birth Details</h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <Label className="text-gray-700 font-medium mb-2">Date of Birth</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full justify-start text-left font-normal border-purple-200',
-                              !formData.dateOfBirth && 'text-muted-foreground'
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.dateOfBirth ? format(formData.dateOfBirth, 'PPP') : 'Pick a date'}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={formData.dateOfBirth}
-                            onSelect={(date) => setFormData(prev => ({ ...prev, dateOfBirth: date }))}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <Label htmlFor="dateOfBirth" className="text-gray-700 font-medium mb-2">
+                        Date of Birth
+                      </Label>
+                      <Input
+                        id="dateOfBirth"
+                        name="dateOfBirth"
+                        type="date"
+                        max={new Date().toISOString().split('T')[0]}
+                        value={formData.dateOfBirth ? (typeof formData.dateOfBirth === 'string' ? formData.dateOfBirth : formData.dateOfBirth.toISOString().split('T')[0]) : ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                        className="border-purple-200 focus:border-purple-500"
+                        placeholder="Select your date of birth"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Required for accurate chart analysis</p>
                     </div>
 
                     <div>
@@ -321,7 +312,9 @@ const Booking = () => {
                         value={formData.timeOfBirth}
                         onChange={handleInputChange}
                         className="border-purple-200 focus:border-purple-500"
+                        placeholder="HH:MM"
                       />
+                      <p className="text-xs text-gray-500 mt-1">If known (improves accuracy)</p>
                     </div>
                   </div>
                 </div>
