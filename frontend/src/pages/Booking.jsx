@@ -17,7 +17,6 @@ const API = `${BACKEND_URL}/api`;
 const Booking = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [razorpayKey, setRazorpayKey] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
