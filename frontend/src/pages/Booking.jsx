@@ -87,6 +87,11 @@ const Booking = () => {
           email: formData.email,
           contact: formData.phone
         },
+        modal: {
+          ondismiss: function() {
+            toast.info('Payment cancelled. Your booking is saved - you can complete payment later.');
+          }
+        },
         theme: {
           color: '#7c3aed'
         }
@@ -96,7 +101,13 @@ const Booking = () => {
       paymentObject.open();
     } catch (error) {
       console.error('Payment error:', error);
-      toast.error('Payment initialization failed');
+      // If Razorpay is not configured, inform user and save booking anyway
+      if (error.response?.status === 400) {
+        toast.info('Payment gateway not configured yet. Your booking has been saved - our team will contact you for payment.');
+        navigate(`/booking-success/${bookingData.id}`);
+      } else {
+        toast.error('Payment initialization failed. Please try again.');
+      }
     }
   };
 
