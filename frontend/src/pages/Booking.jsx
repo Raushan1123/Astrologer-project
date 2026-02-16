@@ -407,30 +407,19 @@ const Booking = () => {
                     </div>
 
                     <div>
-                      <Label className="text-gray-700 font-medium mb-2">Preferred Date</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              'w-full justify-start text-left font-normal border-purple-200',
-                              !formData.preferredDate && 'text-muted-foreground'
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.preferredDate ? format(formData.preferredDate, 'PPP') : 'Pick a date'}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <Calendar
-                            mode="single"
-                            selected={formData.preferredDate}
-                            onSelect={(date) => setFormData(prev => ({ ...prev, preferredDate: date }))}
-                            disabled={(date) => date < new Date()}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
+                      <Label htmlFor="preferredDate" className="text-gray-700 font-medium mb-2">
+                        Preferred Date
+                      </Label>
+                      <Input
+                        id="preferredDate"
+                        name="preferredDate"
+                        type="date"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={formData.preferredDate ? (typeof formData.preferredDate === 'string' ? formData.preferredDate : formData.preferredDate.toISOString().split('T')[0]) : ''}
+                        onChange={(e) => setFormData(prev => ({ ...prev, preferredDate: e.target.value }))}
+                        className="border-purple-200 focus:border-purple-500"
+                        placeholder="Select preferred consultation date"
+                      />
                     </div>
 
                     <div>
