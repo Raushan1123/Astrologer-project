@@ -2,7 +2,7 @@
 
 ## 📍 Admin Dashboard Location
 
-**URL:** `https://celestial-charts-2.preview.emergentagent.com/admin`
+**URL:** `https://astro-consulting.preview.emergentagent.com/admin`
 
 **Access:**
 - Password: `admin123` (CHANGE THIS IN PRODUCTION!)
@@ -272,4 +272,4 @@ For failed payment test:
 - Razorpay Dashboard: https://dashboard.razorpay.com
 - Razorpay Docs: https://razorpay.com/docs
 - Admin Dashboard: /admin
-- Backend API: https://celestial-charts-2.preview.emergentagent.com/api/
+- Backend API: https://astro-consulting.preview.emergentagent.com/api/

@@ -28,7 +28,7 @@ SMTP_PASSWORD=""
 
 **Current Contents:**
 ```bash
-REACT_APP_BACKEND_URL=https://celestial-charts-2.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://astro-consulting.preview.emergentagent.com
 ```
 
 ---
