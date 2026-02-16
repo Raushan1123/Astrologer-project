@@ -105,35 +105,73 @@ const Booking = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.name || !formData.email || !formData.phone || !formData.service) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.service || !formData.astrologer || !formData.consultationType || !formData.consultationDuration) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    // Mock submission
-    toast.success('Booking request submitted successfully! We will contact you shortly.');
-    console.log('Booking data:', formData);
-    
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      dateOfBirth: null,
-      timeOfBirth: '',
-      placeOfBirth: '',
-      astrologer: '',
-      service: '',
-      consultationType: '',
-      consultationDuration: '',
-      preferredDate: null,
-      preferredTime: '',
-      message: ''
-    });
+    setLoading(true);
+
+    try {
+      // Prepare data for backend (convert camelCase to snake_case)
+      const bookingPayload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        date_of_birth: formData.dateOfBirth || null,
+        time_of_birth: formData.timeOfBirth || null,
+        place_of_birth: formData.placeOfBirth || null,
+        astrologer: formData.astrologer,
+        service: formData.service,
+        consultation_type: formData.consultationType,
+        consultation_duration: formData.consultationDuration,
+        preferred_date: formData.preferredDate || null,
+        preferred_time: formData.preferredTime || null,
+        message: formData.message || ''
+      };
+
+      // Create booking via backend API
+      const response = await axios.post(`${API}/bookings`, bookingPayload);
+      const bookingData = response.data;
+
+      // Check if payment is required (duration > 10 mins means paid consultation)
+      if (bookingData.amount > 0 && bookingData.razorpay_order_id) {
+        // Trigger Razorpay payment
+        await handlePayment(bookingData);
+      } else {
+        // Free consultation (5-10 mins) - no payment needed
+        toast.success('Booking submitted successfully! We will contact you within 24 hours.');
+        navigate(`/booking-success/${bookingData.id}`);
+      }
+
+      // Reset form after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        dateOfBirth: null,
+        timeOfBirth: '',
+        placeOfBirth: '',
+        astrologer: '',
+        service: '',
+        consultationType: '',
+        consultationDuration: '',
+        preferredDate: null,
+        preferredTime: '',
+        message: ''
+      });
+
+    } catch (error) {
+      console.error('Booking error:', error);
+      const errorMessage = error.response?.data?.detail || 'Failed to submit booking. Please try again.';
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
