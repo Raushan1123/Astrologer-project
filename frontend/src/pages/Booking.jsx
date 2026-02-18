@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -17,7 +17,9 @@ const API = `${BACKEND_URL}/api`;
 const Booking = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -33,6 +35,15 @@ const Booking = () => {
     preferredTime: '',
     message: ''
   });
+
+  // Fetch slots when astrologer or date changes
+  useEffect(() => {
+    if (formData.astrologer && formData.preferredDate) {
+      fetchAvailableSlots(formData.astrologer, formData.preferredDate);
+    } else {
+      setAvailableSlots([]);
+    }
+  }, [formData.astrologer, formData.preferredDate]);
 
   // Load Razorpay script
   const loadRazorpay = () => {
@@ -110,6 +121,28 @@ const Booking = () => {
     }
   };
 
+  // Fetch available time slots when astrologer and date are selected
+  const fetchAvailableSlots = async (astrologer, date) => {
+    if (!astrologer || !date) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    setLoadingSlots(true);
+    try {
+      const response = await axios.get(`${API}/available-slots`, {
+        params: { astrologer, date }
+      });
+      setAvailableSlots(response.data.slots || []);
+    } catch (error) {
+      console.error('Error fetching slots:', error);
+      toast.error('Failed to load available time slots');
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -117,10 +150,16 @@ const Booking = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!formData.name || !formData.email || !formData.phone || !formData.service || !formData.astrologer || !formData.consultationType || !formData.consultationDuration) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Validate date and time slot selection
+    if (!formData.preferredDate || !formData.preferredTime) {
+      toast.error('Please select a date and time slot for your consultation');
       return;
     }
 
@@ -452,7 +491,7 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="preferredDate" className="text-gray-700 font-medium mb-2">
-                        Preferred Date
+                        Preferred Date <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="preferredDate"
@@ -460,24 +499,56 @@ const Booking = () => {
                         type="date"
                         min={new Date().toISOString().split('T')[0]}
                         value={formData.preferredDate ? (typeof formData.preferredDate === 'string' ? formData.preferredDate : formData.preferredDate.toISOString().split('T')[0]) : ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, preferredDate: e.target.value }))}
+                        onChange={(e) => {
+                          setFormData(prev => ({ ...prev, preferredDate: e.target.value, preferredTime: '' }));
+                        }}
                         className="border-purple-200 focus:border-purple-500"
                         placeholder="Select preferred consultation date"
+                        required
                       />
+                      <p className="text-xs text-gray-500 mt-1">Select a date to view available time slots</p>
                     </div>
 
                     <div>
                       <Label htmlFor="preferredTime" className="text-gray-700 font-medium mb-2">
-                        Preferred Time
+                        Available Time Slots <span className="text-red-500">*</span>
                       </Label>
-                      <Input
-                        id="preferredTime"
-                        name="preferredTime"
-                        type="time"
-                        value={formData.preferredTime}
-                        onChange={handleInputChange}
-                        className="border-purple-200 focus:border-purple-500"
-                      />
+                      {!formData.astrologer || !formData.preferredDate ? (
+                        <div className="p-4 bg-gray-50 border border-gray-200 rounded-md text-center text-sm text-gray-500">
+                          Please select an astrologer and date first
+                        </div>
+                      ) : loadingSlots ? (
+                        <div className="p-4 bg-purple-50 border border-purple-200 rounded-md text-center">
+                          <Clock className="w-5 h-5 animate-spin mx-auto mb-2 text-purple-600" />
+                          <p className="text-sm text-purple-700">Loading available slots...</p>
+                        </div>
+                      ) : availableSlots.length === 0 ? (
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-md text-center text-sm text-amber-700">
+                          No available slots for this date. Please choose another date.
+                        </div>
+                      ) : (
+                        <Select
+                          value={formData.preferredTime}
+                          onValueChange={(value) => setFormData(prev => ({ ...prev, preferredTime: value }))}
+                          required
+                        >
+                          <SelectTrigger className="border-purple-200">
+                            <SelectValue placeholder="Select an available time slot" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableSlots.map((slot, index) => (
+                              <SelectItem key={index} value={slot.start_time}>
+                                {slot.display}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {availableSlots.length > 0 && (
+                        <p className="text-xs text-green-600 mt-1">
+                          {availableSlots.length} slot{availableSlots.length !== 1 ? 's' : ''} available
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -519,7 +590,7 @@ const Booking = () => {
                     )}
                   </Button>
                   <p className="text-sm text-gray-500 text-center mt-4">
-                    We'll review your request and contact you within 24 hours to confirm your consultation.
+                    Your selected time slot will be reserved. We'll send you a confirmation email shortly.
                   </p>
                   <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
                     <p className="text-sm text-gray-700 text-center">
@@ -543,20 +614,20 @@ const Booking = () => {
               {[
                 {
                   step: '1',
-                  title: 'Confirmation',
-                  description: 'We review your request and send a confirmation email within 24 hours with available time slots.',
-                  icon: CheckCircle
+                  title: 'Select Time Slot',
+                  description: 'Choose your preferred astrologer, date, and available time slot from real-time availability.',
+                  icon: Clock
                 },
                 {
                   step: '2',
                   title: 'Payment',
-                  description: 'Once you confirm the time slot, we will send payment details and consultation fee based on your service.',
-                  icon: Clock
+                  description: 'Complete the payment securely through Razorpay. Your time slot will be confirmed immediately.',
+                  icon: CheckCircle
                 },
                 {
                   step: '3',
                   title: 'Consultation',
-                  description: 'On the scheduled date, we will connect via your chosen mode for your personalized session.',
+                  description: 'On the scheduled date and time, connect via your chosen mode for your personalized session.',
                   icon: Sparkles
                 }
               ].map((item, index) => (

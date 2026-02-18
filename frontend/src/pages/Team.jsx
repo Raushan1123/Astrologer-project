@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { astrologers } from '../mockData';
-import { Award, Star, ArrowRight, Sparkles } from 'lucide-react';
+import { Award, Star, ArrowRight, Sparkles, User } from 'lucide-react';
 
 const Team = () => {
   return (
@@ -40,69 +40,75 @@ const Team = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
-              {astrologers.map((astrologer, index) => (
-                <Card
-                  key={astrologer.id}
-                  className={`overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ${
-                    index === 0 ? 'md:col-span-3 lg:col-span-1' : ''
-                  }`}
-                >
-                  {/* Image */}
-                  <div className="relative h-80 overflow-hidden">
-                    <img
-                      src={astrologer.image}
-                      alt={astrologer.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 to-transparent" />
-                    
-                    {/* Experience Badge */}
-                    <div className="absolute top-4 right-4">
-                      <div className="bg-amber-500 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
-                        {astrologer.experience} Years
-                      </div>
-                    </div>
+              {astrologers.map((astrologer, index) => {
+                // Define gradient colors for each astrologer
+                const gradients = [
+                  'from-purple-600 to-purple-800',  // Mrs. Indira Pandey
+                  'from-amber-500 to-orange-600',   // Mr. Rajesh Pandey
+                  'from-pink-500 to-purple-600'     // Ms. Ankita Pandey
+                ];
 
-                    {/* Name Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <h3 className="text-2xl font-bold text-white mb-1">
+                return (
+                  <Card
+                    key={astrologer.id}
+                    className="overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-purple-100"
+                  >
+                    {/* Header with Gradient Background */}
+                    <div className={`relative bg-gradient-to-br ${gradients[index]} p-8 text-center`}>
+                      {/* Avatar Circle */}
+                      <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-xl border-4 border-white/30">
+                        <User className="w-12 h-12 text-white" />
+                      </div>
+
+                      {/* Experience Badge */}
+                      <div className="absolute top-4 right-4">
+                        <div className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full font-semibold shadow-lg border border-white/30">
+                          {astrologer.experience} Years
+                        </div>
+                      </div>
+
+                      {/* Name and Role */}
+                      <h3 className="text-2xl font-bold text-white mb-2">
                         {astrologer.name}
                       </h3>
-                      <p className="text-amber-300 font-medium">{astrologer.role}</p>
+                      <p className="text-white/90 font-medium text-sm">{astrologer.role}</p>
                     </div>
-                  </div>
 
-                  {/* Content */}
-                  <div className="p-6">
-                    <p className="text-gray-600 mb-4 leading-relaxed">
-                      {astrologer.bio}
-                    </p>
+                    {/* Content */}
+                    <div className="p-6 bg-white">
+                      <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                        {astrologer.bio}
+                      </p>
 
-                    {/* Specializations */}
-                    <div className="mb-6">
-                      <h4 className="text-sm font-semibold text-purple-900 mb-3">Specializations:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {astrologer.specialization.map((spec, idx) => (
-                          <span
-                            key={idx}
-                            className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
-                          >
-                            {spec}
-                          </span>
-                        ))}
+                      {/* Specializations */}
+                      <div className="mb-6">
+                        <h4 className="text-sm font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-purple-600" />
+                          Specializations
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {astrologer.specialization.map((spec, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full text-xs font-medium border border-purple-200 hover:bg-purple-100 transition-colors"
+                            >
+                              {spec}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Book Button */}
-                    <Link to="/booking">
-                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
-                        <Star className="mr-2 w-4 h-4" />
-                        Book Consultation
-                      </Button>
-                    </Link>
-                  </div>
-                </Card>
-              ))}
+                      {/* Book Button */}
+                      <Link to="/booking">
+                        <Button className={`w-full bg-gradient-to-r ${gradients[index]} hover:opacity-90 text-white shadow-lg`}>
+                          <Star className="mr-2 w-4 h-4" />
+                          Book Consultation
+                        </Button>
+                      </Link>
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </div>
