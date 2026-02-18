@@ -1,17 +1,21 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
 import uuid
+import re
+
 
 class ConsultationDuration(str, Enum):
     SHORT = "5-10"
     MEDIUM = "10-20"
     LONG = "20+"
 
+
 class ConsultationType(str, Enum):
     ONLINE = "online"
     INPERSON = "inperson"
+
 
 class BookingStatus(str, Enum):
     PENDING = "pending"
@@ -19,11 +23,13 @@ class BookingStatus(str, Enum):
     COMPLETED = "completed"
     CANCELLED = "cancelled"
 
+
 class PaymentStatus(str, Enum):
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
     REFUNDED = "refunded"
+
 
 class BookingCreate(BaseModel):
     name: str
@@ -39,6 +45,7 @@ class BookingCreate(BaseModel):
     preferred_date: Optional[str] = None
     preferred_time: Optional[str] = None
     message: Optional[str] = ""
+
 
 class Booking(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -63,6 +70,20 @@ class Booking(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
+    @field_validator('phone')
+    @classmethod
+    def validate_phone(cls, v):
+        """Validate phone number - must be 10 digits (Indian format)"""
+        if not v:
+            raise ValueError('Phone number is required')
+        # Remove spaces, dashes, and parentheses
+        cleaned = re.sub(r'[\s\-\(\)\+]', '', v)
+        # Check if it's a valid Indian phone number (10 digits)
+        if not re.match(r'^[6-9]\d{9}$', cleaned):
+            raise ValueError('Phone number must be a valid 10-digit Indian mobile number starting with 6-9')
+        return cleaned
+
+
 class ContactInquiry(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
@@ -72,11 +93,26 @@ class ContactInquiry(BaseModel):
     message: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+    @field_validator('phone')
+    @classmethod
+    def validate_phone(cls, v):
+        """Validate phone number if provided"""
+        if v is None or v == "":
+            return v
+        # Remove spaces, dashes, and parentheses
+        cleaned = re.sub(r'[\s\-\(\)\+]', '', v)
+        # Check if it's a valid Indian phone number (10 digits)
+        if not re.match(r'^[6-9]\d{9}$', cleaned):
+            raise ValueError('Phone number must be a valid 10-digit Indian mobile number starting with 6-9')
+        return cleaned
+
+
 class Newsletter(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: EmailStr
     subscribed_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = True
+
 
 class Testimonial(BaseModel):
     id: str
@@ -86,6 +122,7 @@ class Testimonial(BaseModel):
     service: str
     date: str
     approved: bool = False
+
 
 class BlogPost(BaseModel):
     id: str
@@ -99,6 +136,7 @@ class BlogPost(BaseModel):
     read_time: str
     published: bool = False
 
+
 class Gemstone(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
@@ -109,3 +147,27 @@ class Gemstone(BaseModel):
     in_stock: bool = True
     weight: Optional[str] = None
     quality: Optional[str] = None
+
+
+class TimeSlot(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    astrologer: str
+    date: str  # Format: YYYY-MM-DD
+    start_time: str  # Format: HH:MM (24-hour)
+    end_time: str  # Format: HH:MM (24-hour)
+    is_available: bool = True
+    booking_id: Optional[str] = None  # Reference to booking if slot is booked
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class AstrologerAvailability(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    astrologer: str
+    day_of_week: int  # 0=Monday, 6=Sunday
+    start_time: str  # Format: HH:MM (24-hour)
+    end_time: str  # Format: HH:MM (24-hour)
+    slot_duration_minutes: int = 30  # Default 30-minute slots
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

@@ -1,40 +1,49 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from datetime import datetime, timezone
-from typing import List
+from datetime import datetime, timezone, timedelta
+from typing import Optional
 import razorpay
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 from models import (
-    BookingCreate, Booking, ContactInquiry, Newsletter, 
-    Testimonial, BlogPost, Gemstone, BookingStatus, PaymentStatus,
-    ConsultationDuration
+    BookingCreate, Booking, ContactInquiry, Newsletter,
+    BookingStatus, PaymentStatus, AstrologerAvailability
 )
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-mongo_client = AsyncIOMotorClient(mongo_url)
-db = mongo_client[os.environ['DB_NAME']]
+mongo_url = os.environ.get('MONGO_URL')
+mongo_client = AsyncIOMotorClient(
+    mongo_url,
+    serverSelectionTimeoutMS=5000,
+    connectTimeoutMS=5000,
+    socketTimeoutMS=5000
+)
+db = mongo_client[os.environ.get('DB_NAME', 'astrology_db')]
 
 # Razorpay client - only initialize if keys are present
-RAZORPAY_ENABLED = False
 razorpay_client = None
-if os.environ.get('RAZORPAY_KEY_ID') and os.environ.get('RAZORPAY_KEY_SECRET'):
-    razorpay_client = razorpay.Client(
-        auth=(os.environ.get('RAZORPAY_KEY_ID'), os.environ.get('RAZORPAY_KEY_SECRET'))
-    )
-    RAZORPAY_ENABLED = True
+RAZORPAY_ENABLED = False
+razorpay_key_id = os.environ.get('RAZORPAY_KEY_ID')
+razorpay_key_secret = os.environ.get('RAZORPAY_KEY_SECRET')
+if razorpay_key_id and razorpay_key_secret:
+    try:
+        razorpay_client = razorpay.Client(
+            auth=(razorpay_key_id, razorpay_key_secret)
+        )
+        RAZORPAY_ENABLED = True
+    except Exception as e:
+        logging.warning(f"Failed to initialize Razorpay client: {e}")
+        RAZORPAY_ENABLED = False
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -42,12 +51,61 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+
+# Startup event to initialize database with default data
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database with default data if empty"""
+    import asyncio
+
+    async def init_db():
+        try:
+            # Check if astrologer_availability collection has data
+            count = await db.astrologer_availability.count_documents({})
+
+            if count == 0:
+                logger.info("Initializing database with default data...")
+
+                # Create default availability for Mrs. Indira Pandey
+                astrologer_name = "Mrs. Indira Pandey"
+                availability_data = []
+
+                # Add availability for all 7 days (Monday to Sunday)
+                for day in range(7):
+                    availability_data.append({
+                        "astrologer": astrologer_name,
+                        "day_of_week": day,
+                        "start_time": "09:00",
+                        "end_time": "21:00",
+                        "slot_duration_minutes": 30,
+                        "is_active": True
+                    })
+
+                result = await db.astrologer_availability.insert_many(
+                    availability_data
+                )
+                logger.info(
+                    f"✅ Initialized {len(availability_data)} "
+                    f"availability records for {astrologer_name}"
+                )
+            else:
+                logger.info(
+                    f"Database already initialized "
+                    f"({count} availability records found)"
+                )
+        except Exception as e:
+            logger.error(f"Error during database initialization: {str(e)}")
+
+    # Run initialization in background to not block startup
+    asyncio.create_task(init_db())
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
 
 # Helper function to send emails
 async def send_email(to_email: str, subject: str, body: str):
@@ -80,6 +138,7 @@ async def send_email(to_email: str, subject: str, body: str):
         logger.error(f"Failed to send email: {str(e)}")
         return False
 
+
 # Calculate consultation price
 def calculate_price(duration: str) -> int:
     prices = {
@@ -89,10 +148,16 @@ def calculate_price(duration: str) -> int:
     }
     return prices.get(duration, 0)
 
+
 # Root endpoint
 @api_router.get("/")
 async def root():
-    return {"message": "Astrology Booking API", "status": "online", "razorpay_enabled": RAZORPAY_ENABLED}
+    return {
+        "message": "Astrology Booking API",
+        "status": "online",
+        "razorpay_enabled": RAZORPAY_ENABLED
+    }
+
 
 # Booking endpoints
 @api_router.post("/bookings")
@@ -103,7 +168,7 @@ async def create_booking(booking_data: BookingCreate):
         
         # Create Razorpay order if amount > 0 and Razorpay is enabled
         razorpay_order_id = None
-        if amount > 0 and RAZORPAY_ENABLED:
+        if amount > 0 and RAZORPAY_ENABLED and razorpay_client is not None:
             order_data = {
                 "amount": amount,
                 "currency": "INR",
@@ -114,45 +179,65 @@ async def create_booking(booking_data: BookingCreate):
         
         # Create booking
         booking_dict = booking_data.model_dump()
+        payment_status = (
+            PaymentStatus.PENDING if amount > 0
+            else PaymentStatus.COMPLETED
+        )
         booking = Booking(
             **booking_dict,
             amount=amount,
             razorpay_order_id=razorpay_order_id,
             status=BookingStatus.PENDING,
-            payment_status=PaymentStatus.PENDING if amount > 0 else PaymentStatus.COMPLETED
+            payment_status=payment_status
         )
-        
+
         # Save to database
         booking_doc = booking.model_dump()
         booking_doc['created_at'] = booking_doc['created_at'].isoformat()
         booking_doc['updated_at'] = booking_doc['updated_at'].isoformat()
-        
-        result = await db.bookings.insert_one(booking_doc)
+
+        await db.bookings.insert_one(booking_doc)
         
         # Send confirmation email
+        amount_display = (
+            '₹' + str(amount/100) if amount > 0
+            else 'Free (First Time)'
+        )
+        consultation_type = booking.consultation_type.value.title()
         email_body = f"""
         <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="color: #7c3aed;">Booking Confirmation</h2>
                 <p>Dear {booking.name},</p>
                 <p>Thank you for booking a consultation with us!</p>
                 <h3 style="color: #7c3aed;">Booking Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
-                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking.id}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong></td><td>{booking.astrologer}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking.service}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{booking.consultation_duration} minutes</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Amount:</strong></td><td>{'₹' + str(amount/100) if amount > 0 else 'Free (First Time)'}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Consultation Type:</strong></td><td>{booking.consultation_type.value.title()}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong>
+                    </td><td>{booking.id}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong>
+                    </td><td>{booking.astrologer}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong>
+                    </td><td>{booking.service}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
+                    </td><td>{booking.consultation_duration} minutes</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Amount:</strong>
+                    </td><td>{amount_display}</td></tr>
+                    <tr><td style="padding: 8px 0;">
+                    <strong>Consultation Type:</strong>
+                    </td><td>{consultation_type}</td></tr>
                 </table>
-                <p style="margin-top: 20px;">We will review your request and contact you within 24 hours to confirm the consultation.</p>
-                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+                <p style="margin-top: 20px;">
+                We will review your request and contact you within 24 hours.
+                </p>
+                <p style="margin-top: 30px;">Best regards,<br>
+                <strong>Mrs. Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>
         """
-        await send_email(booking.email, "Booking Confirmation - Astrology Consultation", email_body)
+        email_subject = "Booking Confirmation - Astrology Consultation"
+        await send_email(booking.email, email_subject, email_body)
         
         return booking
     except Exception as e:
@@ -177,6 +262,8 @@ async def get_bookings(status: str = None):
             "service": 1,
             "consultation_duration": 1,
             "consultation_type": 1,
+            "preferred_date": 1,
+            "preferred_time": 1,
             "status": 1,
             "payment_status": 1,
             "amount": 1,
@@ -238,22 +325,22 @@ async def update_booking_status(booking_id: str, status: str):
 @api_router.post("/verify-payment")
 async def verify_payment(request: Request):
     try:
-        if not RAZORPAY_ENABLED:
+        if not RAZORPAY_ENABLED or razorpay_client is None:
             raise HTTPException(status_code=400, detail="Razorpay not configured")
-        
+
         data = await request.json()
         razorpay_payment_id = data.get('razorpay_payment_id')
         razorpay_order_id = data.get('razorpay_order_id')
         razorpay_signature = data.get('razorpay_signature')
         booking_id = data.get('booking_id')
-        
+
         # Verify signature
         params_dict = {
             'razorpay_order_id': razorpay_order_id,
             'razorpay_payment_id': razorpay_payment_id,
             'razorpay_signature': razorpay_signature
         }
-        
+
         razorpay_client.utility.verify_payment_signature(params_dict)
         
         # Update booking
@@ -453,6 +540,146 @@ async def get_gemstones():
         return gemstones
     except Exception as e:
         logger.error(f"Error fetching gemstones: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Time Slot Management
+@api_router.get("/available-slots")
+async def get_available_slots(astrologer: str, date: str, duration: Optional[str] = "30"):
+    """
+    Get available time slots for a specific astrologer on a given date.
+
+    Args:
+        astrologer: Name of the astrologer
+        date: Date in YYYY-MM-DD format
+        duration: Consultation duration in minutes (default: 30)
+
+    Returns:
+        List of available time slots
+    """
+    try:
+        # Parse the date
+        slot_date = datetime.strptime(date, "%Y-%m-%d")
+        day_of_week = slot_date.weekday()  # 0=Monday, 6=Sunday
+
+        # Get astrologer's availability for this day of week
+        availability = await db.astrologer_availability.find_one({
+            "astrologer": astrologer,
+            "day_of_week": day_of_week,
+            "is_active": True
+        })
+
+        # If no availability defined, use default working hours (9 AM - 6 PM)
+        if not availability:
+            start_time = "09:00"
+            end_time = "18:00"
+            slot_duration = 30
+        else:
+            start_time = availability["start_time"]
+            end_time = availability["end_time"]
+            slot_duration = availability.get("slot_duration_minutes", 30)
+
+        # Generate time slots
+        slots = []
+        current_time = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
+        end_datetime = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+
+        while current_time < end_datetime:
+            slot_end = current_time + timedelta(minutes=slot_duration)
+            if slot_end > end_datetime:
+                break
+
+            slot_start_str = current_time.strftime("%H:%M")
+            slot_end_str = slot_end.strftime("%H:%M")
+
+            # Check if this slot is already booked
+            existing_booking = await db.bookings.find_one({
+                "astrologer": astrologer,
+                "preferred_date": date,
+                "preferred_time": slot_start_str,
+                "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]}
+            })
+
+            # Check if slot exists in time_slots collection
+            existing_slot = await db.time_slots.find_one({
+                "astrologer": astrologer,
+                "date": date,
+                "start_time": slot_start_str,
+                "is_available": False
+            })
+
+            is_available = existing_booking is None and existing_slot is None
+
+            # Only return available slots or check if it's in the past
+            now = datetime.now()
+            slot_datetime = current_time
+
+            # Don't show past slots
+            if slot_datetime > now and is_available:
+                slots.append({
+                    "start_time": slot_start_str,
+                    "end_time": slot_end_str,
+                    "is_available": True,
+                    "display": f"{slot_start_str} - {slot_end_str}"
+                })
+
+            current_time = slot_end
+
+        return {"slots": slots, "date": date, "astrologer": astrologer}
+
+    except ValueError as e:
+        logger.error(f"Invalid date format: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+    except Exception as e:
+        logger.error(f"Error fetching available slots: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/astrologer-availability")
+async def create_astrologer_availability(availability: AstrologerAvailability):
+    """
+    Create or update astrologer availability schedule.
+    This is typically used by admin to set working hours.
+    """
+    try:
+        availability_doc = availability.model_dump()
+        availability_doc['created_at'] = availability_doc['created_at'].isoformat()
+        availability_doc['updated_at'] = availability_doc['updated_at'].isoformat()
+
+        # Check if availability already exists for this astrologer and day
+        existing = await db.astrologer_availability.find_one({
+            "astrologer": availability.astrologer,
+            "day_of_week": availability.day_of_week
+        })
+
+        if existing:
+            # Update existing
+            await db.astrologer_availability.update_one(
+                {"id": existing["id"]},
+                {"$set": availability_doc}
+            )
+            return {"message": "Availability updated successfully", "id": existing["id"]}
+        else:
+            # Create new
+            await db.astrologer_availability.insert_one(availability_doc)
+            return {"message": "Availability created successfully", "id": availability.id}
+
+    except Exception as e:
+        logger.error(f"Error creating astrologer availability: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/astrologer-availability/{astrologer}")
+async def get_astrologer_availability(astrologer: str):
+    """
+    Get all availability schedules for a specific astrologer.
+    """
+    try:
+        availability = await db.astrologer_availability.find(
+            {"astrologer": astrologer, "is_active": True},
+            {"_id": 0}
+        ).to_list(10)
+
+        return {"astrologer": astrologer, "availability": availability}
+    except Exception as e:
+        logger.error(f"Error fetching astrologer availability: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get Razorpay key for frontend
