@@ -37,8 +37,8 @@ const Testimonials = () => {
             {[
               { number: '800+', label: 'Happy Clients' },
               { number: '95%', label: 'Satisfaction Rate' },
-              { number: '9+', label: 'Years Experience' },
-              { number: '10-15', label: 'Weekly Sessions' }
+              { number: '20+', label: 'Years Experience' },
+              { number: '90-100', label: 'Weekly Sessions' }
             ].map((stat, index) => (
               <div key={index} className="text-center">
                 <p className="text-4xl md:text-5xl font-bold text-amber-400 mb-2">{stat.number}</p>
