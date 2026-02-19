@@ -148,27 +148,45 @@ async def send_email(to_email: str, subject: str, body: str):
 
     if sendgrid_api_key:
         try:
+            import requests
             from_email = os.environ.get('SENDGRID_FROM_EMAIL', 'noreply@astrology.com')
             from_name = os.environ.get('SENDGRID_FROM_NAME', 'Mrs. Indira Pandey Astrology')
 
-            # Create email message
-            message = Mail(
-                from_email=(from_email, from_name),
-                to_emails=to_email,
-                subject=subject,
-                html_content=body
-            )
+            # Use requests directly to avoid SSL issues on macOS
+            url = "https://api.sendgrid.com/v3/mail/send"
+            headers = {
+                "Authorization": f"Bearer {sendgrid_api_key}",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "personalizations": [{
+                    "to": [{"email": to_email}],
+                    "subject": subject
+                }],
+                "from": {
+                    "email": from_email,
+                    "name": from_name
+                },
+                "content": [{
+                    "type": "text/html",
+                    "value": body
+                }]
+            }
 
-            # Send via SendGrid
-            sg = SendGridAPIClient(sendgrid_api_key)
-            response = sg.send(message)
+            # Send request (verify=False for local dev SSL issues)
+            response = requests.post(url, headers=headers, json=data, verify=False, timeout=10)
 
-            logger.info(f"✅ Email sent to {to_email} via SendGrid (Status: {response.status_code})")
-            return True
+            if response.status_code in [200, 202]:
+                logger.info(f"✅ Email sent to {to_email} via SendGrid (Status: {response.status_code})")
+                return True
+            else:
+                logger.error(f"❌ SendGrid error: {response.status_code} - {response.text}")
+                logger.warning("⚠️ Falling back to SMTP...")
 
         except Exception as e:
             logger.error(f"❌ SendGrid error: {str(e)}")
-            return False
+            logger.warning("⚠️ Falling back to SMTP...")
+            # Don't return False yet, let it fall through to SMTP fallback
 
     # Fallback to SMTP (for local development only - won't work on Railway)
     else:
