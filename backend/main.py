@@ -13,6 +13,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import pytz
 
 from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
@@ -95,12 +96,13 @@ async def startup_event():
                 availability_data = []
 
                 # Add availability for all 7 days (Monday to Sunday)
+                # Time: 11 AM to 11 PM IST
                 for day in range(7):
                     availability_data.append({
                         "astrologer": astrologer_name,
                         "day_of_week": day,
-                        "start_time": "09:00",
-                        "end_time": "21:00",
+                        "start_time": "11:00",
+                        "end_time": "23:00",
                         "slot_duration_minutes": 30,
                         "is_active": True
                     })
@@ -117,6 +119,14 @@ async def startup_event():
                     f"Database already initialized "
                     f"({count} availability records found)"
                 )
+
+                # Update existing availability to 11:00-23:00 if needed
+                update_result = await db.astrologer_availability.update_many(
+                    {"start_time": "09:00", "end_time": "21:00"},
+                    {"$set": {"start_time": "11:00", "end_time": "23:00"}}
+                )
+                if update_result.modified_count > 0:
+                    logger.info(f"✅ Updated {update_result.modified_count} availability records to 11:00-23:00")
         except Exception as e:
             logger.error(f"Error during database initialization: {str(e)}")
 
@@ -293,6 +303,8 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
             else 'Free (First Time)'
         )
         consultation_type = booking.consultation_type.value.title()
+        duration_display = f"{booking.consultation_duration.value} minutes"
+
         email_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -309,7 +321,7 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
                     <tr><td style="padding: 8px 0;"><strong>Service:</strong>
                     </td><td>{booking.service}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
-                    </td><td>{booking.consultation_duration} minutes</td></tr>
+                    </td><td>{duration_display}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount:</strong>
                     </td><td>{amount_display}</td></tr>
                     <tr><td style="padding: 8px 0;">
@@ -325,7 +337,57 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
         </body>
         </html>
         """
-        email_subject = "Booking Confirmation - Astrology Consultation"
+        # Different email subject and content based on payment status
+        if payment_status == PaymentStatus.PENDING:
+            email_subject = "Booking Request Received - Please Complete Payment"
+            payment_notice = f"""
+                <div style="margin: 20px 0; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                    <strong>⚠️ Payment Pending:</strong> Your booking request has been received.
+                    Please complete the payment of <strong>₹{amount/100}</strong> to confirm your booking.
+                </div>
+            """
+        else:
+            email_subject = "Booking Confirmation - Free Consultation"
+            payment_notice = f"""
+                <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Confirmed:</strong> Your first-time free consultation has been confirmed!
+                </div>
+            """
+
+        # Update email body to include payment notice
+        email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">Booking Request Received</h2>
+                <p>Dear {booking.name},</p>
+                <p>Thank you for your interest in booking a consultation with us!</p>
+                {payment_notice}
+                <h3 style="color: #7c3aed;">Booking Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong>
+                    </td><td>{booking.id}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong>
+                    </td><td>{booking.astrologer}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong>
+                    </td><td>{booking.service}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
+                    </td><td>{duration_display}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Amount:</strong>
+                    </td><td>{amount_display}</td></tr>
+                    <tr><td style="padding: 8px 0;">
+                    <strong>Consultation Type:</strong>
+                    </td><td>{consultation_type}</td></tr>
+                </table>
+                <p style="margin-top: 20px;">
+                We will review your request and contact you within 24 hours.
+                </p>
+                <p style="margin-top: 30px;">Best regards,<br>
+                <strong>Mrs. Indira Pandey Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
 
         # Send email to customer immediately (not background task)
         try:
@@ -339,13 +401,35 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
 
         # Send notification email to admin/astrologer
         admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
-        admin_subject = f"New Booking Request - {booking.name}"
+
+        # Different admin notification based on payment status
+        if payment_status == PaymentStatus.PENDING:
+            admin_subject = f"⚠️ New Booking - Payment Pending - {booking.name}"
+            admin_payment_notice = f"""
+                <div style="margin: 20px 0; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                    <strong>⚠️ Payment Status: PENDING</strong><br>
+                    Amount: ₹{amount/100}<br>
+                    Customer needs to complete payment to confirm this booking.
+                </div>
+            """
+            admin_action = "Wait for payment confirmation before scheduling the appointment."
+        else:
+            admin_subject = f"✅ New Booking - Confirmed - {booking.name}"
+            admin_payment_notice = f"""
+                <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Payment Status: CONFIRMED</strong><br>
+                    This is a free first-time consultation.
+                </div>
+            """
+            admin_action = "Please contact the customer within 24 hours to schedule the appointment."
+
         admin_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <h2 style="color: #7c3aed;">New Booking Request Received</h2>
                 <p>You have received a new booking request:</p>
+                {admin_payment_notice}
                 <h3 style="color: #7c3aed;">Customer Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Name:</strong>
@@ -357,7 +441,7 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
                     <tr><td style="padding: 8px 0;"><strong>Service:</strong>
                     </td><td>{booking.service}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
-                    </td><td>{booking.consultation_duration} minutes</td></tr>
+                    </td><td>{duration_display}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong>
                     </td><td>{booking.preferred_date}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong>
@@ -366,14 +450,12 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
                     </td><td>{consultation_type}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount:</strong>
                     </td><td>{amount_display}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Payment Status:</strong>
-                    </td><td>{booking.payment_status.value.upper()}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong>
                     </td><td>{booking.id}</td></tr>
                 </table>
                 {f'<p style="margin-top: 20px;"><strong>Message:</strong><br>{booking.message}</p>' if booking.message else ''}
                 <p style="margin-top: 30px; padding: 15px; background-color: #f3f4f6; border-left: 4px solid #7c3aed;">
-                    <strong>Action Required:</strong> Please contact the customer within 24 hours to confirm the appointment.
+                    <strong>Action Required:</strong> {admin_action}
                 </p>
             </div>
         </body>
@@ -552,19 +634,22 @@ async def verify_payment(request: Request):
         # Get booking details
         booking = await db.bookings.find_one({"id": booking_id})
         
-        # Send payment confirmation email
-        email_body = f"""
+        # Send payment confirmation email to customer
+        duration_display_payment = f"{booking['consultation_duration']} minutes"
+        customer_email_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #10b981;">Payment Confirmed!</h2>
+                <h2 style="color: #10b981;">✅ Payment Confirmed!</h2>
                 <p>Dear {booking['name']},</p>
-                <p>Your payment has been received successfully!</p>
+                <p>Your payment has been received successfully! Your consultation is now confirmed.</p>
                 <h3 style="color: #7c3aed;">Payment Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Payment ID:</strong></td><td>{razorpay_payment_id}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount Paid:</strong></td><td>₹{booking['amount']/100}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Booking Status:</strong></td><td style="color: #10b981;">Confirmed</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_payment}</td></tr>
                 </table>
                 <p style="margin-top: 20px;">We will contact you shortly to schedule your consultation.</p>
                 <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
@@ -572,12 +657,140 @@ async def verify_payment(request: Request):
         </body>
         </html>
         """
-        await send_email(booking['email'], "Payment Confirmation - Consultation Booked", email_body)
-        
+        await send_email(booking['email'], "✅ Payment Confirmed - Consultation Booked", customer_email_body)
+
+        # Send admin notification about payment success
+        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #10b981;">✅ Payment Received - Booking Confirmed</h2>
+                <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Payment Status: COMPLETED</strong><br>
+                    Amount: ₹{booking['amount']/100}<br>
+                    Payment ID: {razorpay_payment_id}
+                </div>
+                <h3 style="color: #7c3aed;">Customer Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{booking['name']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking['email']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{booking['phone']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_payment}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong></td><td>{booking['preferred_date']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong></td><td>{booking['preferred_time']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                </table>
+                <p style="margin-top: 30px; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Action Required:</strong> Payment confirmed! Please contact the customer within 24 hours to schedule the appointment.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        await send_email(admin_email, f"✅ Payment Confirmed - {booking['name']}", admin_email_body)
+
+        logger.info(f"✅ Payment confirmed for booking {booking_id}, emails sent to customer and admin")
+
         return {"status": "success", "message": "Payment verified successfully"}
     except Exception as e:
         logger.error(f"Payment verification failed: {str(e)}")
         raise HTTPException(status_code=400, detail="Payment verification failed")
+
+# Payment failure notification
+@api_router.post("/payment-failed")
+async def payment_failed(request: Request):
+    try:
+        data = await request.json()
+        booking_id = data.get('booking_id')
+        error_description = data.get('error_description', 'Payment was not completed')
+
+        # Get booking details
+        booking = await db.bookings.find_one({"id": booking_id})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        # Update booking status to failed
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {
+                "$set": {
+                    "payment_status": PaymentStatus.FAILED.value,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+
+        # Send payment failure email to customer
+        duration_display_failed = f"{booking['consultation_duration']} minutes"
+        customer_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #ef4444;">❌ Payment Failed</h2>
+                <p>Dear {booking['name']},</p>
+                <p>Unfortunately, your payment could not be processed.</p>
+                <div style="margin: 20px 0; padding: 15px; background-color: #fee2e2; border-left: 4px solid #ef4444;">
+                    <strong>Reason:</strong> {error_description}
+                </div>
+                <h3 style="color: #7c3aed;">Booking Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Amount:</strong></td><td>₹{booking['amount']/100}</td></tr>
+                </table>
+                <div style="margin-top: 30px; padding: 15px; background-color: #dbeafe; border-left: 4px solid #3b82f6;">
+                    <strong>What's Next?</strong><br>
+                    • You can try booking again from our website<br>
+                    • Or contact us directly at {os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')}<br>
+                    • We're here to help!
+                </div>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
+        await send_email(booking['email'], "❌ Payment Failed - Booking Not Confirmed", customer_email_body)
+
+        # Send admin notification about payment failure
+        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #ef4444;">❌ Payment Failed</h2>
+                <div style="margin: 20px 0; padding: 15px; background-color: #fee2e2; border-left: 4px solid #ef4444;">
+                    <strong>❌ Payment Status: FAILED</strong><br>
+                    Amount: ₹{booking['amount']/100}<br>
+                    Reason: {error_description}
+                </div>
+                <h3 style="color: #7c3aed;">Customer Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{booking['name']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking['email']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{booking['phone']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_failed}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                </table>
+                <p style="margin-top: 30px; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                    <strong>⚠️ Note:</strong> Customer's payment failed. You may want to follow up if they contact you directly.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        await send_email(admin_email, f"❌ Payment Failed - {booking['name']}", admin_email_body)
+
+        logger.info(f"❌ Payment failed for booking {booking_id}, emails sent to customer and admin")
+
+        return {"status": "failed", "message": "Payment failure recorded and notifications sent"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error handling payment failure: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Contact inquiry
 @api_router.post("/contact")
@@ -761,20 +974,28 @@ async def get_available_slots(astrologer: str, date: str, duration: Optional[str
             "is_active": True
         })
 
-        # If no availability defined, use default working hours (9 AM - 6 PM)
+        # If no availability defined, use default working hours (11 AM - 11 PM IST)
         if not availability:
-            start_time = "09:00"
-            end_time = "18:00"
+            start_time = "11:00"
+            end_time = "23:00"
             slot_duration = 30
         else:
             start_time = availability["start_time"]
             end_time = availability["end_time"]
             slot_duration = availability.get("slot_duration_minutes", 30)
 
+        # Get current time in IST
+        ist = pytz.timezone('Asia/Kolkata')
+        now_ist = datetime.now(ist)
+
         # Generate time slots
         slots = []
         current_time = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
         end_datetime = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+
+        # Make current_time and end_datetime timezone-aware (IST)
+        current_time = ist.localize(current_time)
+        end_datetime = ist.localize(end_datetime)
 
         while current_time < end_datetime:
             slot_end = current_time + timedelta(minutes=slot_duration)
@@ -802,12 +1023,8 @@ async def get_available_slots(astrologer: str, date: str, duration: Optional[str
 
             is_available = existing_booking is None and existing_slot is None
 
-            # Only return available slots or check if it's in the past
-            now = datetime.now()
-            slot_datetime = current_time
-
-            # Don't show past slots
-            if slot_datetime > now and is_available:
+            # Don't show past slots (compare with IST time)
+            if current_time > now_ist and is_available:
                 slots.append({
                     "start_time": slot_start_str,
                     "end_time": slot_end_str,
