@@ -99,7 +99,9 @@ const Booking = () => {
         },
         modal: {
           ondismiss: function() {
-            toast.info('Payment cancelled. Your booking is saved - you can complete payment later.');
+            toast.warning('Payment cancelled. Your booking is saved - you can complete payment later.');
+            // Navigate to booking success page so user can see their booking and retry payment
+            navigate(`/booking-success/${bookingData.id}`);
           }
         },
         theme: {

@@ -140,7 +140,7 @@ export const mockFAQs = [
   {
     id: "1",
     question: "How accurate are your predictions?",
-    answer: "With 9+ years of experience and 800+ satisfied clients, I maintain a 95%+ accuracy rate. My predictions are based on detailed birth chart analysis, planetary positions, and Vedic astrology principles."
+    answer: "With 20+ years of experience and 800+ satisfied clients, I maintain a 95%+ accuracy rate. My predictions are based on detailed birth chart analysis, planetary positions, and Vedic astrology principles."
   },
   {
     id: "2",

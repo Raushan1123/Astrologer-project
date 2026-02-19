@@ -23,7 +23,7 @@ const About = () => {
               About Mrs. Indira Pandey
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              A journey of 9+ years in guiding souls through the ancient wisdom of Vedic astrology
+              A journey of 20+ years in guiding souls through the ancient wisdom of Vedic astrology
             </p>
           </div>
         </div>

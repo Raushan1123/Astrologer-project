@@ -39,8 +39,14 @@ const Admin = () => {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API}/bookings`);
-      setBookings(response.data);
+      // Use optimized API with stats
+      const response = await axios.get(`${API}/bookings`, {
+        params: {
+          include_stats: true,
+          limit: 100
+        }
+      });
+      setBookings(response.data.bookings || response.data);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast.error('Failed to fetch bookings');

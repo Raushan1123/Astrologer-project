@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { CheckCircle, Calendar, User, Phone, Mail, Download, ArrowRight } from 'lucide-react';
+import { CheckCircle, Calendar, User, Phone, Mail, Download, ArrowRight, AlertCircle, CreditCard } from 'lucide-react';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const BookingSuccess = () => {
   const { bookingId } = useParams();
+  const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [retryingPayment, setRetryingPayment] = useState(false);
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -57,6 +60,85 @@ const BookingSuccess = () => {
   const getAmount = () => {
     if (booking.amount === 0) return 'Free (First Time)';
     return `₹${booking.amount / 100}`;
+  };
+
+  // Load Razorpay script
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Handle retry payment
+  const handleRetryPayment = async () => {
+    setRetryingPayment(true);
+
+    const res = await loadRazorpay();
+    if (!res) {
+      toast.error('Razorpay SDK failed to load');
+      setRetryingPayment(false);
+      return;
+    }
+
+    try {
+      // Get Razorpay key from backend
+      const keyResponse = await axios.get(`${API}/razorpay-key`);
+      const key = keyResponse.data.key;
+
+      const options = {
+        key: key,
+        amount: booking.amount,
+        currency: 'INR',
+        name: 'Mrs. Indira Pandey Astrology',
+        description: `${booking.service} - ${booking.consultation_duration} mins`,
+        order_id: booking.razorpay_order_id,
+        handler: async function (response) {
+          try {
+            // Verify payment
+            await axios.post(`${API}/verify-payment`, {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              booking_id: booking.id
+            });
+
+            toast.success('Payment successful! Booking confirmed.');
+            // Refresh booking data
+            const updatedBooking = await axios.get(`${API}/bookings/${bookingId}`);
+            setBooking(updatedBooking.data);
+          } catch (error) {
+            toast.error('Payment verification failed');
+          } finally {
+            setRetryingPayment(false);
+          }
+        },
+        prefill: {
+          name: booking.name,
+          email: booking.email,
+          contact: booking.phone
+        },
+        modal: {
+          ondismiss: function() {
+            toast.info('Payment cancelled.');
+            setRetryingPayment(false);
+          }
+        },
+        theme: {
+          color: '#7c3aed'
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Payment initialization failed. Please try again.');
+      setRetryingPayment(false);
+    }
   };
 
   return (
@@ -172,6 +254,36 @@ const BookingSuccess = () => {
                 </div>
               )}
             </Card>
+
+            {/* Payment Pending Alert */}
+            {booking.payment_status === 'pending' && booking.amount > 0 && (
+              <Card className="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-amber-50 border-2 border-yellow-300">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="w-8 h-8 text-yellow-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-yellow-900 mb-2">Payment Pending</h3>
+                    <p className="text-yellow-800 mb-4">
+                      Your booking has been saved, but payment is still pending. Please complete the payment to confirm your consultation.
+                    </p>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        onClick={handleRetryPayment}
+                        disabled={retryingPayment}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                      >
+                        <CreditCard className="w-5 h-5 mr-2" />
+                        {retryingPayment ? 'Processing...' : `Complete Payment (${getAmount()})`}
+                      </Button>
+                      <p className="text-sm text-yellow-700">
+                        Secure payment via Razorpay
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* Next Steps */}
             <Card className="mt-8 p-6 bg-gradient-to-br from-purple-50 to-amber-50">

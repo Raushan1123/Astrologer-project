@@ -110,7 +110,7 @@ const Home = () => {
             {[
               {
                 title: 'Expert Guidance',
-                description: '9+ years of dedicated practice in Vedic astrology with proven accuracy',
+                description: '20+ years of dedicated practice in Vedic astrology with proven accuracy',
                 icon: Award,
                 color: 'purple'
               },

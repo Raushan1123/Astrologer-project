@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request
+from fastapi import FastAPI, APIRouter, HTTPException, Request, BackgroundTasks
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -11,6 +11,8 @@ import razorpay
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
@@ -64,6 +66,24 @@ async def startup_event():
 
     async def init_db():
         try:
+            # Create indexes for better query performance
+            logger.info("Creating database indexes...")
+
+            # Bookings collection indexes
+            await db.bookings.create_index("id", unique=True)
+            await db.bookings.create_index("status")
+            await db.bookings.create_index("payment_status")
+            await db.bookings.create_index([("created_at", -1)])  # Descending for sorting
+            await db.bookings.create_index([("astrologer", 1), ("preferred_date", 1)])
+
+            # Availability collection indexes
+            await db.astrologer_availability.create_index([("astrologer", 1), ("day_of_week", 1)])
+
+            # Time slots collection indexes
+            await db.time_slots.create_index([("astrologer", 1), ("date", 1), ("time", 1)])
+
+            logger.info("✅ Database indexes created successfully")
+
             # Check if astrologer_availability collection has data
             count = await db.astrologer_availability.count_documents({})
 
@@ -111,36 +131,83 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Helper function to send emails
+# Helper function to send emails using SendGrid
 async def send_email(to_email: str, subject: str, body: str):
-    try:
-        smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
-        smtp_port = int(os.environ.get('SMTP_PORT', 587))
-        sender_email = os.environ.get('SMTP_EMAIL', '')
-        sender_password = os.environ.get('SMTP_PASSWORD', '')
-        
-        if not sender_email or not sender_password:
-            logger.warning("Email credentials not configured - skipping email")
+    """
+    Send email using SendGrid API (works on Railway, unlike SMTP)
+
+    Required environment variables:
+    - SENDGRID_API_KEY: Your SendGrid API key
+    - SENDGRID_FROM_EMAIL: Sender email (e.g., noreply@yourdomain.com)
+    - SENDGRID_FROM_NAME: Sender name (e.g., Mrs. Indira Pandey Astrology)
+
+    Falls back to SMTP if SendGrid is not configured (for local development)
+    """
+    # Try SendGrid first (recommended for production/Railway)
+    sendgrid_api_key = os.environ.get('SENDGRID_API_KEY', '')
+
+    if sendgrid_api_key:
+        try:
+            from_email = os.environ.get('SENDGRID_FROM_EMAIL', 'noreply@astrology.com')
+            from_name = os.environ.get('SENDGRID_FROM_NAME', 'Mrs. Indira Pandey Astrology')
+
+            # Create email message
+            message = Mail(
+                from_email=(from_email, from_name),
+                to_emails=to_email,
+                subject=subject,
+                html_content=body
+            )
+
+            # Send via SendGrid
+            sg = SendGridAPIClient(sendgrid_api_key)
+            response = sg.send(message)
+
+            logger.info(f"✅ Email sent to {to_email} via SendGrid (Status: {response.status_code})")
+            return True
+
+        except Exception as e:
+            logger.error(f"❌ SendGrid error: {str(e)}")
             return False
-        
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = to_email
-        msg['Subject'] = subject
-        
-        msg.attach(MIMEText(body, 'html'))
-        
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.send_message(msg)
-        server.quit()
-        
-        logger.info(f"Email sent to {to_email}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to send email: {str(e)}")
-        return False
+
+    # Fallback to SMTP (for local development only - won't work on Railway)
+    else:
+        try:
+            smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+            smtp_port = int(os.environ.get('SMTP_PORT', 587))
+            sender_email = os.environ.get('SMTP_EMAIL', '')
+            sender_password = os.environ.get('SMTP_PASSWORD', '')
+
+            if not sender_email or not sender_password:
+                logger.warning("⚠️ Email credentials not configured - skipping email")
+                return False
+
+            msg = MIMEMultipart()
+            msg['From'] = sender_email
+            msg['To'] = to_email
+            msg['Subject'] = subject
+
+            msg.attach(MIMEText(body, 'html'))
+
+            # Add timeout to prevent hanging on Railway (SMTP ports may be blocked)
+            server = smtplib.SMTP(smtp_server, smtp_port, timeout=5)
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            server.quit()
+
+            logger.info(f"✅ Email sent to {to_email} via SMTP")
+            return True
+
+        except smtplib.SMTPException as e:
+            logger.error(f"❌ SMTP error: {str(e)}")
+            return False
+        except TimeoutError as e:
+            logger.error(f"❌ SMTP timeout (Railway blocks SMTP ports): {str(e)}")
+            return False
+        except Exception as e:
+            logger.error(f"❌ Failed to send email: {str(e)}")
+            return False
 
 
 # Calculate consultation price
@@ -165,11 +232,11 @@ async def root():
 
 # Booking endpoints
 @api_router.post("/bookings")
-async def create_booking(booking_data: BookingCreate):
+async def create_booking(booking_data: BookingCreate, background_tasks: BackgroundTasks):
     try:
         # Calculate price
         amount = calculate_price(booking_data.consultation_duration)
-        
+
         # Create Razorpay order if amount > 0 and Razorpay is enabled
         razorpay_order_id = None
         if amount > 0 and RAZORPAY_ENABLED and razorpay_client is not None:
@@ -180,7 +247,7 @@ async def create_booking(booking_data: BookingCreate):
             }
             razorpay_order = razorpay_client.order.create(data=order_data)
             razorpay_order_id = razorpay_order['id']
-        
+
         # Create booking
         booking_dict = booking_data.model_dump()
         payment_status = (
@@ -201,8 +268,8 @@ async def create_booking(booking_data: BookingCreate):
         booking_doc['updated_at'] = booking_doc['updated_at'].isoformat()
 
         await db.bookings.insert_one(booking_doc)
-        
-        # Send confirmation email
+
+        # Send confirmation email in background (non-blocking)
         amount_display = (
             '₹' + str(amount/100) if amount > 0
             else 'Free (First Time)'
@@ -241,21 +308,42 @@ async def create_booking(booking_data: BookingCreate):
         </html>
         """
         email_subject = "Booking Confirmation - Astrology Consultation"
-        await send_email(booking.email, email_subject, email_body)
-        
+
+        # Add email to background tasks - doesn't block response
+        background_tasks.add_task(send_email, booking.email, email_subject, email_body)
+
         return booking
     except Exception as e:
         logger.error(f"Error creating booking: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/bookings")
-async def get_bookings(status: str = None):
+async def get_bookings(
+    status: str = None,
+    page: int = 1,
+    limit: int = 50,
+    include_stats: bool = False
+):
+    """
+    Get bookings with pagination and optional stats.
+
+    Args:
+        status: Filter by booking status (pending, confirmed, completed, cancelled)
+        page: Page number (default: 1)
+        limit: Items per page (default: 50, max: 100)
+        include_stats: Include statistics in response (default: False)
+    """
     try:
+        # Validate and limit page size
+        limit = min(limit, 100)
+        skip = (page - 1) * limit
+
+        # Build query
         query = {}
         if status:
             query["status"] = status
-        
-        # Optimized query with projection for required fields only
+
+        # Optimized projection - only fields needed by frontend
         projection = {
             "_id": 0,
             "id": 1,
@@ -274,17 +362,41 @@ async def get_bookings(status: str = None):
             "created_at": 1,
             "updated_at": 1
         }
-        
-        bookings = await db.bookings.find(query, projection).sort("created_at", -1).to_list(100)
-        
-        # Convert ISO strings back to datetime
-        for booking in bookings:
-            if isinstance(booking.get('created_at'), str):
-                booking['created_at'] = datetime.fromisoformat(booking['created_at'])
-            if isinstance(booking.get('updated_at'), str):
-                booking['updated_at'] = datetime.fromisoformat(booking['updated_at'])
-        
-        return bookings
+
+        # Execute query with pagination
+        bookings_cursor = db.bookings.find(query, projection).sort("created_at", -1).skip(skip).limit(limit)
+        bookings = await bookings_cursor.to_list(length=limit)
+
+        # Prepare response
+        response = {
+            "bookings": bookings,
+            "page": page,
+            "limit": limit,
+            "total": await db.bookings.count_documents(query)
+        }
+
+        # Add stats if requested (for admin dashboard)
+        if include_stats:
+            stats_pipeline = [
+                {
+                    "$group": {
+                        "_id": "$status",
+                        "count": {"$sum": 1}
+                    }
+                }
+            ]
+            stats_result = await db.bookings.aggregate(stats_pipeline).to_list(None)
+            stats = {item["_id"]: item["count"] for item in stats_result}
+
+            response["stats"] = {
+                "total": await db.bookings.count_documents({}),
+                "pending": stats.get("pending", 0),
+                "confirmed": stats.get("confirmed", 0),
+                "completed": stats.get("completed", 0),
+                "cancelled": stats.get("cancelled", 0)
+            }
+
+        return response
     except Exception as e:
         logger.error(f"Error fetching bookings: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
