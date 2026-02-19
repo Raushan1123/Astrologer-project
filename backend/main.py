@@ -327,8 +327,67 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
         """
         email_subject = "Booking Confirmation - Astrology Consultation"
 
-        # Add email to background tasks - doesn't block response
-        background_tasks.add_task(send_email, booking.email, email_subject, email_body)
+        # Send email to customer immediately (not background task)
+        try:
+            customer_email_sent = await send_email(booking.email, email_subject, email_body)
+            if customer_email_sent:
+                logger.info(f"📧 Customer email sent to {booking.email}")
+            else:
+                logger.warning(f"⚠️ Failed to send customer email to {booking.email}")
+        except Exception as e:
+            logger.error(f"❌ Error sending customer email: {str(e)}")
+
+        # Send notification email to admin/astrologer
+        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_subject = f"New Booking Request - {booking.name}"
+        admin_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">New Booking Request Received</h2>
+                <p>You have received a new booking request:</p>
+                <h3 style="color: #7c3aed;">Customer Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Name:</strong>
+                    </td><td>{booking.name}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Email:</strong>
+                    </td><td>{booking.email}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Phone:</strong>
+                    </td><td>{booking.phone}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong>
+                    </td><td>{booking.service}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
+                    </td><td>{booking.consultation_duration} minutes</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong>
+                    </td><td>{booking.preferred_date}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong>
+                    </td><td>{booking.preferred_time}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Consultation Type:</strong>
+                    </td><td>{consultation_type}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Amount:</strong>
+                    </td><td>{amount_display}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Payment Status:</strong>
+                    </td><td>{booking.payment_status.value.upper()}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong>
+                    </td><td>{booking.id}</td></tr>
+                </table>
+                {f'<p style="margin-top: 20px;"><strong>Message:</strong><br>{booking.message}</p>' if booking.message else ''}
+                <p style="margin-top: 30px; padding: 15px; background-color: #f3f4f6; border-left: 4px solid #7c3aed;">
+                    <strong>Action Required:</strong> Please contact the customer within 24 hours to confirm the appointment.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        try:
+            admin_email_sent = await send_email(admin_email, admin_subject, admin_body)
+            if admin_email_sent:
+                logger.info(f"📧 Admin notification sent to {admin_email}")
+            else:
+                logger.warning(f"⚠️ Failed to send admin notification to {admin_email}")
+        except Exception as e:
+            logger.error(f"❌ Error sending admin notification: {str(e)}")
 
         return booking
     except Exception as e:
