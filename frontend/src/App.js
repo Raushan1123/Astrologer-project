@@ -15,6 +15,8 @@ import BookingSuccess from "./pages/BookingSuccess";
 import Contact from "./pages/Contact";
 import Gemstones from "./pages/Gemstones";
 import Admin from "./pages/Admin";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/gemstones" element={<Gemstones />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
         </Routes>
         <Footer />
         <Toaster />

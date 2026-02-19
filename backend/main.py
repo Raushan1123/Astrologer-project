@@ -20,13 +20,17 @@ from models import (
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+# MongoDB connection with optimized settings
 mongo_url = os.environ.get('MONGO_URL')
 mongo_client = AsyncIOMotorClient(
     mongo_url,
-    serverSelectionTimeoutMS=5000,
-    connectTimeoutMS=5000,
-    socketTimeoutMS=5000
+    maxPoolSize=10,  # Connection pool size
+    minPoolSize=1,   # Keep at least 1 connection alive
+    serverSelectionTimeoutMS=10000,  # Increased timeout
+    connectTimeoutMS=10000,
+    socketTimeoutMS=10000,
+    retryWrites=True,
+    retryReads=True
 )
 db = mongo_client[os.environ.get('DB_NAME', 'astrology_db')]
 
