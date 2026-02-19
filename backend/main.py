@@ -242,8 +242,8 @@ async def send_email(to_email: str, subject: str, body: str):
 def calculate_price(duration: str) -> int:
     prices = {
         "5-10": 0,  # Free for first time
-        "10-20": 150000,  # ₹1,500 in paise
-        "20+": 210000  # ₹2,100 in paise
+        "10-20": 200,  # ₹2 in paise (TESTING ONLY)
+        "20+": 200  # ₹2 in paise (TESTING ONLY)
     }
     return prices.get(duration, 0)
 
