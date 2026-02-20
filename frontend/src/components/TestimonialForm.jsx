@@ -48,6 +48,27 @@ const TestimonialForm = () => {
     e.preventDefault();
 
     // Validation
+    if (!formData.name || formData.name.length < 2) {
+      toast.error(t('testimonials.formErrorTitle'), {
+        description: 'Name must be at least 2 characters long.'
+      });
+      return;
+    }
+
+    if (!formData.email) {
+      toast.error(t('testimonials.formErrorTitle'), {
+        description: 'Please provide a valid email address.'
+      });
+      return;
+    }
+
+    if (!formData.service) {
+      toast.error(t('testimonials.formErrorTitle'), {
+        description: 'Please select a service.'
+      });
+      return;
+    }
+
     if (formData.text.length < 10) {
       toast.error(t('testimonials.formErrorTitle'), {
         description: 'Testimonial must be at least 10 characters long.'
@@ -58,8 +79,13 @@ const TestimonialForm = () => {
     setSubmitting(true);
 
     try {
-      const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+      const API_URL = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+      console.log('Submitting testimonial to:', `${API_URL}/testimonials`);
+      console.log('Form data:', formData);
+
       const response = await axios.post(`${API_URL}/testimonials`, formData);
+
+      console.log('Response:', response.data);
 
       toast.success(t('testimonials.formSuccessTitle'), {
         description: t('testimonials.formSuccessMessage')
@@ -76,8 +102,14 @@ const TestimonialForm = () => {
       });
     } catch (error) {
       console.error('Error submitting testimonial:', error);
+      console.error('Error response:', error.response?.data);
+
+      const errorMessage = error.response?.data?.detail
+        || error.response?.data?.message
+        || t('testimonials.formErrorMessage');
+
       toast.error(t('testimonials.formErrorTitle'), {
-        description: t('testimonials.formErrorMessage')
+        description: errorMessage
       });
     } finally {
       setSubmitting(false);

@@ -119,7 +119,7 @@ class TestimonialCreate(BaseModel):
     email: EmailStr
     rating: int = Field(..., ge=1, le=5)
     text: str = Field(..., min_length=10, max_length=1000)
-    service: str
+    service: str = Field(..., min_length=1)
     location: Optional[str] = Field(None, max_length=100)
 
 
