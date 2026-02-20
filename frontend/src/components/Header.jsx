@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Sparkles, Languages } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Sparkles, Languages, User, LogOut, UserCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { language, toggleLanguage, t } = useLanguage();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setShowUserMenu(false);
+    navigate('/');
+  };
 
   const navLinks = [
     { path: '/', label: t('header.home') },
@@ -57,7 +67,7 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Language Switcher & CTA Button */}
+          {/* Language Switcher & Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <button
               onClick={toggleLanguage}
@@ -69,11 +79,56 @@ const Header = () => {
                 {language === 'en' ? 'हिंदी' : 'English'}
               </span>
             </button>
-            <Link to="/booking">
-              <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 shadow-lg shadow-purple-200 transform hover:scale-105 transition-all duration-300">
-                {t('header.bookConsultation')}
-              </Button>
-            </Link>
+
+            {isAuthenticated ? (
+              <>
+                <Link to="/booking">
+                  <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 shadow-lg shadow-purple-200 transform hover:scale-105 transition-all duration-300">
+                    {t('header.bookConsultation')}
+                  </Button>
+                </Link>
+
+                {/* User Menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-200 hover:bg-purple-50 transition-colors duration-300"
+                  >
+                    <UserCircle className="w-5 h-5 text-purple-600" />
+                    <span className="text-sm font-medium text-purple-700">{user?.name?.split(' ')[0]}</span>
+                  </button>
+
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-purple-100 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-purple-100">
+                        <p className="text-sm font-semibold text-purple-900">{user?.name}</p>
+                        <p className="text-xs text-gray-600">{user?.email}</p>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 shadow-lg shadow-purple-200 transform hover:scale-105 transition-all duration-300">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -113,11 +168,43 @@ const Header = () => {
                 <Languages className="w-4 h-4" />
                 <span>{language === 'en' ? 'हिंदी में बदलें' : 'Switch to English'}</span>
               </button>
-              <Link to="/booking" onClick={() => setIsMenuOpen(false)} className="mt-2">
-                <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white">
-                  {t('header.bookConsultation')}
-                </Button>
-              </Link>
+
+              {isAuthenticated ? (
+                <>
+                  <Link to="/booking" onClick={() => setIsMenuOpen(false)} className="mt-2">
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+                      {t('header.bookConsultation')}
+                    </Button>
+                  </Link>
+                  <div className="px-4 py-3 bg-purple-50 rounded-lg mt-2">
+                    <p className="text-sm font-semibold text-purple-900">{user?.name}</p>
+                    <p className="text-xs text-gray-600">{user?.email}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-50 text-red-600 font-medium transition-colors hover:bg-red-100"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)} className="mt-2">
+                    <Button variant="outline" className="w-full border-purple-300 text-purple-700">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}

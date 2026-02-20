@@ -6,6 +6,36 @@ import uuid
 import re
 
 
+# User Models
+class UserCreate(BaseModel):
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class User(BaseModel):
+    id: str
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    created_at: datetime
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordReset(BaseModel):
+    token: str
+    new_password: str
+
+
 class ConsultationDuration(str, Enum):
     SHORT = "5-10"
     MEDIUM = "10-20"

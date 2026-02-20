@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, APIRouter, HTTPException, Request, BackgroundTasks, Depends, Header
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -7,6 +8,7 @@ import logging
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from typing import Optional
+import uuid
 import razorpay
 import smtplib
 from email.mime.text import MIMEText
@@ -14,11 +16,14 @@ from email.mime.multipart import MIMEMultipart
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import pytz
+import bcrypt
+import jwt
 
 from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
     BookingStatus, PaymentStatus, AstrologerAvailability,
-    TestimonialCreate, Testimonial
+    TestimonialCreate, Testimonial, UserCreate, UserLogin, User,
+    PasswordResetRequest, PasswordReset
 )
 
 ROOT_DIR = Path(__file__).parent
@@ -52,6 +57,56 @@ if razorpay_key_id and razorpay_key_secret:
     except Exception as e:
         logging.warning(f"Failed to initialize Razorpay client: {e}")
         RAZORPAY_ENABLED = False
+
+# JWT Configuration
+JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
+JWT_ALGORITHM = 'HS256'
+JWT_EXPIRATION_HOURS = 24 * 7  # 7 days
+
+# Security
+security = HTTPBearer()
+
+# Helper functions for authentication
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt"""
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+
+def verify_password(password: str, hashed: str) -> bool:
+    """Verify a password against a hash"""
+    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+
+
+def create_access_token(user_id: str, email: str) -> str:
+    """Create a JWT access token"""
+    payload = {
+        'user_id': user_id,
+        'email': email,
+        'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def decode_access_token(token: str) -> dict:
+    """Decode and verify a JWT token"""
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get the current authenticated user"""
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    user = await db.users.find_one({"id": payload['user_id']})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -89,6 +144,16 @@ async def startup_event():
             await db.testimonials.create_index("approved")
             await db.testimonials.create_index([("created_at", -1)])  # Descending for sorting
             await db.testimonials.create_index("email")
+
+            # Users collection indexes
+            await db.users.create_index("id", unique=True)
+            await db.users.create_index("email", unique=True)
+            await db.users.create_index([("created_at", -1)])
+
+            # Password resets collection indexes
+            await db.password_resets.create_index("token", unique=True)
+            await db.password_resets.create_index("email")
+            await db.password_resets.create_index([("expires_at", 1)])
 
             logger.info("✅ Database indexes created successfully")
 
@@ -263,6 +328,234 @@ async def root():
         "status": "online",
         "razorpay_enabled": RAZORPAY_ENABLED
     }
+
+
+# Authentication endpoints
+@api_router.post("/auth/signup")
+async def signup(user_data: UserCreate):
+    """Register a new user"""
+    try:
+        # Check if user already exists
+        existing_user = await db.users.find_one({"email": user_data.email})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+        # Hash password
+        hashed_password = hash_password(user_data.password)
+
+        # Create user
+        user_id = str(uuid.uuid4())
+        user = {
+            "id": user_id,
+            "name": user_data.name,
+            "email": user_data.email,
+            "phone": user_data.phone,
+            "password": hashed_password,
+            "created_at": datetime.now(timezone.utc)
+        }
+
+        await db.users.insert_one(user)
+
+        # Create access token
+        token = create_access_token(user_id, user_data.email)
+
+        # Return user data without password
+        user_response = User(
+            id=user_id,
+            name=user_data.name,
+            email=user_data.email,
+            phone=user_data.phone,
+            created_at=user["created_at"]
+        )
+
+        return {
+            "token": token,
+            "user": user_response.model_dump()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Signup error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create account")
+
+
+@api_router.post("/auth/login")
+async def login(credentials: UserLogin):
+    """Login user"""
+    try:
+        # Find user
+        user = await db.users.find_one({"email": credentials.email})
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+        # Verify password
+        if not verify_password(credentials.password, user["password"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+        # Create access token
+        token = create_access_token(user["id"], user["email"])
+
+        # Return user data without password
+        user_response = User(
+            id=user["id"],
+            name=user["name"],
+            email=user["email"],
+            phone=user.get("phone"),
+            created_at=user["created_at"]
+        )
+
+        return {
+            "token": token,
+            "user": user_response.model_dump()
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Login error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Login failed")
+
+
+@api_router.get("/auth/verify")
+async def verify_token(current_user: dict = Depends(get_current_user)):
+    """Verify JWT token and return user data"""
+    user_response = User(
+        id=current_user["id"],
+        name=current_user["name"],
+        email=current_user["email"],
+        phone=current_user.get("phone"),
+        created_at=current_user["created_at"]
+    )
+    return {"user": user_response.model_dump()}
+
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: PasswordResetRequest, background_tasks: BackgroundTasks):
+    """Send password reset email"""
+    try:
+        # Find user by email
+        user = await db.users.find_one({"email": request.email})
+        if not user:
+            # Don't reveal if email exists or not for security
+            return {"message": "If the email exists, a password reset link has been sent"}
+
+        # Generate reset token (valid for 1 hour)
+        reset_token = str(uuid.uuid4())
+        reset_expiry = datetime.now(timezone.utc) + timedelta(hours=1)
+
+        # Store reset token in database
+        await db.password_resets.insert_one({
+            "user_id": user["id"],
+            "email": user["email"],
+            "token": reset_token,
+            "expires_at": reset_expiry,
+            "used": False,
+            "created_at": datetime.now(timezone.utc)
+        })
+
+        # Send reset email
+        frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+        reset_link = f"{frontend_url}/reset-password/{reset_token}"
+
+        email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">Password Reset Request</h2>
+                <p>Hello {user['name']},</p>
+                <p>We received a request to reset your password for your Acharyaa Indira Pandey Astrology account.</p>
+                <p>Click the button below to reset your password:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{reset_link}"
+                       style="background: linear-gradient(to right, #7c3aed, #f59e0b);
+                              color: white;
+                              padding: 12px 30px;
+                              text-decoration: none;
+                              border-radius: 5px;
+                              display: inline-block;">
+                        Reset Password
+                    </a>
+                </div>
+                <p>Or copy and paste this link into your browser:</p>
+                <p style="background: #f3f4f6; padding: 10px; border-radius: 5px; word-break: break-all;">
+                    {reset_link}
+                </p>
+                <p><strong>This link will expire in 1 hour.</strong></p>
+                <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                <p style="color: #6b7280; font-size: 14px;">
+                    Best regards,<br>
+                    Acharyaa Indira Pandey Astrology Team
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        background_tasks.add_task(
+            send_email,
+            user["email"],
+            "Password Reset Request - Acharyaa Indira Pandey Astrology",
+            email_body
+        )
+
+        logger.info(f"Password reset email sent to {user['email']}")
+        return {"message": "If the email exists, a password reset link has been sent"}
+
+    except Exception as e:
+        logger.error(f"Forgot password error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process password reset request")
+
+
+@api_router.post("/auth/reset-password")
+async def reset_password(reset_data: PasswordReset):
+    """Reset password using token"""
+    try:
+        # Find reset token
+        logger.info(f"Looking for reset token: {reset_data.token}")
+        reset_record = await db.password_resets.find_one({
+            "token": reset_data.token,
+            "used": False
+        })
+        logger.info(f"Reset record found: {reset_record is not None}")
+
+        if not reset_record:
+            raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+
+        # Check if token has expired
+        expires_at = reset_record["expires_at"]
+        if not expires_at.tzinfo:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+        if expires_at < datetime.now(timezone.utc):
+            raise HTTPException(status_code=400, detail="Reset token has expired")
+
+        # Validate new password
+        if len(reset_data.new_password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+
+        # Hash new password
+        hashed_password = hash_password(reset_data.new_password)
+
+        # Update user password
+        await db.users.update_one(
+            {"id": reset_record["user_id"]},
+            {"$set": {"password": hashed_password}}
+        )
+
+        # Mark token as used
+        await db.password_resets.update_one(
+            {"token": reset_data.token},
+            {"$set": {"used": True, "used_at": datetime.now(timezone.utc)}}
+        )
+
+        logger.info(f"Password reset successful for user {reset_record['user_id']}")
+        return {"message": "Password reset successful"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Reset password error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to reset password")
 
 
 # Booking endpoints
