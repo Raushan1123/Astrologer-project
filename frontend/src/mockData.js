@@ -99,7 +99,7 @@ export const mockBlogs = [
     title: "Understanding Your Birth Chart: A Beginner's Guide",
     excerpt: "Learn how to read and interpret your birth chart to unlock insights about your personality and life path.",
     image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591",
-    author: "Mrs. Indira Pandey",
+    author: "Acharyaa Indira Pandey",
     date: "2024-11-28",
     category: "Astrology Basics",
     readTime: "5 min read"
@@ -109,7 +109,7 @@ export const mockBlogs = [
     title: "Weekly Horoscope: December 2024",
     excerpt: "Discover what the stars have in store for you this week. Planetary movements and their impact on your zodiac sign.",
     image: "https://images.unsplash.com/photo-1729335511904-9b8690184935",
-    author: "Mrs. Indira Pandey",
+    author: "Acharyaa Indira Pandey",
     date: "2024-12-01",
     category: "Weekly Horoscope",
     readTime: "3 min read"
@@ -119,7 +119,7 @@ export const mockBlogs = [
     title: "Mercury Retrograde: What It Means for You",
     excerpt: "Understanding the effects of Mercury retrograde and how to navigate this challenging period with grace.",
     image: "https://images.unsplash.com/photo-1650365449083-b3113ff48337",
-    author: "Mrs. Indira Pandey",
+    author: "Acharyaa Indira Pandey",
     date: "2024-11-15",
     category: "Planetary Movements",
     readTime: "7 min read"
@@ -129,7 +129,7 @@ export const mockBlogs = [
     title: "Vedic Remedies for Career Growth",
     excerpt: "Powerful Vedic remedies and rituals to enhance your career prospects and achieve professional success.",
     image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88",
-    author: "Mrs. Indira Pandey",
+    author: "Acharyaa Indira Pandey",
     date: "2024-10-22",
     category: "Remedies",
     readTime: "6 min read"
@@ -174,17 +174,17 @@ export const mockStats = {
 export const astrologers = [
   {
     id: "1",
-    name: "Mrs. Indira Pandey",
+    name: "Acharyaa Indira Pandey",
     role: "Senior Vedic Astrologer",
     experience: "20+",
     specialization: ["Birth Chart Analysis", "Career Guidance", "Marriage Compatibility", "Gemstone Remedies"],
     image: "https://images.unsplash.com/photo-1554355202-11fbc45c7157",
-    bio: "With over 20 years of experience, Mrs. Indira Pandey has guided 800+ clients through accurate predictions and personalized remedies.",
+    bio: "With over 20 years of experience, Acharyaa Indira Pandey has guided 800+ clients through accurate predictions and personalized remedies.",
     available: true
   },
   {
     id: "2",
-    name: "Mr. Ram Nath Tiwari",
+    name: "Acharya Ram Nath Tiwari",
     role: "Master Astrologer & Founder",
     experience: "40+",
     specialization: ["Advanced Birth Chart Analysis", "Vedic Rituals", "Childbirth Timing", "Complex Remedies"],
@@ -194,7 +194,7 @@ export const astrologers = [
   },
   {
     id: "3",
-    name: "Mrs. Ankita Pandey",
+    name: "Acharyaa Ankita Pandey",
     role: "Junior Astrologer",
     experience: "2+",
     specialization: ["Basic Consultations", "Numerology", "Vastu Basics", "Young Adults Guidance"],

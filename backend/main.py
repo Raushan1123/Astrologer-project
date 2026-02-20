@@ -98,8 +98,8 @@ async def startup_event():
             if count == 0:
                 logger.info("Initializing database with default data...")
 
-                # Create default availability for Mrs. Indira Pandey
-                astrologer_name = "Mrs. Indira Pandey"
+                # Create default availability for Acharyaa Indira Pandey
+                astrologer_name = "Acharyaa Indira Pandey"
                 availability_data = []
 
                 # Add availability for all 7 days (Monday to Sunday)

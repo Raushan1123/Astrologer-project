@@ -16,10 +16,10 @@ export const translations = {
       hero: {
         title: 'Discover Your Destiny Through',
         subtitle: 'Ancient Vedic Wisdom',
-        description: 'Experience authentic Vedic astrology guidance with Mrs. Indira Pandey. Over 20 years of expertise in birth chart analysis, career guidance, and personalized remedies.',
+        description: 'Experience authentic Vedic astrology guidance with Acharyaa Indira Pandey. Over 20 years of expertise in birth chart analysis, career guidance, and personalized remedies.',
         cta: 'Book Your Consultation',
         learnMore: 'Learn More',
-        astrologerName: 'Mrs. Indira Pandey'
+        astrologerName: 'Acharyaa Indira Pandey'
       },
       stats: {
         experience: 'Years Experience',
@@ -28,7 +28,7 @@ export const translations = {
         consultations: 'Consultations/Week'
       },
       whyChoose: {
-        title: 'Why Choose Mrs. Indira Pandey?',
+        title: 'Why Choose Acharyaa Indira Pandey?',
         subtitle: 'Experience the difference of personalized, accurate, and compassionate astrological guidance',
         card1Title: 'Expert Guidance',
         card1Desc: '20+ years of dedicated practice in Vedic astrology with proven accuracy',
@@ -152,7 +152,7 @@ export const translations = {
       sort: 'Sort'
     },
     about: {
-      title: 'About Mrs. Indira Pandey',
+      title: 'About Acharyaa Indira Pandey',
       subtitle: 'A journey of 20+ years in guiding souls through the ancient wisdom of Vedic astrology',
       yearsExperience: 'Years Experience',
       journeyTitle: 'My Journey Into Astrology',
@@ -236,21 +236,21 @@ export const translations = {
       ctaTitle: 'Choose Your Astrologer',
       ctaSubtitle: 'Select the astrologer best suited for your needs and schedule your consultation today',
       ctaButton: 'Book Your Consultation Now',
-      astrologer1Name: 'Mrs. Indira Pandey',
+      astrologer1Name: 'Acharyaa Indira Pandey',
       astrologer1Role: 'Senior Vedic Astrologer',
-      astrologer1Bio: 'With over 20 years of experience, Mrs. Indira Pandey has guided 800+ clients through accurate predictions and personalized remedies.',
+      astrologer1Bio: 'With over 20 years of experience, Acharyaa Indira Pandey has guided 800+ clients through accurate predictions and personalized remedies.',
       astrologer1Spec1: 'Birth Chart Analysis',
       astrologer1Spec2: 'Career Guidance',
       astrologer1Spec3: 'Marriage Compatibility',
       astrologer1Spec4: 'Gemstone Remedies',
-      astrologer2Name: 'Mr. Ram Nath Tiwari',
+      astrologer2Name: 'Acharya Ram Nath Tiwari',
       astrologer2Role: 'Master Astrologer & Founder',
       astrologer2Bio: 'A highly respected master astrologer with 40+ years of profound knowledge in Vedic astrology and ancient wisdom.',
       astrologer2Spec1: 'Advanced Birth Chart Analysis',
       astrologer2Spec2: 'Vedic Rituals',
       astrologer2Spec3: 'Childbirth Timing',
       astrologer2Spec4: 'Complex Remedies',
-      astrologer3Name: 'Mrs. Ankita Pandey',
+      astrologer3Name: 'Acharyaa Ankita Pandey',
       astrologer3Role: 'Junior Astrologer',
       astrologer3Bio: 'A dedicated and enthusiastic astrologer specializing in guidance for young adults and modern life challenges.',
       astrologer3Spec1: 'Basic Consultations',
@@ -378,10 +378,10 @@ export const translations = {
       hero: {
         title: 'अपनी किस्मत जानें',
         subtitle: 'प्राचीन वैदिक ज्ञान के माध्यम से',
-        description: 'श्रीमती इंदिरा पांडे के साथ प्रामाणिक वैदिक ज्योतिष मार्गदर्शन का अनुभव करें। जन्म कुंडली विश्लेषण, करियर मार्गदर्शन और व्यक्तिगत उपायों में 20 से अधिक वर्षों की विशेषज्ञता।',
+        description: 'आचार्या इंदिरा पांडे के साथ प्रामाणिक वैदिक ज्योतिष मार्गदर्शन का अनुभव करें। जन्म कुंडली विश्लेषण, करियर मार्गदर्शन और व्यक्तिगत उपायों में 20 से अधिक वर्षों की विशेषज्ञता।',
         cta: 'अपना परामर्श बुक करें',
         learnMore: 'और जानें',
-        astrologerName: 'श्रीमती इंदिरा पांडे'
+        astrologerName: 'आचार्या इंदिरा पांडे'
       },
       stats: {
         experience: 'वर्षों का अनुभव',
@@ -390,7 +390,7 @@ export const translations = {
         consultations: 'परामर्श/सप्ताह'
       },
       whyChoose: {
-        title: 'श्रीमती इंदिरा पांडे को क्यों चुनें?',
+        title: 'आचार्या इंदिरा पांडे को क्यों चुनें?',
         subtitle: 'व्यक्तिगत, सटीक और दयालु ज्योतिषीय मार्गदर्शन के अंतर का अनुभव करें',
         card1Title: 'विशेषज्ञ मार्गदर्शन',
         card1Desc: 'सिद्ध सटीकता के साथ वैदिक ज्योतिष में 20+ वर्षों का समर्पित अभ्यास',
@@ -514,7 +514,7 @@ export const translations = {
       sort: 'क्रमबद्ध करें'
     },
     about: {
-      title: 'श्रीमती इंदिरा पांडे के बारे में',
+      title: 'आचार्या इंदिरा पांडे के बारे में',
       subtitle: 'प्राचीन वैदिक ज्ञान के माध्यम से आत्माओं का मार्गदर्शन करने में 20+ वर्षों की यात्रा',
       yearsExperience: 'वर्षों का अनुभव',
       journeyTitle: 'ज्योतिष में मेरी यात्रा',
@@ -598,21 +598,21 @@ export const translations = {
       ctaTitle: 'अपना ज्योतिषी चुनें',
       ctaSubtitle: 'अपनी आवश्यकताओं के लिए सबसे उपयुक्त ज्योतिषी का चयन करें और आज ही अपना परामर्श निर्धारित करें',
       ctaButton: 'अभी अपना परामर्श बुक करें',
-      astrologer1Name: 'श्रीमती इंदिरा पांडे',
+      astrologer1Name: 'आचार्या इंदिरा पांडे',
       astrologer1Role: 'वरिष्ठ वैदिक ज्योतिषी',
-      astrologer1Bio: '20 से अधिक वर्षों के अनुभव के साथ, श्रीमती इंदिरा पांडे ने सटीक भविष्यवाणियों और व्यक्तिगत उपायों के माध्यम से 800+ ग्राहकों का मार्गदर्शन किया है।',
+      astrologer1Bio: '20 से अधिक वर्षों के अनुभव के साथ, आचार्या इंदिरा पांडे ने सटीक भविष्यवाणियों और व्यक्तिगत उपायों के माध्यम से 800+ ग्राहकों का मार्गदर्शन किया है।',
       astrologer1Spec1: 'जन्म कुंडली विश्लेषण',
       astrologer1Spec2: 'करियर मार्गदर्शन',
       astrologer1Spec3: 'विवाह अनुकूलता',
       astrologer1Spec4: 'रत्न उपचार',
-      astrologer2Name: 'श्री राम नाथ तिवारी',
+      astrologer2Name: 'आचार्य राम नाथ तिवारी',
       astrologer2Role: 'मास्टर ज्योतिषी और संस्थापक',
       astrologer2Bio: 'वैदिक ज्योतिष और प्राचीन ज्ञान में 40+ वर्षों के गहन ज्ञान के साथ एक अत्यधिक सम्मानित मास्टर ज्योतिषी।',
       astrologer2Spec1: 'उन्नत जन्म कुंडली विश्लेषण',
       astrologer2Spec2: 'वैदिक अनुष्ठान',
       astrologer2Spec3: 'बच्चे के जन्म का समय',
       astrologer2Spec4: 'जटिल उपचार',
-      astrologer3Name: 'श्रीमती अंकिता पांडे',
+      astrologer3Name: 'आचार्या अंकिता पांडे',
       astrologer3Role: 'जूनियर ज्योतिषी',
       astrologer3Bio: 'युवा वयस्कों और आधुनिक जीवन की चुनौतियों के लिए मार्गदर्शन में विशेषज्ञता रखने वाली एक समर्पित और उत्साही ज्योतिषी।',
       astrologer3Spec1: 'बुनियादी परामर्श',

@@ -96,9 +96,9 @@ const Team = () => {
               {translatedAstrologers.map((astrologer, index) => {
                 // Define gradient colors for each astrologer
                 const gradients = [
-                  'from-purple-600 to-purple-800',  // Mrs. Indira Pandey
-                  'from-amber-500 to-orange-600',   // Mr. Rajesh Pandey
-                  'from-pink-500 to-purple-600'     // Ms. Ankita Pandey
+                  'from-purple-600 to-purple-800',  // Acharyaa Indira Pandey
+                  'from-amber-500 to-orange-600',   // Acharya Ram Nath Tiwari
+                  'from-pink-500 to-purple-600'     // Acharyaa Ankita Pandey
                 ];
 
                 return (

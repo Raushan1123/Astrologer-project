@@ -19,7 +19,7 @@ const Footer = () => {
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-bold">Mrs. Indira Pandey</h3>
+                <h3 className="text-lg font-bold">Acharyaa Indira Pandey</h3>
                 <p className="text-xs text-purple-300">{t('header.vedicAstrologer')}</p>
               </div>
             </div>

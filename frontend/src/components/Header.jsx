@@ -32,7 +32,7 @@ const Header = () => {
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-purple-900">Mrs. Indira Pandey</h1>
+              <h1 className="text-xl font-bold text-purple-900">Acharyaa Indira Pandey</h1>
               <p className="text-xs text-purple-600">{t('header.vedicAstrologer')}</p>
             </div>
           </Link>

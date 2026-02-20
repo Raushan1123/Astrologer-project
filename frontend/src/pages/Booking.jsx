@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { CheckCircle, Clock, Video, MapPin, Sparkles } from 'lucide-react';
 import { mockServices, astrologers } from '../mockData';
 import { useLanguage } from '../contexts/LanguageContext';
+import DisclaimerModal from '../components/DisclaimerModal';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -21,6 +22,8 @@ const Booking = () => {
   const [loading, setLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -76,6 +79,19 @@ const Booking = () => {
   const translatedAstrologers = getTranslatedAstrologers();
   const translatedServices = getTranslatedServices();
 
+  // Handle disclaimer acceptance
+  const handleDisclaimerAccept = () => {
+    setDisclaimerAccepted(true);
+    setShowDisclaimer(false);
+    toast.success('Thank you for accepting the terms. You may now proceed with booking.');
+  };
+
+  // Handle disclaimer decline
+  const handleDisclaimerDecline = () => {
+    toast.error('You must accept the disclaimer to book a consultation.');
+    navigate('/');
+  };
+
   // Fetch slots when astrologer or date changes
   useEffect(() => {
     if (formData.astrologer && formData.preferredDate) {
@@ -113,7 +129,7 @@ const Booking = () => {
         key: key,
         amount: bookingData.amount,
         currency: 'INR',
-        name: 'Mrs. Indira Pandey Astrology',
+        name: 'Acharyaa Indira Pandey Astrology',
         description: `${bookingData.service} - ${bookingData.consultation_duration} mins`,
         order_id: bookingData.razorpay_order_id,
         handler: async function (response) {
@@ -266,7 +282,15 @@ const Booking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
+    <>
+      {/* Disclaimer Modal */}
+      <DisclaimerModal
+        isOpen={showDisclaimer}
+        onAccept={handleDisclaimerAccept}
+        onDecline={handleDisclaimerDecline}
+      />
+
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">
@@ -290,6 +314,36 @@ const Booking = () => {
             <p className="text-xl text-gray-600 leading-relaxed">
               Take the first step towards clarity and guidance. Fill out the form below to schedule your session.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Holi Offer Banner */}
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 p-1 shadow-2xl">
+              <div className="bg-white rounded-xl p-8 text-center">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="flex-1 text-left">
+                    <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 mb-3">
+                      🎉 Holi Special Offer! 🎊
+                    </h2>
+                    <p className="text-lg md:text-xl text-gray-700 font-semibold mb-2">
+                      Get Expert Astrology Consultation at Special Prices
+                    </p>
+                    <p className="text-md text-orange-600 font-bold animate-pulse">
+                      ⏰ Limited Time Offer - Grab the Deal Now!
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-400 to-pink-500 text-white px-8 py-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
+                    <p className="text-sm font-semibold mb-1">Special Discount</p>
+                    <p className="text-4xl font-bold mb-2">UP TO 30% OFF</p>
+                    <p className="text-xs opacity-90">On All Consultations</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -631,9 +685,31 @@ const Booking = () => {
                   <p className="text-sm text-gray-500 text-center mt-4">
                     Your selected time slot will be reserved. We'll send you a confirmation email shortly.
                   </p>
-                  <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <p className="text-sm text-gray-700 text-center">
-                      <strong>Consultation Fees:</strong> 5-10 mins (Free for first-time), 10-20 mins (₹1,500), 20+ mins (₹2,100). 
+                  <div className="mt-6 p-6 bg-gradient-to-r from-pink-50 via-purple-50 to-orange-50 rounded-lg border-2 border-purple-200">
+                    <div className="text-center mb-3">
+                      <p className="text-lg font-bold text-purple-900 mb-2">🎉 Holi Special Pricing 🎉</p>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-700">
+                      <div className="flex justify-between items-center">
+                        <span><strong>5-10 mins:</strong> Free (First-time only)</span>
+                        <span className="text-green-600 font-bold">FREE</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span><strong>10-20 mins:</strong></span>
+                        <div className="text-right">
+                          <span className="line-through text-gray-400 mr-2">₹2,100</span>
+                          <span className="text-orange-600 font-bold text-lg">₹1,500</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span><strong>20+ mins:</strong></span>
+                        <div className="text-right">
+                          <span className="line-through text-gray-400 mr-2">₹3,000</span>
+                          <span className="text-orange-600 font-bold text-lg">₹2,100</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 text-center mt-4 italic">
                       Special services like gemstone consultations priced separately.
                     </p>
                   </div>
@@ -684,6 +760,7 @@ const Booking = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 
