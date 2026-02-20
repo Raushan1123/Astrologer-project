@@ -4,8 +4,34 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Star, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
 import { mockStats, mockServices, mockTestimonials } from '../mockData';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Home = () => {
+  const { t } = useLanguage();
+
+  // Helper function to get translated service data
+  const getServiceTranslation = (service) => {
+    const serviceMap = {
+      'Birth Chart (Kundli) Analysis': { title: 'birthChart', desc: 'birthChartDesc' },
+      'Career & Business Guidance': { title: 'career', desc: 'careerDesc' },
+      'Marriage & Relationship Compatibility': { title: 'marriage', desc: 'marriageDesc' },
+      'Health & Life Path Insights': { title: 'health', desc: 'healthDesc' },
+      'Vastu Consultation': { title: 'vastu', desc: 'vastuDesc' },
+      'Numerology': { title: 'numerology', desc: 'numerologyDesc' },
+      'Gemstone Remedies & Sales': { title: 'gemstone', desc: 'gemstoneDesc' },
+      'Auspicious Childbirth Timing (Muhurat)': { title: 'childbirth', desc: 'childbirthDesc' }
+    };
+
+    const keys = serviceMap[service.title];
+    if (keys) {
+      return {
+        title: t(`services.${keys.title}`),
+        description: t(`services.${keys.desc}`)
+      };
+    }
+    return { title: service.title, description: service.description };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50">
       {/* Hero Section */}
@@ -38,19 +64,18 @@ const Home = () => {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100">
-              Guiding Your Destiny
+              {t('home.hero.title')}
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500 mt-2">
-                Through the Stars ✨
+                {t('home.hero.subtitle')} ✨
               </span>
             </h1>
 
             <p className="text-xl md:text-2xl text-purple-100 mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-200">
-              Mrs. Indira Pandey - Professional Vedic Astrologer
+              Mrs. Indira Pandey - {t('header.vedicAstrologer')}
             </p>
 
             <p className="text-lg text-purple-200 mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-300">
-              Experience personalized astrological insights that have transformed 800+ lives. 
-              Discover clarity in career, relationships, health, and life's purpose.
+              {t('home.hero.description')}
             </p>
 
             {/* CTA Buttons */}
@@ -60,7 +85,7 @@ const Home = () => {
                   size="lg"
                   className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-8 py-6 text-lg font-semibold shadow-2xl shadow-amber-500/50 transform hover:scale-105 transition-all duration-300 border-0"
                 >
-                  Book a Consultation
+                  {t('home.hero.cta')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
@@ -70,7 +95,7 @@ const Home = () => {
                   variant="outline"
                   className="bg-white/10 hover:bg-white/20 text-white border-2 border-white/30 backdrop-blur-sm px-8 py-6 text-lg font-semibold transform hover:scale-105 transition-all duration-300"
                 >
-                  Explore Services
+                  {t('home.hero.learnMore')}
                 </Button>
               </Link>
             </div>
@@ -78,10 +103,10 @@ const Home = () => {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 animate-in fade-in slide-in-from-bottom duration-700 delay-700">
               {[
-                { icon: Award, label: 'Years Experience', value: mockStats.experience },
-                { icon: Users, label: 'Happy Clients', value: mockStats.clients },
-                { icon: Star, label: 'Satisfaction Rate', value: mockStats.satisfaction },
-                { icon: TrendingUp, label: 'Weekly Consultations', value: mockStats.consultationsPerWeek }
+                { icon: Award, label: t('home.stats.experience'), value: mockStats.experience },
+                { icon: Users, label: t('home.stats.clients'), value: mockStats.clients },
+                { icon: Star, label: t('home.stats.satisfaction'), value: mockStats.satisfaction },
+                { icon: TrendingUp, label: t('home.stats.consultations'), value: mockStats.consultationsPerWeek }
               ].map((stat, index) => (
                 <Card key={index} className="p-6 bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
                   <stat.icon className="w-8 h-8 text-amber-300 mx-auto mb-3" />
@@ -155,42 +180,46 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-purple-900 mb-4">
-              Our Services
+              {t('home.services.title')}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Comprehensive astrological solutions for every aspect of your life
+              {t('home.services.subtitle')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockServices.slice(0, 6).map((service) => (
-              <Card
-                key={service.id}
-                className="overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 to-transparent" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-purple-900 mb-3">{service.title}</h3>
-                  <p className="text-gray-600 mb-4 leading-relaxed">{service.description}</p>
-                  <Link to="/services">
-                    <Button
-                      variant="ghost"
-                      className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent"
-                    >
-                      Learn More
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </Card>
-            ))}
+            {mockServices.slice(0, 6).map((service) => {
+              const translatedService = getServiceTranslation(service);
+
+              return (
+                <Card
+                  key={service.id}
+                  className="overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={service.image}
+                      alt={translatedService.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-purple-900/80 to-transparent" />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-purple-900 mb-3">{translatedService.title}</h3>
+                    <p className="text-gray-600 mb-4 leading-relaxed">{translatedService.description}</p>
+                    <Link to="/services">
+                      <Button
+                        variant="ghost"
+                        className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent"
+                      >
+                        {t('common.learnMore')}
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
 
           <div className="text-center mt-10">
@@ -199,7 +228,7 @@ const Home = () => {
                 size="lg"
                 className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 shadow-lg shadow-purple-300 transform hover:scale-105 transition-all duration-300"
               >
-                View All Services
+                {t('home.services.viewAll')}
               </Button>
             </Link>
           </div>
@@ -211,10 +240,10 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-purple-900 mb-4">
-              What Our Clients Say
+              {t('home.testimonials.title')}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Real experiences from real people who found clarity and direction
+              {t('home.testimonials.subtitle')}
             </p>
           </div>
 
@@ -247,7 +276,7 @@ const Home = () => {
                 size="lg"
                 className="border-2 border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white px-8 transform hover:scale-105 transition-all duration-300"
               >
-                Read More Testimonials
+                {t('home.testimonials.viewAll')}
               </Button>
             </Link>
           </div>
@@ -268,17 +297,17 @@ const Home = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Ready to Discover Your Path?
+              {t('home.cta.title')}
             </h2>
             <p className="text-xl text-purple-100 mb-8 leading-relaxed">
-              Take the first step towards clarity and guidance. Book your personalized consultation today.
+              {t('home.cta.subtitle')}
             </p>
             <Link to="/booking">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-amber-500/50 transform hover:scale-105 transition-all duration-300"
               >
-                Book Your Consultation Now
+                {t('home.cta.button')}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>

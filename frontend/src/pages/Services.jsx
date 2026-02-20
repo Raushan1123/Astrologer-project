@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { mockServices, consultationPricing } from '../mockData';
 import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hash, Sparkles, CheckCircle, Gem, Baby, BadgeCheck, Clock, IndianRupee } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const iconMap = {
   Star,
@@ -17,6 +18,31 @@ const iconMap = {
 };
 
 const Services = () => {
+  const { t } = useLanguage();
+
+  // Helper function to get translated service data
+  const getServiceTranslation = (service) => {
+    const serviceMap = {
+      'Birth Chart (Kundli) Analysis': { title: 'birthChart', desc: 'birthChartDesc' },
+      'Career & Business Guidance': { title: 'career', desc: 'careerDesc' },
+      'Marriage & Relationship Compatibility': { title: 'marriage', desc: 'marriageDesc' },
+      'Health & Life Path Insights': { title: 'health', desc: 'healthDesc' },
+      'Vastu Consultation': { title: 'vastu', desc: 'vastuDesc' },
+      'Numerology': { title: 'numerology', desc: 'numerologyDesc' },
+      'Gemstone Remedies & Sales': { title: 'gemstone', desc: 'gemstoneDesc' },
+      'Auspicious Childbirth Timing (Muhurat)': { title: 'childbirth', desc: 'childbirthDesc' }
+    };
+
+    const keys = serviceMap[service.title];
+    if (keys) {
+      return {
+        title: t(`services.${keys.title}`),
+        description: t(`services.${keys.desc}`)
+      };
+    }
+    return { title: service.title, description: service.description };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
       {/* Hero Section */}
@@ -33,14 +59,14 @@ const Services = () => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 border border-purple-200 mb-6">
               <Sparkles className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-medium text-purple-700">Comprehensive Astrological Solutions</span>
+              <span className="text-sm font-medium text-purple-700">{t('servicesPage.subtitle')}</span>
             </div>
 
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              Our Services
+              {t('servicesPage.title')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
-              Personalized guidance for every aspect of your life through the wisdom of Vedic astrology
+              {t('servicesPage.description')}
             </p>
           </div>
         </div>
@@ -52,7 +78,8 @@ const Services = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {mockServices.map((service, index) => {
               const IconComponent = iconMap[service.icon] || Star;
-              
+              const translatedService = getServiceTranslation(service);
+
               return (
                 <Card
                   key={service.id}
@@ -62,11 +89,11 @@ const Services = () => {
                   <div className="relative h-56 overflow-hidden">
                     <img
                       src={service.image}
-                      alt={service.title}
+                      alt={translatedService.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/50 to-transparent" />
-                    
+
                     {/* Icon */}
                     <div className="absolute bottom-4 left-4">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-xl">
@@ -78,18 +105,18 @@ const Services = () => {
                   {/* Service Content */}
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-purple-900 mb-3">
-                      {service.title}
+                      {translatedService.title}
                     </h3>
                     <p className="text-gray-600 leading-relaxed mb-4">
-                      {service.description}
+                      {translatedService.description}
                     </p>
-                    
+
                     <Link to="/booking">
                       <Button
                         variant="ghost"
                         className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
                       >
-                        Book This Service
+                        {t('common.bookNow')}
                         <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                       </Button>
                     </Link>
@@ -107,45 +134,24 @@ const Services = () => {
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
-                What's Included in Every Consultation
+                {t('servicesPage.whatsIncluded')}
               </h2>
               <p className="text-lg text-gray-600">
-                Comprehensive analysis and personalized guidance tailored to your needs
+                {t('servicesPage.whatsIncludedSubtitle')}
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {[
-                {
-                  title: 'Detailed Birth Chart Analysis',
-                  description: 'In-depth examination of your complete birth chart with planetary positions and house placements'
-                },
-                {
-                  title: 'Personalized Predictions',
-                  description: 'Specific forecasts related to your questions and concerns based on current planetary transits'
-                },
-                {
-                  title: 'Practical Remedies',
-                  description: 'Easy-to-follow Vedic remedies including mantras, gemstones, and lifestyle adjustments'
-                },
-                {
-                  title: 'Future Guidance',
-                  description: 'Insights into upcoming opportunities and challenges with timing and recommendations'
-                },
-                {
-                  title: 'Question & Answer Session',
-                  description: 'Dedicated time to address all your specific questions and concerns'
-                },
-                {
-                  title: 'Follow-up Support',
-                  description: 'Email support for clarifications within 7 days of consultation'
-                }
-              ].map((item, index) => (
-                <div key={index} className="flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              {[1, 2, 3, 4, 5, 6].map((num) => (
+                <div key={num} className="flex items-start gap-4 p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
                   <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="text-lg font-semibold text-purple-900 mb-2">{item.title}</h3>
-                    <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                    <h3 className="text-lg font-semibold text-purple-900 mb-2">
+                      {t(`servicesPage.included${num}Title`)}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {t(`servicesPage.included${num}Desc`)}
+                    </p>
                   </div>
                 </div>
               ))}

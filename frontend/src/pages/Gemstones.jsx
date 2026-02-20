@@ -6,6 +6,7 @@ import { Badge } from '../components/ui/badge';
 import { Sparkles, ShoppingCart, CheckCircle, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -81,6 +82,7 @@ const mockGemstones = [
 ];
 
 const Gemstones = () => {
+  const { t } = useLanguage();
   const [gemstones, setGemstones] = useState(mockGemstones);
   const [loading, setLoading] = useState(false);
 
@@ -122,14 +124,14 @@ const Gemstones = () => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 border border-amber-200 mb-6">
               <Sparkles className="w-4 h-4 text-amber-600" />
-              <span className="text-sm font-medium text-amber-700">Authentic Vedic Gemstones</span>
+              <span className="text-sm font-medium text-amber-700">{t('gemstones.badge')}</span>
             </div>
 
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              Gemstone Catalog
+              {t('gemstones.title')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Authentic, energized gemstones personally selected and blessed by our astrologers
+              {t('gemstones.subtitle')}
             </p>
           </div>
         </div>
@@ -156,9 +158,9 @@ const Gemstones = () => {
                   {/* Stock Badge */}
                   <div className="absolute top-4 right-4">
                     {gemstone.in_stock ? (
-                      <Badge className="bg-green-500">In Stock</Badge>
+                      <Badge className="bg-green-500">{t('gemstones.inStock')}</Badge>
                     ) : (
-                      <Badge className="bg-red-500">Out of Stock</Badge>
+                      <Badge className="bg-red-500">{t('gemstones.outOfStock')}</Badge>
                     )}
                   </div>
 
@@ -182,12 +184,12 @@ const Gemstones = () => {
 
                   {/* Specs */}
                   <div className="mb-4 text-sm">
-                    <span className="text-gray-600">Weight: {gemstone.weight}</span>
+                    <span className="text-gray-600">{t('gemstones.weight')}: {gemstone.weight}</span>
                   </div>
 
                   {/* Benefits */}
                   <div className="mb-4">
-                    <p className="text-sm font-semibold text-purple-900 mb-2">Benefits:</p>
+                    <p className="text-sm font-semibold text-purple-900 mb-2">{t('gemstones.benefitsLabel')}</p>
                     <div className="flex flex-wrap gap-2">
                       {gemstone.benefits.slice(0, 3).map((benefit, idx) => (
                         <span
@@ -208,11 +210,11 @@ const Gemstones = () => {
                       disabled={!gemstone.in_stock}
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
-                      Inquire for Price
+                      {t('gemstones.inquirePrice')}
                     </Button>
                     <Link to="/booking" className="flex-1">
                       <Button variant="outline" className="w-full border-purple-600 text-purple-700 hover:bg-purple-50">
-                        Consultation
+                        {t('gemstones.consultation')}
                       </Button>
                     </Link>
                   </div>
@@ -228,33 +230,33 @@ const Gemstones = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-12 text-center">
-              Why Choose Our Gemstones?
+              {t('gemstones.whyChooseTitle')}
             </h2>
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
                   icon: CheckCircle,
-                  title: '100% Authentic',
-                  description: 'All gemstones are certified and sourced from trusted suppliers'
+                  titleKey: 'feature1Title',
+                  descKey: 'feature1Desc'
                 },
                 {
                   icon: Sparkles,
-                  title: 'Energized & Blessed',
-                  description: 'Each gemstone is energized with Vedic mantras by our astrologers'
+                  titleKey: 'feature2Title',
+                  descKey: 'feature2Desc'
                 },
                 {
                   icon: Star,
-                  title: 'Personalized Selection',
-                  description: 'Gemstones recommended based on your birth chart analysis'
+                  titleKey: 'feature3Title',
+                  descKey: 'feature3Desc'
                 }
               ].map((feature, index) => (
                 <Card key={index} className="p-6 text-center bg-white hover:shadow-xl transition-all duration-300">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-amber-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <feature.icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-purple-900 mb-3">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <h3 className="text-xl font-bold text-purple-900 mb-3">{t(`gemstones.${feature.titleKey}`)}</h3>
+                  <p className="text-gray-600 leading-relaxed">{t(`gemstones.${feature.descKey}`)}</p>
                 </Card>
               ))}
             </div>
@@ -267,13 +269,13 @@ const Gemstones = () => {
         <div className="container mx-auto px-4">
           <Card className="max-w-4xl mx-auto p-8 bg-gradient-to-br from-purple-50 to-amber-50 text-center">
             <h2 className="text-3xl font-bold text-purple-900 mb-4">
-              Interested in Purchasing a Gemstone?
+              {t('gemstones.ctaTitle')}
             </h2>
             <p className="text-lg text-gray-600 mb-4">
-              Contact us for pricing and availability. Each gemstone is personally selected and energized by our astrologers.
+              {t('gemstones.ctaSubtitle')}
             </p>
             <p className="text-md text-gray-600 mb-8">
-              Book a consultation to get personalized gemstone recommendations based on your birth chart, along with detailed pricing information.
+              {t('gemstones.ctaDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/booking">
@@ -281,7 +283,7 @@ const Gemstones = () => {
                   size="lg"
                   className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-10 py-6 text-lg font-semibold shadow-xl"
                 >
-                  Book Consultation for Gemstone Guidance
+                  {t('gemstones.ctaButton1')}
                 </Button>
               </Link>
               <Link to="/contact">
@@ -290,7 +292,7 @@ const Gemstones = () => {
                   variant="outline"
                   className="border-2 border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white px-10 py-6 text-lg font-semibold"
                 >
-                  Contact for Pricing
+                  {t('gemstones.ctaButton2')}
                 </Button>
               </Link>
             </div>

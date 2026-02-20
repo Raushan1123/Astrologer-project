@@ -4,8 +4,11 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { astrologers } from '../mockData';
 import { Award, Star, ArrowRight, Sparkles, User } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Team = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
       {/* Hero Section */}
@@ -22,14 +25,14 @@ const Team = () => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 border border-purple-200 mb-6">
               <Sparkles className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-medium text-purple-700">Expert Astrologers Team</span>
+              <span className="text-sm font-medium text-purple-700">{t('team.badge')}</span>
             </div>
 
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              Our Team of Astrologers
+              {t('team.title')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Three generations of Vedic astrology expertise - combining ancient wisdom with modern understanding
+              {t('team.subtitle')}
             </p>
           </div>
         </div>
@@ -63,7 +66,7 @@ const Team = () => {
                       {/* Experience Badge */}
                       <div className="absolute top-4 right-4">
                         <div className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full font-semibold shadow-lg border border-white/30">
-                          {astrologer.experience} Years
+                          {astrologer.experience}+ {t('team.years')}
                         </div>
                       </div>
 
@@ -84,7 +87,7 @@ const Team = () => {
                       <div className="mb-6">
                         <h4 className="text-sm font-semibold text-purple-900 mb-3 flex items-center gap-2">
                           <Sparkles className="w-4 h-4 text-purple-600" />
-                          Specializations
+                          {t('team.specialization')}
                         </h4>
                         <div className="flex flex-wrap gap-2">
                           {astrologer.specialization.map((spec, idx) => (
@@ -102,7 +105,7 @@ const Team = () => {
                       <Link to="/booking">
                         <Button className={`w-full bg-gradient-to-r ${gradients[index]} hover:opacity-90 text-white shadow-lg`}>
                           <Star className="mr-2 w-4 h-4" />
-                          Book Consultation
+                          {t('team.bookConsultation')}
                         </Button>
                       </Link>
                     </div>
@@ -119,7 +122,7 @@ const Team = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-12 text-center">
-              Three Generations of Excellence
+              {t('team.excellenceTitle')}
             </h2>
 
             <div className="grid md:grid-cols-3 gap-8">
@@ -127,9 +130,9 @@ const Team = () => {
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Award className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-purple-900 mb-3">Master Guidance</h3>
+                <h3 className="text-xl font-bold text-purple-900 mb-3">{t('team.excellence1Title')}</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  40+ years of ancient wisdom from our founding master astrologer
+                  {t('team.excellence1Desc')}
                 </p>
               </Card>
 
@@ -137,9 +140,9 @@ const Team = () => {
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Star className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-purple-900 mb-3">Proven Track Record</h3>
+                <h3 className="text-xl font-bold text-purple-900 mb-3">{t('team.excellence2Title')}</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  800+ satisfied clients with 95% satisfaction rate over 20+ years
+                  {t('team.excellence2Desc')}
                 </p>
               </Card>
 
@@ -147,9 +150,9 @@ const Team = () => {
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-purple-900 mb-3">Modern Approach</h3>
+                <h3 className="text-xl font-bold text-purple-900 mb-3">{t('team.excellence3Title')}</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Fresh perspectives combined with traditional knowledge for all ages
+                  {t('team.excellence3Desc')}
                 </p>
               </Card>
             </div>
@@ -162,17 +165,17 @@ const Team = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-6">
-              Choose Your Astrologer
+              {t('team.ctaTitle')}
             </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Select the astrologer best suited for your needs and schedule your consultation today
+              {t('team.ctaSubtitle')}
             </p>
             <Link to="/booking">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-amber-300 transform hover:scale-105 transition-all duration-300"
               >
-                Book Your Consultation Now
+                {t('team.ctaButton')}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>

@@ -17,7 +17,8 @@ import pytz
 
 from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
-    BookingStatus, PaymentStatus, AstrologerAvailability
+    BookingStatus, PaymentStatus, AstrologerAvailability,
+    TestimonialCreate, Testimonial
 )
 
 ROOT_DIR = Path(__file__).parent
@@ -82,6 +83,12 @@ async def startup_event():
 
             # Time slots collection indexes
             await db.time_slots.create_index([("astrologer", 1), ("date", 1), ("time", 1)])
+
+            # Testimonials collection indexes
+            await db.testimonials.create_index("id", unique=True)
+            await db.testimonials.create_index("approved")
+            await db.testimonials.create_index([("created_at", -1)])  # Descending for sorting
+            await db.testimonials.create_index("email")
 
             logger.info("✅ Database indexes created successfully")
 
@@ -865,8 +872,11 @@ async def subscribe_newsletter(newsletter: Newsletter):
 
 # Testimonials
 @api_router.get("/testimonials")
-async def get_testimonials():
+async def get_testimonials(limit: int = 50, approved_only: bool = True):
     try:
+        # Build query
+        query = {"approved": True} if approved_only else {}
+
         # Optimized query with projection
         projection = {
             "_id": 0,
@@ -875,13 +885,102 @@ async def get_testimonials():
             "rating": 1,
             "text": 1,
             "service": 1,
-            "date": 1,
+            "location": 1,
+            "created_at": 1,
             "approved": 1
         }
-        testimonials = await db.testimonials.find({"approved": True}, projection).sort("date", -1).to_list(50)
+
+        # Fetch testimonials sorted by creation date (most recent first)
+        testimonials = await db.testimonials.find(query, projection).sort("created_at", -1).limit(limit).to_list(limit)
+
+        # Convert datetime to ISO string for JSON serialization
+        for testimonial in testimonials:
+            if isinstance(testimonial.get('created_at'), datetime):
+                testimonial['created_at'] = testimonial['created_at'].isoformat()
+
         return testimonials
     except Exception as e:
         logger.error(f"Error fetching testimonials: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/testimonials")
+async def create_testimonial(testimonial_data: TestimonialCreate, background_tasks: BackgroundTasks):
+    try:
+        # Create testimonial object
+        testimonial = Testimonial(
+            **testimonial_data.model_dump(),
+            approved=False  # Requires admin approval
+        )
+
+        # Save to database
+        testimonial_doc = testimonial.model_dump()
+        testimonial_doc['created_at'] = testimonial_doc['created_at'].isoformat()
+        testimonial_doc['updated_at'] = testimonial_doc['updated_at'].isoformat()
+
+        await db.testimonials.insert_one(testimonial_doc)
+
+        # Send notification email to admin
+        admin_email = os.environ.get('ADMIN_EMAIL', 'raushankumar.rk.rk@gmail.com')
+        admin_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">New Testimonial Submitted</h2>
+                <p>A new testimonial has been submitted and is awaiting approval.</p>
+
+                <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Name:</strong> {testimonial.name}</p>
+                    <p><strong>Email:</strong> {testimonial.email}</p>
+                    <p><strong>Rating:</strong> {'⭐' * testimonial.rating}</p>
+                    <p><strong>Service:</strong> {testimonial.service}</p>
+                    {f'<p><strong>Location:</strong> {testimonial.location}</p>' if testimonial.location else ''}
+                    <p><strong>Testimonial:</strong></p>
+                    <p style="font-style: italic;">"{testimonial.text}"</p>
+                </div>
+
+                <p style="margin-top: 30px;">Please review and approve this testimonial in the admin panel.</p>
+            </div>
+        </body>
+        </html>
+        """
+
+        # Send email in background
+        background_tasks.add_task(send_email, admin_email, "New Testimonial Awaiting Approval", admin_email_body)
+
+        # Send confirmation email to user
+        user_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">Thank You for Your Testimonial!</h2>
+                <p>Dear {testimonial.name},</p>
+                <p>Thank you for taking the time to share your experience with us. Your feedback is invaluable and helps us serve our clients better.</p>
+
+                <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Your Testimonial:</strong></p>
+                    <p style="font-style: italic;">"{testimonial.text}"</p>
+                    <p><strong>Rating:</strong> {'⭐' * testimonial.rating}</p>
+                </div>
+
+                <p>Your testimonial is currently under review and will be published on our website once approved.</p>
+
+                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
+
+        background_tasks.add_task(send_email, testimonial.email, "Thank You for Your Testimonial", user_email_body)
+
+        logger.info(f"New testimonial submitted by {testimonial.name} ({testimonial.email})")
+
+        return {
+            "message": "Testimonial submitted successfully. It will be published after review.",
+            "id": testimonial.id
+        }
+    except Exception as e:
+        logger.error(f"Error creating testimonial: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Blog posts

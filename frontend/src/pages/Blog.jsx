@@ -6,17 +6,25 @@ import { mockBlogs } from '../mockData';
 import { Calendar, Clock, User, ArrowRight, Search, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const Blog = () => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
 
-  const categories = ['All', 'Astrology Basics', 'Weekly Horoscope', 'Planetary Movements', 'Remedies'];
+  const categories = [
+    { key: 'All', label: t('blog.categoryAll') },
+    { key: 'Astrology Basics', label: t('blog.categoryBasics') },
+    { key: 'Weekly Horoscope', label: t('blog.categoryHoroscope') },
+    { key: 'Planetary Movements', label: t('blog.categoryPlanetary') },
+    { key: 'Remedies', label: t('blog.categoryRemedies') }
+  ];
 
   const filteredBlogs = mockBlogs.filter(blog => {
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -67,14 +75,14 @@ const Blog = () => {
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 border border-purple-200 mb-6">
               <Sparkles className="w-4 h-4 text-purple-600" />
-              <span className="text-sm font-medium text-purple-700">Astrological Insights & Wisdom</span>
+              <span className="text-sm font-medium text-purple-700">{t('blog.badge')}</span>
             </div>
 
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              Astrology Blog
+              {t('blog.title')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Explore articles on astrology, planetary movements, remedies, and cosmic wisdom
+              {t('blog.subtitle')}
             </p>
           </div>
         </div>
@@ -90,7 +98,7 @@ const Blog = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search articles..."
+                  placeholder={t('blog.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -101,15 +109,15 @@ const Blog = () => {
               <div className="flex gap-2 flex-wrap justify-center">
                 {categories.map((category) => (
                   <Button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    variant={selectedCategory === category ? 'default' : 'outline'}
-                    className={selectedCategory === category
+                    key={category.key}
+                    onClick={() => setSelectedCategory(category.key)}
+                    variant={selectedCategory === category.key ? 'default' : 'outline'}
+                    className={selectedCategory === category.key
                       ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white'
                       : 'border-purple-300 text-purple-700 hover:bg-purple-50'
                     }
                   >
-                    {category}
+                    {category.label}
                   </Button>
                 ))}
               </div>
@@ -123,7 +131,7 @@ const Blog = () => {
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
-              <h2 className="text-2xl font-bold text-purple-900 mb-6">Featured Article</h2>
+              <h2 className="text-2xl font-bold text-purple-900 mb-6">{t('blog.featuredArticle')}</h2>
               <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 group">
                 <div className="grid md:grid-cols-2 gap-0">
                   <div className="relative h-80 md:h-auto overflow-hidden">
@@ -160,7 +168,7 @@ const Blog = () => {
                     </div>
                     <Link to={`/blog/${filteredBlogs[0].id}`}>
                       <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
-                        Read Full Article
+                        {t('blog.readFullArticle')}
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>
@@ -176,8 +184,8 @@ const Blog = () => {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl font-bold text-purple-900 mb-6">Latest Articles</h2>
-            
+            <h2 className="text-2xl font-bold text-purple-900 mb-6">{t('blog.latestArticles')}</h2>
+
             {filteredBlogs.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-8">
                 {filteredBlogs.slice(1).map((blog) => (
@@ -220,7 +228,7 @@ const Blog = () => {
                           variant="ghost"
                           className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
                         >
-                          Read More
+                          {t('blog.readMore')}
                           <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                         </Button>
                       </Link>
@@ -230,7 +238,7 @@ const Blog = () => {
               </div>
             ) : (
               <Card className="p-12 text-center">
-                <p className="text-gray-600 text-lg">No articles found matching your search.</p>
+                <p className="text-gray-600 text-lg">{t('blog.noArticles')}</p>
               </Card>
             )}
           </div>
@@ -242,30 +250,30 @@ const Blog = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Subscribe to Our Newsletter
+              {t('blog.newsletterTitle')}
             </h2>
             <p className="text-lg text-purple-100 mb-8">
-              Get weekly horoscopes, astrological insights, and remedies delivered to your inbox
+              {t('blog.newsletterSubtitle')}
             </p>
             <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t('blog.newsletterPlaceholder')}
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 required
               />
-              <Button 
+              <Button
                 type="submit"
                 disabled={subscribing}
                 className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-6 shadow-lg disabled:opacity-50"
               >
-                {subscribing ? 'Subscribing...' : 'Subscribe'}
+                {subscribing ? t('blog.newsletterButtonLoading') : t('blog.newsletterButton')}
               </Button>
             </form>
             <p className="text-sm text-purple-200 mt-4">
-              We respect your privacy. Unsubscribe at any time.
+              {t('blog.newsletterPrivacy')}
             </p>
           </div>
         </div>

@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Award, Users, Heart, Shield, Star, Target, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const About = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
       {/* Hero Section */}
@@ -20,10 +23,10 @@ const About = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              About Mrs. Indira Pandey
+              {t('about.title')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              A journey of 20+ years in guiding souls through the ancient wisdom of Vedic astrology
+              {t('about.subtitle')}
             </p>
           </div>
         </div>
@@ -51,7 +54,7 @@ const About = () => {
                   </div>
                   <div>
                     <p className="text-3xl font-bold text-purple-900">20+</p>
-                    <p className="text-sm text-gray-600">Years Experience</p>
+                    <p className="text-sm text-gray-600">{t('about.yearsExperience')}</p>
                   </div>
                 </div>
               </Card>
@@ -59,25 +62,17 @@ const About = () => {
 
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-6">
-                My Journey Into Astrology
+                {t('about.journeyTitle')}
               </h2>
               <div className="space-y-4 text-gray-700 leading-relaxed">
                 <p>
-                  My journey into the mystical world of Vedic astrology began over two decades ago, 
-                  driven by a deep fascination with the cosmic patterns that shape our lives. What 
-                  started as a personal quest for understanding has blossomed into a profound calling 
-                  to guide others.
+                  {t('about.journeyPara1')}
                 </p>
                 <p>
-                  Through 20+ years of dedicated study under renowned Vedic scholars and countless hours 
-                  of chart analysis, I have developed a unique approach that combines traditional 
-                  wisdom with practical, modern-day applications. My practice is rooted in authenticity, 
-                  compassion, and a genuine desire to help people find clarity in their life's journey.
+                  {t('about.journeyPara2')}
                 </p>
                 <p>
-                  Having guided over 800 individuals from diverse backgrounds—including professionals, 
-                  entrepreneurs, and even well-known personalities—I have witnessed firsthand the 
-                  transformative power of astrological guidance when delivered with care and precision.
+                  {t('about.journeyPara3')}
                 </p>
               </div>
 
@@ -87,7 +82,7 @@ const About = () => {
                     size="lg"
                     className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 shadow-lg transform hover:scale-105 transition-all duration-300"
                   >
-                    Book Your Consultation
+                    {t('about.bookConsultation')}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
@@ -103,10 +98,10 @@ const About = () => {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
-                My Philosophy & Approach
+                {t('about.philosophyTitle')}
               </h2>
               <p className="text-lg text-gray-600">
-                Blending ancient wisdom with modern understanding for practical life guidance
+                {t('about.philosophySubtitle')}
               </p>
             </div>
 
@@ -114,18 +109,18 @@ const About = () => {
               {[
                 {
                   icon: Star,
-                  title: 'Personalized Charts',
-                  description: 'Every birth chart is unique. I provide detailed, individualized analysis tailored to your specific planetary positions and life circumstances.'
+                  titleKey: 'philosophy1Title',
+                  descKey: 'philosophy1Desc'
                 },
                 {
                   icon: Heart,
-                  title: 'Practical Remedies',
-                  description: 'Ancient wisdom meets modern life. I offer remedies that are practical, easy to follow, and seamlessly integrate into your daily routine.'
+                  titleKey: 'philosophy2Title',
+                  descKey: 'philosophy2Desc'
                 },
                 {
                   icon: Target,
-                  title: 'Traditional + Modern',
-                  description: 'Combining time-tested Vedic techniques with contemporary understanding to provide relevant and actionable guidance.'
+                  titleKey: 'philosophy3Title',
+                  descKey: 'philosophy3Desc'
                 }
               ].map((item, index) => (
                 <Card
@@ -135,8 +130,8 @@ const About = () => {
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-amber-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <item.icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-purple-900 mb-3">{item.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                  <h3 className="text-xl font-bold text-purple-900 mb-3">{t(`about.${item.titleKey}`)}</h3>
+                  <p className="text-gray-600 leading-relaxed">{t(`about.${item.descKey}`)}</p>
                 </Card>
               ))}
             </div>
@@ -150,10 +145,10 @@ const About = () => {
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
-                Why Clients Trust Me
+                {t('about.trustTitle')}
               </h2>
               <p className="text-lg text-gray-600">
-                Building lasting relationships through accuracy, integrity, and compassion
+                {t('about.trustSubtitle')}
               </p>
             </div>
 
@@ -161,27 +156,27 @@ const About = () => {
               {[
                 {
                   icon: Award,
-                  title: 'Proven Accuracy',
-                  description: 'With a 95%+ client satisfaction rate and 20+ years of experience, my predictions are known for their precision and relevance. Decades of experience have honed my ability to read charts with remarkable accuracy.',
-                  stats: '95% Satisfaction'
+                  titleKey: 'trust1Title',
+                  descKey: 'trust1Desc',
+                  statsKey: 'trust1Stats'
                 },
                 {
                   icon: Users,
-                  title: 'Trusted by Many',
-                  description: 'From working professionals to business leaders and even celebrities, my client base reflects the trust and credibility I have built over the years.',
-                  stats: '800+ Clients'
+                  titleKey: 'trust2Title',
+                  descKey: 'trust2Desc',
+                  statsKey: 'trust2Stats'
                 },
                 {
                   icon: Shield,
-                  title: 'Complete Confidentiality',
-                  description: 'Your privacy is my priority. All consultations are conducted with utmost discretion. Many high-profile clients trust me because they know their information is safe.',
-                  stats: '100% Private'
+                  titleKey: 'trust3Title',
+                  descKey: 'trust3Desc',
+                  statsKey: 'trust3Stats'
                 },
                 {
                   icon: Heart,
-                  title: 'Compassionate Guidance',
-                  description: 'Beyond charts and predictions, I genuinely care about helping you navigate life\'s challenges. My approach is empathetic, non-judgmental, and focused on your wellbeing.',
-                  stats: '90-100 Weekly Consultations'
+                  titleKey: 'trust4Title',
+                  descKey: 'trust4Desc',
+                  statsKey: 'trust4Stats'
                 }
               ].map((item, index) => (
                 <Card
@@ -193,10 +188,10 @@ const About = () => {
                       <item.icon className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-purple-900 mb-2">{item.title}</h3>
-                      <p className="text-gray-600 leading-relaxed mb-3">{item.description}</p>
+                      <h3 className="text-xl font-bold text-purple-900 mb-2">{t(`about.${item.titleKey}`)}</h3>
+                      <p className="text-gray-600 leading-relaxed mb-3">{t(`about.${item.descKey}`)}</p>
                       <div className="inline-block px-3 py-1 bg-purple-100 rounded-full">
-                        <span className="text-sm font-semibold text-purple-700">{item.stats}</span>
+                        <span className="text-sm font-semibold text-purple-700">{t(`about.${item.statsKey}`)}</span>
                       </div>
                     </div>
                   </div>
@@ -213,15 +208,13 @@ const About = () => {
           <div className="max-w-3xl mx-auto text-center">
             <Shield className="w-16 h-16 mx-auto mb-6 text-amber-300" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Trusted by Professionals & Celebrities
+              {t('about.celebrityTitle')}
             </h2>
             <p className="text-lg text-purple-100 leading-relaxed mb-6">
-              My client list includes well-known personalities and celebrities who value discretion 
-              and accuracy. Names remain confidential to respect their privacy, but their continued 
-              trust speaks volumes about the quality of guidance provided.
+              {t('about.celebrityDesc')}
             </p>
             <p className="text-purple-200 italic">
-              "Your privacy is sacred. Your trust is my responsibility."
+              {t('about.celebrityQuote')}
             </p>
           </div>
         </div>
@@ -232,10 +225,10 @@ const About = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-6">
-              Ready to Begin Your Journey?
+              {t('about.ctaTitle')}
             </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Experience personalized astrological guidance that brings clarity, direction, and peace of mind.
+              {t('about.ctaSubtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/booking">
@@ -243,7 +236,7 @@ const About = () => {
                   size="lg"
                   className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-8 shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
-                  Book Consultation
+                  {t('about.ctaButton1')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
@@ -253,7 +246,7 @@ const About = () => {
                   variant="outline"
                   className="border-2 border-purple-600 text-purple-700 hover:bg-purple-600 hover:text-white px-8 transform hover:scale-105 transition-all duration-300"
                 >
-                  View Services
+                  {t('about.ctaButton2')}
                 </Button>
               </Link>
             </div>

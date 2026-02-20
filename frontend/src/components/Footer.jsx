@@ -1,9 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Sparkles } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-gradient-to-br from-purple-950 via-purple-900 to-purple-950 text-white">
@@ -18,25 +20,25 @@ const Footer = () => {
               </div>
               <div>
                 <h3 className="text-lg font-bold">Mrs. Indira Pandey</h3>
-                <p className="text-xs text-purple-300">Vedic Astrologer</p>
+                <p className="text-xs text-purple-300">{t('header.vedicAstrologer')}</p>
               </div>
             </div>
             <p className="text-sm text-purple-200 leading-relaxed">
-              Guiding lives with 20+ years of Vedic astrology expertise. Trusted by 800+ clients with 90-100 weekly consultations for accurate predictions and personalized remedies.
+              {t('footer.tagline')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold mb-4 text-amber-300">Quick Links</h4>
+            <h4 className="text-lg font-semibold mb-4 text-amber-300">{t('footer.quickLinks')}</h4>
             <ul className="space-y-2">
               {[
-                { path: '/', label: 'Home' },
-                { path: '/about', label: 'About' },
-                { path: '/services', label: 'Services' },
-                { path: '/testimonials', label: 'Testimonials' },
-                { path: '/blog', label: 'Blog' },
-                { path: '/booking', label: 'Book Consultation' }
+                { path: '/', label: t('header.home') },
+                { path: '/about', label: t('header.about') },
+                { path: '/services', label: t('header.services') },
+                { path: '/testimonials', label: t('header.testimonials') },
+                { path: '/blog', label: t('header.blog') },
+                { path: '/booking', label: t('header.bookConsultation') }
               ].map((link) => (
                 <li key={link.path}>
                   <Link

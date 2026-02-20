@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { toast } from 'sonner';
 import { CheckCircle, Clock, Video, MapPin, Sparkles } from 'lucide-react';
 import { mockServices, astrologers } from '../mockData';
+import { useLanguage } from '../contexts/LanguageContext';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -16,6 +17,7 @@ const API = `${BACKEND_URL}/api`;
 
 const Booking = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -300,18 +302,18 @@ const Booking = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Information */}
                 <div>
-                  <h3 className="text-2xl font-bold text-purple-900 mb-6">Personal Information</h3>
+                  <h3 className="text-2xl font-bold text-purple-900 mb-6">{t('booking.personalInfo')}</h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="name" className="text-gray-700 font-medium mb-2">
-                        Full Name <span className="text-red-500">*</span>
+                        {t('booking.name')} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder="Enter your full name"
+                        placeholder={t('booking.namePlaceholder')}
                         required
                         className="border-purple-200 focus:border-purple-500"
                       />
@@ -319,7 +321,7 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="email" className="text-gray-700 font-medium mb-2">
-                        Email Address <span className="text-red-500">*</span>
+                        {t('booking.email')} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="email"
@@ -327,7 +329,7 @@ const Booking = () => {
                         type="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder="your@email.com"
+                        placeholder={t('booking.emailPlaceholder')}
                         required
                         className="border-purple-200 focus:border-purple-500"
                       />
@@ -335,7 +337,7 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="phone" className="text-gray-700 font-medium mb-2">
-                        Phone Number <span className="text-red-500">*</span>
+                        {t('booking.phone')} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="phone"
@@ -343,7 +345,7 @@ const Booking = () => {
                         type="tel"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        placeholder="+91 1234567890"
+                        placeholder={t('booking.phonePlaceholder')}
                         required
                         className="border-purple-200 focus:border-purple-500"
                       />
@@ -351,14 +353,14 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="placeOfBirth" className="text-gray-700 font-medium mb-2">
-                        Place of Birth
+                        {t('booking.placeOfBirth')}
                       </Label>
                       <Input
                         id="placeOfBirth"
                         name="placeOfBirth"
                         value={formData.placeOfBirth}
                         onChange={handleInputChange}
-                        placeholder="City, Country"
+                        placeholder={t('booking.placeOfBirthPlaceholder')}
                         className="border-purple-200 focus:border-purple-500"
                       />
                     </div>
@@ -367,11 +369,12 @@ const Booking = () => {
 
                 {/* Birth Details */}
                 <div>
-                  <h3 className="text-2xl font-bold text-purple-900 mb-6">Birth Details</h3>
+                  <h3 className="text-2xl font-bold text-purple-900 mb-6">{t('booking.birthDetails')}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{t('booking.birthDetailsNote')}</p>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="dateOfBirth" className="text-gray-700 font-medium mb-2">
-                        Date of Birth
+                        {t('booking.dateOfBirth')}
                       </Label>
                       <Input
                         id="dateOfBirth"
@@ -381,14 +384,12 @@ const Booking = () => {
                         value={formData.dateOfBirth ? (typeof formData.dateOfBirth === 'string' ? formData.dateOfBirth : formData.dateOfBirth.toISOString().split('T')[0]) : ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                         className="border-purple-200 focus:border-purple-500"
-                        placeholder="Select your date of birth"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Required for accurate chart analysis</p>
                     </div>
 
                     <div>
                       <Label htmlFor="timeOfBirth" className="text-gray-700 font-medium mb-2">
-                        Time of Birth
+                        {t('booking.timeOfBirth')}
                       </Label>
                       <Input
                         id="timeOfBirth"
@@ -406,11 +407,11 @@ const Booking = () => {
 
                 {/* Consultation Details */}
                 <div>
-                  <h3 className="text-2xl font-bold text-purple-900 mb-6">Consultation Details</h3>
+                  <h3 className="text-2xl font-bold text-purple-900 mb-6">{t('booking.consultationDetails')}</h3>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="astrologer" className="text-gray-700 font-medium mb-2">
-                        Select Astrologer <span className="text-red-500">*</span>
+                        {t('booking.selectAstrologer')} <span className="text-red-500">*</span>
                       </Label>
                       <Select
                         value={formData.astrologer}
@@ -418,12 +419,12 @@ const Booking = () => {
                         required
                       >
                         <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder="Choose your astrologer" />
+                          <SelectValue placeholder={t('booking.selectAstrologer')} />
                         </SelectTrigger>
                         <SelectContent>
                           {astrologers.map((astro) => (
                             <SelectItem key={astro.id} value={astro.name}>
-                              {astro.name} ({astro.experience} years exp.)
+                              {astro.name} ({astro.experience}+ {t('team.experience')})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -432,7 +433,7 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="service" className="text-gray-700 font-medium mb-2">
-                        Service Required <span className="text-red-500">*</span>
+                        {t('booking.selectService')} <span className="text-red-500">*</span>
                       </Label>
                       <Select
                         value={formData.service}
@@ -440,7 +441,7 @@ const Booking = () => {
                         required
                       >
                         <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder="Select a service" />
+                          <SelectValue placeholder={t('booking.selectService')} />
                         </SelectTrigger>
                         <SelectContent>
                           {mockServices.map((service) => (
@@ -454,7 +455,7 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="consultationDuration" className="text-gray-700 font-medium mb-2">
-                        Consultation Duration <span className="text-red-500">*</span>
+                        {t('booking.duration')} <span className="text-red-500">*</span>
                       </Label>
                       <Select
                         value={formData.consultationDuration}
@@ -462,19 +463,19 @@ const Booking = () => {
                         required
                       >
                         <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder="Select duration" />
+                          <SelectValue placeholder={t('booking.duration')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="5-10">5-10 Minutes (Free - First Time)</SelectItem>
-                          <SelectItem value="10-20">10-20 Minutes (₹1,500)</SelectItem>
-                          <SelectItem value="20+">20+ Minutes (₹2,100)</SelectItem>
+                          <SelectItem value="5-10">{t('pricing.duration1')} ({t('pricing.price1')} - {t('pricing.badge1')})</SelectItem>
+                          <SelectItem value="10-20">{t('pricing.duration2')} ({t('pricing.price2')})</SelectItem>
+                          <SelectItem value="20+">{t('pricing.duration3')} ({t('pricing.price3')})</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div>
                       <Label htmlFor="consultationType" className="text-gray-700 font-medium mb-2">
-                        Consultation Type <span className="text-red-500">*</span>
+                        {t('booking.consultationType')} <span className="text-red-500">*</span>
                       </Label>
                       <Select
                         value={formData.consultationType}
@@ -482,18 +483,18 @@ const Booking = () => {
                         required
                       >
                         <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder="Select consultation type" />
+                          <SelectValue placeholder={t('booking.consultationType')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="online">Online (Video Call)</SelectItem>
-                          <SelectItem value="inperson">In-Person (Ghaziabad)</SelectItem>
+                          <SelectItem value="online">{t('booking.online')}</SelectItem>
+                          <SelectItem value="inperson">{t('booking.inPerson')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div>
                       <Label htmlFor="preferredDate" className="text-gray-700 font-medium mb-2">
-                        Preferred Date <span className="text-red-500">*</span>
+                        {t('booking.preferredDate')} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="preferredDate"
@@ -505,28 +506,26 @@ const Booking = () => {
                           setFormData(prev => ({ ...prev, preferredDate: e.target.value, preferredTime: '' }));
                         }}
                         className="border-purple-200 focus:border-purple-500"
-                        placeholder="Select preferred consultation date"
                         required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Select a date to view available time slots</p>
                     </div>
 
                     <div>
                       <Label htmlFor="preferredTime" className="text-gray-700 font-medium mb-2">
-                        Available Time Slots <span className="text-red-500">*</span>
+                        {t('booking.preferredTime')} <span className="text-red-500">*</span>
                       </Label>
                       {!formData.astrologer || !formData.preferredDate ? (
                         <div className="p-4 bg-gray-50 border border-gray-200 rounded-md text-center text-sm text-gray-500">
-                          Please select an astrologer and date first
+                          {t('booking.selectTime')}
                         </div>
                       ) : loadingSlots ? (
                         <div className="p-4 bg-purple-50 border border-purple-200 rounded-md text-center">
                           <Clock className="w-5 h-5 animate-spin mx-auto mb-2 text-purple-600" />
-                          <p className="text-sm text-purple-700">Loading available slots...</p>
+                          <p className="text-sm text-purple-700">{t('booking.loadingSlots')}</p>
                         </div>
                       ) : availableSlots.length === 0 ? (
                         <div className="p-4 bg-amber-50 border border-amber-200 rounded-md text-center text-sm text-amber-700">
-                          No available slots for this date. Please choose another date.
+                          {t('booking.noSlots')}
                         </div>
                       ) : (
                         <Select
@@ -535,7 +534,7 @@ const Booking = () => {
                           required
                         >
                           <SelectTrigger className="border-purple-200">
-                            <SelectValue placeholder="Select an available time slot" />
+                            <SelectValue placeholder={t('booking.selectTime')} />
                           </SelectTrigger>
                           <SelectContent>
                             {availableSlots.map((slot, index) => (
@@ -558,14 +557,14 @@ const Booking = () => {
                 {/* Additional Message */}
                 <div>
                   <Label htmlFor="message" className="text-gray-700 font-medium mb-2">
-                    Additional Message / Questions
+                    {t('booking.message')}
                   </Label>
                   <Textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    placeholder="Tell us about your concerns or questions..."
+                    placeholder={t('booking.messagePlaceholder')}
                     rows={5}
                     className="border-purple-200 focus:border-purple-500"
                   />
@@ -582,12 +581,12 @@ const Booking = () => {
                     {loading ? (
                       <>
                         <Clock className="mr-2 w-5 h-5 animate-spin" />
-                        Processing...
+                        {t('booking.submitting')}
                       </>
                     ) : (
                       <>
                         <CheckCircle className="mr-2 w-5 h-5" />
-                        Submit Booking Request
+                        {t('booking.submit')}
                       </>
                     )}
                   </Button>

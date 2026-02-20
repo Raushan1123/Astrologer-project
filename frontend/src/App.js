@@ -2,6 +2,7 @@ import React from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -20,28 +21,30 @@ import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/booking-success/:bookingId" element={<BookingSuccess />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/gemstones" element={<Gemstones />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-        </Routes>
-        <Footer />
-        <Toaster />
-      </BrowserRouter>
-    </div>
+    <LanguageProvider>
+      <div className="App">
+        <BrowserRouter>
+          <Header />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/booking" element={<Booking />} />
+            <Route path="/booking-success/:bookingId" element={<BookingSuccess />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/gemstones" element={<Gemstones />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
+          </Routes>
+          <Footer />
+          <Toaster />
+        </BrowserRouter>
+      </div>
+    </LanguageProvider>
   );
 }
 

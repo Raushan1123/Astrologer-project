@@ -1,11 +1,54 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { mockTestimonials } from '../mockData';
 import { Star, Quote, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import TestimonialForm from '../components/TestimonialForm';
+import axios from 'axios';
 
 const Testimonials = () => {
+  const { t } = useLanguage();
+  const [testimonials, setTestimonials] = useState(mockTestimonials);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch testimonials from API
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        setLoading(true);
+        const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+        const response = await axios.get(`${API_URL}/testimonials?limit=20`);
+
+        if (response.data && response.data.length > 0) {
+          // Format testimonials to match the expected structure
+          const formattedTestimonials = response.data.map(t => ({
+            id: t.id,
+            name: t.name,
+            rating: t.rating,
+            text: t.text,
+            service: t.service,
+            location: t.location || '',
+            date: new Date(t.created_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+          }));
+          setTestimonials(formattedTestimonials);
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+        // Keep using mock data if API fails
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
       {/* Hero Section */}
@@ -21,10 +64,10 @@ const Testimonials = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              Client Testimonials
+              {t('testimonials.title')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Real stories from real people who found clarity, direction, and peace through astrological guidance
+              {t('testimonials.subtitle')}
             </p>
           </div>
         </div>
@@ -35,14 +78,14 @@ const Testimonials = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {[
-              { number: '800+', label: 'Happy Clients' },
-              { number: '95%', label: 'Satisfaction Rate' },
-              { number: '20+', label: 'Years Experience' },
-              { number: '90-100', label: 'Weekly Sessions' }
+              { numberKey: 'stat1Number', labelKey: 'stat1Label' },
+              { numberKey: 'stat2Number', labelKey: 'stat2Label' },
+              { numberKey: 'stat3Number', labelKey: 'stat3Label' },
+              { numberKey: 'stat4Number', labelKey: 'stat4Label' }
             ].map((stat, index) => (
               <div key={index} className="text-center">
-                <p className="text-4xl md:text-5xl font-bold text-amber-400 mb-2">{stat.number}</p>
-                <p className="text-sm md:text-base text-purple-200">{stat.label}</p>
+                <p className="text-4xl md:text-5xl font-bold text-amber-400 mb-2">{t(`testimonials.${stat.numberKey}`)}</p>
+                <p className="text-sm md:text-base text-purple-200">{t(`testimonials.${stat.labelKey}`)}</p>
               </div>
             ))}
           </div>
@@ -53,7 +96,7 @@ const Testimonials = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {mockTestimonials.map((testimonial) => (
+            {testimonials.map((testimonial) => (
               <Card
                 key={testimonial.id}
                 className="p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 bg-gradient-to-br from-white to-purple-50 border-purple-100 relative"
@@ -85,13 +128,19 @@ const Testimonials = () => {
                       {testimonial.name}
                     </p>
                     <p className="text-sm text-gray-500">{testimonial.service}</p>
+                    {testimonial.location && (
+                      <p className="text-xs text-gray-400 mt-1">📍 {testimonial.location}</p>
+                    )}
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-gray-400">
-                      {new Date(testimonial.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        year: 'numeric'
-                      })}
+                      {typeof testimonial.date === 'string' && testimonial.date.includes(',')
+                        ? testimonial.date
+                        : new Date(testimonial.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            year: 'numeric'
+                          })
+                      }
                     </p>
                   </div>
                 </div>
@@ -106,7 +155,7 @@ const Testimonials = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-8 text-center">
-              More Success Stories
+              {t('testimonials.moreStoriesTitle')}
             </h2>
             
             <div className="grid md:grid-cols-3 gap-6">
@@ -168,6 +217,15 @@ const Testimonials = () => {
         </div>
       </section>
 
+      {/* Testimonial Submission Form */}
+      <section className="py-16 bg-gradient-to-b from-white to-purple-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <TestimonialForm />
+          </div>
+        </div>
+      </section>
+
       {/* Video Testimonials Coming Soon */}
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -176,11 +234,10 @@ const Testimonials = () => {
               <Star className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-3xl font-bold text-purple-900 mb-4">
-              Video Testimonials Coming Soon
+              {t('testimonials.videoTitle')}
             </h2>
             <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-              We're collecting video testimonials from our satisfied clients. 
-              Check back soon to hear directly from those whose lives have been transformed.
+              {t('testimonials.videoSubtitle')}
             </p>
           </Card>
         </div>
@@ -200,17 +257,17 @@ const Testimonials = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Become Our Next Success Story
+              {t('testimonials.ctaTitle')}
             </h2>
             <p className="text-xl text-purple-100 mb-8 leading-relaxed">
-              Join hundreds of satisfied clients who have found clarity and direction through personalized astrological guidance.
+              {t('testimonials.ctaSubtitle')}
             </p>
             <Link to="/booking">
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-amber-500/50 transform hover:scale-105 transition-all duration-300"
               >
-                Book Your Consultation Now
+                {t('testimonials.ctaButton')}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>

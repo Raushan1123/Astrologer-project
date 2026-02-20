@@ -14,11 +14,13 @@ import {
 } from '../components/ui/accordion';
 import { mockFAQs } from '../mockData';
 import axios from 'axios';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const Contact = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -77,10 +79,10 @@ const Contact = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              Get in Touch
+              {t('contact.title')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              {t('contact.subtitle')}
             </p>
           </div>
         </div>
@@ -93,29 +95,29 @@ const Contact = () => {
             {[
               {
                 icon: Phone,
-                title: 'Phone',
+                titleKey: 'phoneTitle',
                 content: '+91 8130420339',
                 link: 'tel:+918130420339',
                 color: 'purple'
               },
               {
                 icon: Mail,
-                title: 'Email',
+                titleKey: 'emailTitle',
                 content: 'indirapandey2526@gmail.com',
                 link: 'mailto:indirapandey2526@gmail.com',
                 color: 'amber'
               },
               {
                 icon: MapPin,
-                title: 'Location',
-                content: 'Ghaziabad, India',
+                titleKey: 'locationTitle',
+                contentKey: 'location',
                 link: '#map',
                 color: 'purple'
               },
               {
                 icon: Clock,
-                title: 'Working Hours',
-                content: 'Mon-Sat: 10 AM - 7 PM',
+                titleKey: 'hoursTitle',
+                contentKey: 'hoursValue',
                 link: null,
                 color: 'amber'
               }
@@ -129,16 +131,16 @@ const Contact = () => {
                 } flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                   <item.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-purple-900 mb-2">{item.title}</h3>
+                <h3 className="text-lg font-bold text-purple-900 mb-2">{t(`contact.${item.titleKey}`)}</h3>
                 {item.link ? (
                   <a
                     href={item.link}
                     className="text-gray-600 hover:text-purple-700 transition-colors break-all"
                   >
-                    {item.content}
+                    {item.contentKey ? t(`contact.${item.contentKey}`) : item.content}
                   </a>
                 ) : (
-                  <p className="text-gray-600">{item.content}</p>
+                  <p className="text-gray-600">{item.contentKey ? t(`contact.${item.contentKey}`) : item.content}</p>
                 )}
               </Card>
             ))}
@@ -152,18 +154,18 @@ const Contact = () => {
           <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {/* Contact Form */}
             <Card className="p-8 shadow-2xl bg-gradient-to-br from-white to-purple-50">
-              <h2 className="text-3xl font-bold text-purple-900 mb-6">Send Us a Message</h2>
+              <h2 className="text-3xl font-bold text-purple-900 mb-6">{t('contact.formTitle')}</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="name" className="text-gray-700 font-medium mb-2">
-                    Full Name <span className="text-red-500">*</span>
+                    {t('contact.name')} <span className="text-red-500">{t('contact.required')}</span>
                   </Label>
                   <Input
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="Enter your name"
+                    placeholder={t('contact.namePlaceholder')}
                     required
                     className="border-purple-200 focus:border-purple-500"
                   />
@@ -172,7 +174,7 @@ const Contact = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="email" className="text-gray-700 font-medium mb-2">
-                      Email <span className="text-red-500">*</span>
+                      {t('contact.email')} <span className="text-red-500">{t('contact.required')}</span>
                     </Label>
                     <Input
                       id="email"
@@ -180,7 +182,7 @@ const Contact = () => {
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      placeholder="your@email.com"
+                      placeholder={t('contact.emailPlaceholder')}
                       required
                       className="border-purple-200 focus:border-purple-500"
                     />
@@ -188,7 +190,7 @@ const Contact = () => {
 
                   <div>
                     <Label htmlFor="phone" className="text-gray-700 font-medium mb-2">
-                      Phone
+                      {t('contact.phone')}
                     </Label>
                     <Input
                       id="phone"
@@ -196,7 +198,7 @@ const Contact = () => {
                       type="tel"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="+91 1234567890"
+                      placeholder={t('contact.phonePlaceholder')}
                       className="border-purple-200 focus:border-purple-500"
                     />
                   </div>
@@ -204,28 +206,28 @@ const Contact = () => {
 
                 <div>
                   <Label htmlFor="subject" className="text-gray-700 font-medium mb-2">
-                    Subject
+                    {t('contact.subject')}
                   </Label>
                   <Input
                     id="subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleInputChange}
-                    placeholder="What is this regarding?"
+                    placeholder={t('contact.subjectPlaceholder')}
                     className="border-purple-200 focus:border-purple-500"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="message" className="text-gray-700 font-medium mb-2">
-                    Message <span className="text-red-500">*</span>
+                    {t('contact.message')} <span className="text-red-500">{t('contact.required')}</span>
                   </Label>
                   <Textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    placeholder="Your message here..."
+                    placeholder={t('contact.messagePlaceholder')}
                     rows={6}
                     required
                     className="border-purple-200 focus:border-purple-500"
@@ -238,10 +240,15 @@ const Contact = () => {
                   disabled={loading}
                   className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-6 text-lg font-semibold shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50"
                 >
-                  {loading ? 'Sending...' : (
+                  {loading ? (
                     <>
                       <Send className="mr-2 w-5 h-5" />
-                      Send Message
+                      {t('contact.sending')}
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 w-5 h-5" />
+                      {t('contact.send')}
                     </>
                   )}
                 </Button>
@@ -268,9 +275,9 @@ const Contact = () => {
 
               {/* Social Media */}
               <Card className="p-6 shadow-xl bg-gradient-to-br from-purple-900 to-purple-800 text-white">
-                <h3 className="text-2xl font-bold mb-4">Connect With Us</h3>
+                <h3 className="text-2xl font-bold mb-4">{t('contact.socialTitle')}</h3>
                 <p className="text-purple-100 mb-6">
-                  Follow us on social media for daily horoscopes, astrological insights, and updates.
+                  {t('contact.socialSubtitle')}
                 </p>
                 <div className="flex gap-4">
                   <a
@@ -330,9 +337,12 @@ const Contact = () => {
       <section className="py-16 bg-gradient-to-br from-purple-100 to-amber-100">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-8 text-center">
-              Frequently Asked Questions
+            <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4 text-center">
+              {t('contact.faqTitle')}
             </h2>
+            <p className="text-center text-gray-600 mb-8">
+              {t('contact.faqSubtitle')}
+            </p>
             <Card className="p-8 shadow-xl bg-white">
               <Accordion type="single" collapsible className="w-full">
                 {mockFAQs.map((faq) => (

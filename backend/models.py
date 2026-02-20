@@ -114,14 +114,26 @@ class Newsletter(BaseModel):
     is_active: bool = True
 
 
+class TestimonialCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    email: EmailStr
+    rating: int = Field(..., ge=1, le=5)
+    text: str = Field(..., min_length=10, max_length=1000)
+    service: str
+    location: Optional[str] = Field(None, max_length=100)
+
+
 class Testimonial(BaseModel):
-    id: str
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
+    email: EmailStr
     rating: int = Field(ge=1, le=5)
     text: str
     service: str
-    date: str
+    location: Optional[str] = None
     approved: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class BlogPost(BaseModel):

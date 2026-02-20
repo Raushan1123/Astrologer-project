@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, Sparkles, Languages } from 'lucide-react';
 import { Button } from './ui/button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { language, toggleLanguage, t } = useLanguage();
 
   const navLinks = [
-    { path: '/', label: 'Home' },
-    { path: '/about', label: 'About' },
-    { path: '/team', label: 'Our Team' },
-    { path: '/services', label: 'Services' },
-    { path: '/gemstones', label: 'Gemstones' },
-    { path: '/testimonials', label: 'Testimonials' },
-    { path: '/blog', label: 'Blog' },
-    { path: '/contact', label: 'Contact' }
+    { path: '/', label: t('header.home') },
+    { path: '/about', label: t('header.about') },
+    { path: '/team', label: t('header.team') },
+    { path: '/services', label: t('header.services') },
+    { path: '/gemstones', label: t('header.gemstones') },
+    { path: '/testimonials', label: t('header.testimonials') },
+    { path: '/blog', label: t('header.blog') },
+    { path: '/contact', label: t('header.contact') }
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -31,7 +33,7 @@ const Header = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-purple-900">Mrs. Indira Pandey</h1>
-              <p className="text-xs text-purple-600">Vedic Astrologer</p>
+              <p className="text-xs text-purple-600">{t('header.vedicAstrologer')}</p>
             </div>
           </Link>
 
@@ -55,11 +57,21 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* Language Switcher & CTA Button */}
+          <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-purple-200 hover:bg-purple-50 transition-colors duration-300 group"
+              title={language === 'en' ? 'Switch to Hindi' : 'अंग्रेजी में बदलें'}
+            >
+              <Languages className="w-4 h-4 text-purple-600 group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-medium text-purple-700">
+                {language === 'en' ? 'हिंदी' : 'English'}
+              </span>
+            </button>
             <Link to="/booking">
               <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 shadow-lg shadow-purple-200 transform hover:scale-105 transition-all duration-300">
-                Book Consultation
+                {t('header.bookConsultation')}
               </Button>
             </Link>
           </div>
@@ -91,9 +103,19 @@ const Header = () => {
                   {link.label}
                 </Link>
               ))}
+              <button
+                onClick={() => {
+                  toggleLanguage();
+                  setIsMenuOpen(false);
+                }}
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-purple-200 bg-purple-50 text-purple-700 font-medium transition-colors hover:bg-purple-100"
+              >
+                <Languages className="w-4 h-4" />
+                <span>{language === 'en' ? 'हिंदी में बदलें' : 'Switch to English'}</span>
+              </button>
               <Link to="/booking" onClick={() => setIsMenuOpen(false)} className="mt-2">
                 <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white">
-                  Book Consultation
+                  {t('header.bookConsultation')}
                 </Button>
               </Link>
             </nav>
