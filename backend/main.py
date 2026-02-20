@@ -511,12 +511,10 @@ async def reset_password(reset_data: PasswordReset):
     """Reset password using token"""
     try:
         # Find reset token
-        logger.info(f"Looking for reset token: {reset_data.token}")
         reset_record = await db.password_resets.find_one({
             "token": reset_data.token,
             "used": False
         })
-        logger.info(f"Reset record found: {reset_record is not None}")
 
         if not reset_record:
             raise HTTPException(status_code=400, detail="Invalid or expired reset token")
