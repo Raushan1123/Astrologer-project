@@ -8,6 +8,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import TestimonialForm from '../components/TestimonialForm';
 import axios from 'axios';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
 const Testimonials = () => {
   const { t } = useLanguage();
   const [testimonials, setTestimonials] = useState(mockTestimonials);
@@ -18,8 +21,7 @@ const Testimonials = () => {
     const fetchTestimonials = async () => {
       try {
         setLoading(true);
-        const API_URL = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-        const response = await axios.get(`${API_URL}/testimonials?limit=20`);
+        const response = await axios.get(`${API}/testimonials?limit=20`);
 
         if (response.data && response.data.length > 0) {
           // Format testimonials to match the expected structure

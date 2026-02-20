@@ -983,6 +983,74 @@ async def create_testimonial(testimonial_data: TestimonialCreate, background_tas
         logger.error(f"Error creating testimonial: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@api_router.patch("/testimonials/{testimonial_id}/approve")
+async def approve_testimonial(testimonial_id: str):
+    """
+    Approve a testimonial by ID (admin only)
+    """
+    try:
+        result = await db.testimonials.update_one(
+            {"id": testimonial_id},
+            {"$set": {"approved": True, "updated_at": datetime.utcnow().isoformat()}}
+        )
+
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Testimonial not found")
+
+        logger.info(f"Testimonial {testimonial_id} approved")
+        return {"message": "Testimonial approved successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error approving testimonial: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/testimonials/pending")
+async def get_pending_testimonials():
+    """
+    Get all pending (unapproved) testimonials for admin review
+    """
+    try:
+        testimonials = await db.testimonials.find(
+            {"approved": False},
+            {"_id": 0}
+        ).sort("created_at", -1).to_list(100)
+
+        # Convert datetime to ISO string
+        for testimonial in testimonials:
+            if isinstance(testimonial.get('created_at'), datetime):
+                testimonial['created_at'] = testimonial['created_at'].isoformat()
+            if isinstance(testimonial.get('updated_at'), datetime):
+                testimonial['updated_at'] = testimonial['updated_at'].isoformat()
+
+        return testimonials
+    except Exception as e:
+        logger.error(f"Error fetching pending testimonials: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.delete("/testimonials/{testimonial_id}")
+async def delete_testimonial(testimonial_id: str):
+    """
+    Delete a testimonial by ID (admin only)
+    """
+    try:
+        result = await db.testimonials.delete_one({"id": testimonial_id})
+
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Testimonial not found")
+
+        logger.info(f"Testimonial {testimonial_id} deleted")
+        return {"message": "Testimonial deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting testimonial: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Blog posts
 @api_router.get("/blog")
 async def get_blog_posts(category: str = None):

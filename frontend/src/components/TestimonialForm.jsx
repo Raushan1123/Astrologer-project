@@ -6,6 +6,9 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
 const TestimonialForm = () => {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
@@ -79,11 +82,10 @@ const TestimonialForm = () => {
     setSubmitting(true);
 
     try {
-      const API_URL = process.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-      console.log('Submitting testimonial to:', `${API_URL}/testimonials`);
+      console.log('Submitting testimonial to:', `${API}/testimonials`);
       console.log('Form data:', formData);
 
-      const response = await axios.post(`${API_URL}/testimonials`, formData);
+      const response = await axios.post(`${API}/testimonials`, formData);
 
       console.log('Response:', response.data);
 

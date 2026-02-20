@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw } from 'lucide-react';
+import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw, Star, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 
@@ -18,7 +18,9 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const Admin = () => {
+  const [activeTab, setActiveTab] = useState('bookings');
   const [bookings, setBookings] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,11 +57,28 @@ const Admin = () => {
     }
   };
 
+  const fetchTestimonials = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API}/testimonials/pending`);
+      setTestimonials(response.data);
+    } catch (error) {
+      console.error('Error fetching testimonials:', error);
+      toast.error('Failed to fetch testimonials');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
-      fetchBookings();
+      if (activeTab === 'bookings') {
+        fetchBookings();
+      } else if (activeTab === 'testimonials') {
+        fetchTestimonials();
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, activeTab]);
 
   const updateBookingStatus = async (bookingId, newStatus) => {
     try {
@@ -71,6 +90,31 @@ const Admin = () => {
     } catch (error) {
       console.error('Error updating status:', error);
       toast.error('Failed to update status');
+    }
+  };
+
+  const approveTestimonial = async (testimonialId) => {
+    try {
+      await axios.patch(`${API}/testimonials/${testimonialId}/approve`);
+      toast.success('Testimonial approved successfully');
+      fetchTestimonials();
+    } catch (error) {
+      console.error('Error approving testimonial:', error);
+      toast.error('Failed to approve testimonial');
+    }
+  };
+
+  const deleteTestimonial = async (testimonialId) => {
+    if (!window.confirm('Are you sure you want to delete this testimonial?')) {
+      return;
+    }
+    try {
+      await axios.delete(`${API}/testimonials/${testimonialId}`);
+      toast.success('Testimonial deleted successfully');
+      fetchTestimonials();
+    } catch (error) {
+      console.error('Error deleting testimonial:', error);
+      toast.error('Failed to delete testimonial');
     }
   };
 
@@ -130,11 +174,33 @@ const Admin = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-purple-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage bookings and consultations</p>
+          <p className="text-gray-600">Manage bookings and testimonials</p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8">
+          <Button
+            onClick={() => setActiveTab('bookings')}
+            variant={activeTab === 'bookings' ? 'default' : 'outline'}
+            className={activeTab === 'bookings' ? 'bg-purple-600' : ''}
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Bookings
+          </Button>
+          <Button
+            onClick={() => setActiveTab('testimonials')}
+            variant={activeTab === 'testimonials' ? 'default' : 'outline'}
+            className={activeTab === 'testimonials' ? 'bg-purple-600' : ''}
+          >
+            <Star className="w-4 h-4 mr-2" />
+            Testimonials ({testimonials.length})
+          </Button>
+        </div>
+
+        {activeTab === 'bookings' && (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {[
             { label: 'Total Bookings', value: bookings.length, color: 'purple' },
             { label: 'Pending', value: bookings.filter(b => b.status === 'pending').length, color: 'yellow' },
@@ -270,6 +336,105 @@ const Admin = () => {
               </Card>
             ))}
           </div>
+        )}
+          </>
+        )}
+
+        {activeTab === 'testimonials' && (
+          <>
+            {/* Testimonials Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-purple-900">
+                Pending Testimonials ({testimonials.length})
+              </h2>
+              <Button onClick={fetchTestimonials} variant="outline">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
+
+            {/* Testimonials List */}
+            {loading ? (
+              <Card className="p-12 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading testimonials...</p>
+              </Card>
+            ) : testimonials.length === 0 ? (
+              <Card className="p-12 text-center">
+                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">All Caught Up!</h3>
+                <p className="text-gray-600">No pending testimonials to review.</p>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {testimonials.map((testimonial) => (
+                  <Card key={testimonial.id} className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      {/* Testimonial Content */}
+                      <div className="flex-1">
+                        {/* Rating */}
+                        <div className="flex gap-1 mb-3">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+
+                        {/* Text */}
+                        <p className="text-gray-700 text-lg mb-4 italic">
+                          "{testimonial.text}"
+                        </p>
+
+                        {/* User Info */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-gray-400" />
+                            <span className="font-semibold">{testimonial.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600">{testimonial.email}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Star className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600">{testimonial.service}</span>
+                          </div>
+                          {testimonial.location && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-600">📍 {testimonial.location}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-600">
+                              {new Date(testimonial.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex flex-col gap-2 lg:w-48">
+                        <Button
+                          onClick={() => approveTestimonial(testimonial.id)}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Approve
+                        </Button>
+                        <Button
+                          onClick={() => deleteTestimonial(testimonial.id)}
+                          variant="destructive"
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
