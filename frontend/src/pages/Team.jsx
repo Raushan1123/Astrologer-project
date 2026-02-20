@@ -9,6 +9,56 @@ import { useLanguage } from '../contexts/LanguageContext';
 const Team = () => {
   const { t } = useLanguage();
 
+  // Get translated astrologer data
+  const getTranslatedAstrologers = () => {
+    return [
+      {
+        id: "1",
+        name: t('team.astrologer1Name'),
+        role: t('team.astrologer1Role'),
+        experience: "20",
+        specialization: [
+          t('team.astrologer1Spec1'),
+          t('team.astrologer1Spec2'),
+          t('team.astrologer1Spec3'),
+          t('team.astrologer1Spec4')
+        ],
+        bio: t('team.astrologer1Bio'),
+        available: true
+      },
+      {
+        id: "2",
+        name: t('team.astrologer2Name'),
+        role: t('team.astrologer2Role'),
+        experience: "40",
+        specialization: [
+          t('team.astrologer2Spec1'),
+          t('team.astrologer2Spec2'),
+          t('team.astrologer2Spec3'),
+          t('team.astrologer2Spec4')
+        ],
+        bio: t('team.astrologer2Bio'),
+        available: true
+      },
+      {
+        id: "3",
+        name: t('team.astrologer3Name'),
+        role: t('team.astrologer3Role'),
+        experience: "2",
+        specialization: [
+          t('team.astrologer3Spec1'),
+          t('team.astrologer3Spec2'),
+          t('team.astrologer3Spec3'),
+          t('team.astrologer3Spec4')
+        ],
+        bio: t('team.astrologer3Bio'),
+        available: true
+      }
+    ];
+  };
+
+  const translatedAstrologers = getTranslatedAstrologers();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
       {/* Hero Section */}
@@ -43,7 +93,7 @@ const Team = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-3 gap-8">
-              {astrologers.map((astrologer, index) => {
+              {translatedAstrologers.map((astrologer, index) => {
                 // Define gradient colors for each astrologer
                 const gradients = [
                   'from-purple-600 to-purple-800',  // Mrs. Indira Pandey

@@ -17,7 +17,7 @@ const API = `${BACKEND_URL}/api`;
 
 const Booking = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -37,6 +37,44 @@ const Booking = () => {
     preferredTime: '',
     message: ''
   });
+
+  // Get translated astrologer data
+  const getTranslatedAstrologers = () => {
+    return [
+      {
+        id: "1",
+        name: t('team.astrologer1Name'),
+        experience: "20"
+      },
+      {
+        id: "2",
+        name: t('team.astrologer2Name'),
+        experience: "40"
+      },
+      {
+        id: "3",
+        name: t('team.astrologer3Name'),
+        experience: "2"
+      }
+    ];
+  };
+
+  // Get translated services
+  const getTranslatedServices = () => {
+    return [
+      { id: "1", title: t('services.birthChart') },
+      { id: "2", title: t('services.career') },
+      { id: "3", title: t('services.marriage') },
+      { id: "4", title: t('services.health') },
+      { id: "5", title: t('services.vastu') },
+      { id: "6", title: t('services.numerology') },
+      { id: "7", title: t('services.gemstone') },
+      { id: "8", title: t('services.childbirth') }
+    ];
+  };
+
+  const translatedAstrologers = getTranslatedAstrologers();
+  const translatedServices = getTranslatedServices();
 
   // Fetch slots when astrologer or date changes
   useEffect(() => {
@@ -422,9 +460,9 @@ const Booking = () => {
                           <SelectValue placeholder={t('booking.selectAstrologer')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {astrologers.map((astro) => (
+                          {translatedAstrologers.map((astro) => (
                             <SelectItem key={astro.id} value={astro.name}>
-                              {astro.name} ({astro.experience}+ {t('team.experience')})
+                              {astro.name} ({astro.experience}+ {t('team.years')})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -444,7 +482,7 @@ const Booking = () => {
                           <SelectValue placeholder={t('booking.selectService')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {mockServices.map((service) => (
+                          {translatedServices.map((service) => (
                             <SelectItem key={service.id} value={service.title}>
                               {service.title}
                             </SelectItem>

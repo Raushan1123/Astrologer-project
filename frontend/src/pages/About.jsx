@@ -39,8 +39,8 @@ const About = () => {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1554355202-11fbc45c7157"
-                  alt="Mrs. Indira Pandey"
+                  src="https://images.unsplash.com/photo-1532798442725-41036acc7489"
+                  alt="Vedic Astrology"
                   className="w-full h-[500px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-purple-900/50 to-transparent" />

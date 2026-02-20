@@ -194,7 +194,7 @@ export const astrologers = [
   },
   {
     id: "3",
-    name: "Ms. Ankita Pandey",
+    name: "Mrs. Ankita Pandey",
     role: "Junior Astrologer",
     experience: "2+",
     specialization: ["Basic Consultations", "Numerology", "Vastu Basics", "Young Adults Guidance"],

@@ -5,6 +5,7 @@ import { Card } from '../components/ui/card';
 import { Star, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
 import { mockStats, mockServices, mockTestimonials } from '../mockData';
 import { useLanguage } from '../contexts/LanguageContext';
+import PlanetaryAnimation from '../components/PlanetaryAnimation';
 
 const Home = () => {
   const { t } = useLanguage();
@@ -43,11 +44,16 @@ const Home = () => {
             alt="Astrology Background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/95 via-purple-800/90 to-amber-900/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/75 via-purple-800/70 to-amber-900/65" />
+        </div>
+
+        {/* Planetary Animation */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <PlanetaryAnimation />
         </div>
 
         {/* Floating Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
           <Sparkles className="absolute top-20 left-10 w-8 h-8 text-amber-300 animate-pulse" style={{ animationDelay: '0s' }} />
           <Sparkles className="absolute top-40 right-20 w-6 h-6 text-purple-300 animate-pulse" style={{ animationDelay: '1s' }} />
           <Sparkles className="absolute bottom-32 left-1/4 w-7 h-7 text-amber-400 animate-pulse" style={{ animationDelay: '2s' }} />
@@ -55,26 +61,33 @@ const Home = () => {
         </div>
 
         {/* Content */}
-        <div className="container mx-auto px-4 z-10 relative">
+        <div className="container mx-auto px-4 z-20 relative">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-400/20 border border-amber-300/30 backdrop-blur-sm mb-6 animate-in fade-in slide-in-from-top duration-700">
-              <Award className="w-4 h-4 text-amber-300" />
-              <span className="text-sm font-medium text-amber-100">20+ Years of Trusted Guidance</span>
+              <Award className="w-4 h-4 text-amber-300" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8))' }} />
+              <span className="text-sm font-medium text-amber-100" style={{ textShadow: '0 2px 8px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)' }}>20+ Years of Trusted Guidance</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100" style={{ textShadow: '0 4px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.7)' }}>
               {t('home.hero.title')}
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-500 mt-2">
+              <span className="block mt-2" style={{
+                background: 'linear-gradient(to right, #ffd700, #ffb700)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textShadow: 'none',
+                filter: 'drop-shadow(0 4px 12px rgba(0,0,0,1)) drop-shadow(0 0 30px rgba(255,215,0,0.5))'
+              }}>
                 {t('home.hero.subtitle')} ✨
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-purple-100 mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-200">
-              Mrs. Indira Pandey - {t('header.vedicAstrologer')}
+            <p className="text-xl md:text-2xl font-bold mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-200" style={{ textShadow: '0 4px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.7)' }}>
+              <span className="text-amber-300">{t('home.hero.astrologerName')}</span> <span className="text-purple-200">-</span> <span className="text-white">{t('header.vedicAstrologer')}</span>
             </p>
 
-            <p className="text-lg text-purple-200 mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-300">
+            <p className="text-lg text-white font-medium mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-300" style={{ textShadow: '0 3px 10px rgba(0,0,0,1), 0 0 25px rgba(0,0,0,0.9)' }}>
               {t('home.hero.description')}
             </p>
 
@@ -109,9 +122,9 @@ const Home = () => {
                 { icon: TrendingUp, label: t('home.stats.consultations'), value: mockStats.consultationsPerWeek }
               ].map((stat, index) => (
                 <Card key={index} className="p-6 bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
-                  <stat.icon className="w-8 h-8 text-amber-300 mx-auto mb-3" />
-                  <p className="text-3xl font-bold text-white mb-1">{stat.value}</p>
-                  <p className="text-sm text-purple-200">{stat.label}</p>
+                  <stat.icon className="w-8 h-8 text-amber-300 mx-auto mb-3" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8))' }} />
+                  <p className="text-3xl font-bold text-white mb-1" style={{ textShadow: '0 3px 10px rgba(0,0,0,1), 0 0 25px rgba(0,0,0,0.9)' }}>{stat.value}</p>
+                  <p className="text-sm text-purple-200" style={{ textShadow: '0 2px 8px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)' }}>{stat.label}</p>
                 </Card>
               ))}
             </div>
@@ -124,36 +137,36 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-purple-900 mb-4">
-              Why Choose Mrs. Indira Pandey?
+              {t('home.whyChoose.title')}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Experience the difference of personalized, accurate, and compassionate astrological guidance
+              {t('home.whyChoose.subtitle')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                title: 'Expert Guidance',
-                description: '20+ years of dedicated practice in Vedic astrology with proven accuracy',
+                title: t('home.whyChoose.card1Title'),
+                description: t('home.whyChoose.card1Desc'),
                 icon: Award,
                 color: 'purple'
               },
               {
-                title: 'Trusted by Many',
-                description: '800+ satisfied clients including professionals and celebrities',
+                title: t('home.whyChoose.card2Title'),
+                description: t('home.whyChoose.card2Desc'),
                 icon: Users,
                 color: 'amber'
               },
               {
-                title: 'Personalized Approach',
-                description: 'Every consultation is tailored to your unique birth chart and needs',
+                title: t('home.whyChoose.card3Title'),
+                description: t('home.whyChoose.card3Desc'),
                 icon: Star,
                 color: 'purple'
               },
               {
-                title: 'Complete Confidentiality',
-                description: 'Your privacy is paramount. All consultations remain strictly confidential',
+                title: t('home.whyChoose.card4Title'),
+                description: t('home.whyChoose.card4Desc'),
                 icon: TrendingUp,
                 color: 'amber'
               }
