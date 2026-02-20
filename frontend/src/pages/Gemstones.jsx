@@ -63,7 +63,7 @@ const mockGemstones = [
     description: 'Jupiter gemstone. Brings wisdom, prosperity, and good fortune.',
     price: 1000000,  // ₹10,000 (hidden from display)
     benefits: ['Brings prosperity', 'Enhances wisdom', 'Good fortune', 'Marital happiness'],
-    image: 'https://images.pexels.com/photos/6847584/pexels-photo-6847584.jpeg?auto=compress&cs=tinysrgb&w=800',
+    image: 'https://rukminim2.flixcart.com/image/480/640/xif0q/pendant-locket/g/9/a/na-y-yellow451-sidhgems-original-imagrnzrzyzcfvvb.jpeg?q=20',
     in_stock: true,
     weight: '4-6 carats',
     quality: 'Ceylon Yellow Sapphire'
