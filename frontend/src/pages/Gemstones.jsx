@@ -19,7 +19,7 @@ const mockGemstones = [
     description: 'Powerful gemstone for Sun. Enhances leadership, confidence, and vitality.',
     price: 500000,  // ₹5,000 in paise (hidden from display)
     benefits: ['Boosts confidence', 'Enhances leadership', 'Improves vitality', 'Brings success'],
-    image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800',
+    image: 'https://images.pexels.com/photos/1121123/pexels-photo-1121123.jpeg?auto=compress&cs=tinysrgb&w=800',
     in_stock: true,
     weight: '3-5 carats',
     quality: 'AAA Grade Natural'
@@ -30,7 +30,7 @@ const mockGemstones = [
     description: 'Gem for Moon. Brings emotional balance, peace, and mental clarity.',
     price: 300000,  // ₹3,000 (hidden from display)
     benefits: ['Emotional balance', 'Mental peace', 'Enhances intuition', 'Reduces stress'],
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800',
+    image: 'https://www.mycrowndowntown.com/images/gemstones/alt/pearl.jpg',
     in_stock: true,
     weight: '5-7 carats',
     quality: 'Natural South Sea Pearl'
@@ -41,7 +41,7 @@ const mockGemstones = [
     description: 'Mars gemstone. Provides courage, energy, and protection.',
     price: 250000,  // ₹2,500 (hidden from display)
     benefits: ['Increases courage', 'Boosts energy', 'Protection from enemies', 'Physical strength'],
-    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800',
+    image: 'https://thevediccrystals.com/cdn/shop/files/Moonga_ring.jpg?v=1769072577&width=220',
     in_stock: true,
     weight: '6-8 carats',
     quality: 'Natural Italian Coral'
@@ -52,7 +52,7 @@ const mockGemstones = [
     description: 'Mercury stone. Enhances communication, intelligence, and business success.',
     price: 800000,  // ₹8,000 (hidden from display)
     benefits: ['Improves communication', 'Enhances intelligence', 'Business success', 'Memory boost'],
-    image: 'https://images.unsplash.com/photo-1583937443566-f3e9f77d86ba?w=800',
+    image: 'http://preciousearth.in/cdn/shop/articles/emerald-gemstone-collage_1.jpg?v=1708068826',
     in_stock: true,
     weight: '3-5 carats',
     quality: 'Colombian Emerald AAA'
@@ -63,7 +63,7 @@ const mockGemstones = [
     description: 'Jupiter gemstone. Brings wisdom, prosperity, and good fortune.',
     price: 1000000,  // ₹10,000 (hidden from display)
     benefits: ['Brings prosperity', 'Enhances wisdom', 'Good fortune', 'Marital happiness'],
-    image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800',
+    image: 'https://images.pexels.com/photos/6847584/pexels-photo-6847584.jpeg?auto=compress&cs=tinysrgb&w=800',
     in_stock: true,
     weight: '4-6 carats',
     quality: 'Ceylon Yellow Sapphire'
@@ -74,7 +74,7 @@ const mockGemstones = [
     description: 'Saturn stone. Powerful for career, discipline, and removing obstacles.',
     price: 1500000,  // ₹15,000 (hidden from display)
     benefits: ['Career advancement', 'Removes obstacles', 'Financial stability', 'Focus & discipline'],
-    image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800',
+    image: 'https://astrokapoor.com/wp-content/uploads/2018/09/Blue-sapphire-Neelam-stone.jpg.webp',
     in_stock: true,
     weight: '4-6 carats',
     quality: 'Kashmir Blue Sapphire'
