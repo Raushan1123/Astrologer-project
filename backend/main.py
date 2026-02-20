@@ -641,13 +641,13 @@ async def create_booking(
 
         await db.bookings.insert_one(booking_doc)
 
-        # Mark first booking as completed for the user
-        if is_first_booking:
+        # Mark first booking as completed ONLY if user used the free 5-10 mins option
+        if booking_data.consultation_duration == "5-10":
             await db.users.update_one(
                 {"email": current_user["email"]},
                 {"$set": {"first_booking_completed": True}}
             )
-            logger.info(f"Marked first booking completed for user: {current_user['email']}")
+            logger.info(f"Marked first free booking (5-10 mins) completed for user: {current_user['email']}")
 
         # Send confirmation email in background (non-blocking)
         amount_display = (
