@@ -167,17 +167,28 @@ async def startup_event():
                 astrologer_name = "Acharyaa Indira Pandey"
                 availability_data = []
 
+                # New time slots:
+                # 9:30 AM - 10:30 AM
+                # 1:00 PM - 3:00 PM
+                # 6:30 PM - 10:00 PM
+                time_ranges = [
+                    {"start_time": "09:30", "end_time": "10:30"},
+                    {"start_time": "13:00", "end_time": "15:00"},
+                    {"start_time": "18:30", "end_time": "22:00"}
+                ]
+
                 # Add availability for all 7 days (Monday to Sunday)
-                # Time: 11 AM to 11 PM IST
+                # Using 30-minute slots (standard consultation duration)
                 for day in range(7):
-                    availability_data.append({
-                        "astrologer": astrologer_name,
-                        "day_of_week": day,
-                        "start_time": "11:00",
-                        "end_time": "23:00",
-                        "slot_duration_minutes": 30,
-                        "is_active": True
-                    })
+                    for time_range in time_ranges:
+                        availability_data.append({
+                            "astrologer": astrologer_name,
+                            "day_of_week": day,
+                            "start_time": time_range["start_time"],
+                            "end_time": time_range["end_time"],
+                            "slot_duration_minutes": 30,  # 30-min slots as standard
+                            "is_active": True
+                        })
 
                 result = await db.astrologer_availability.insert_many(
                     availability_data
@@ -191,14 +202,6 @@ async def startup_event():
                     f"Database already initialized "
                     f"({count} availability records found)"
                 )
-
-                # Update existing availability to 11:00-23:00 if needed
-                update_result = await db.astrologer_availability.update_many(
-                    {"start_time": "09:00", "end_time": "21:00"},
-                    {"$set": {"start_time": "11:00", "end_time": "23:00"}}
-                )
-                if update_result.modified_count > 0:
-                    logger.info(f"✅ Updated {update_result.modified_count} availability records to 11:00-23:00")
         except Exception as e:
             logger.error(f"Error during database initialization: {str(e)}")
 
@@ -321,6 +324,19 @@ SERVICE_PRICING = {
     "7": {"actualPrice": 3500, "discountPercent": 25},  # Gemstone
     "8": {"actualPrice": 3500, "discountPercent": 25},  # Childbirth
     "9": {"actualPrice": 1100, "discountPercent": 25},  # Naming Ceremony
+}
+
+# Service duration mapping (service ID to duration in minutes)
+SERVICE_DURATION = {
+    "1": 30,  # Birth Chart (Kundli) Analysis - 30 mins
+    "2": 30,  # Career & Business Guidance - 30 mins
+    "3": 45,  # Marriage & Relationship Compatibility - 45 mins
+    "4": 30,  # Health & Life Path Insights - 30 mins
+    "5": 30,  # Vastu Consultation - 20-30 mins (using 30 as max)
+    "6": 15,  # Palmistry - 15 mins
+    "7": 20,  # Gemstone Remedies & Sales - 20 mins
+    "8": 30,  # Auspicious Childbirth Timing - 30 mins
+    "9": 10,  # Naming Ceremony - 10 mins
 }
 
 # Calculate consultation price based on duration and service
@@ -1462,14 +1478,14 @@ async def get_gemstones():
 
 # Time Slot Management
 @api_router.get("/available-slots")
-async def get_available_slots(astrologer: str, date: str, duration: Optional[str] = "30"):
+async def get_available_slots(astrologer: str, date: str, service: Optional[str] = None):
     """
-    Get available time slots for a specific astrologer on a given date.
+    Get available time slots for a specific astrologer on a given date based on service duration.
 
     Args:
         astrologer: Name of the astrologer
         date: Date in YYYY-MM-DD format
-        duration: Consultation duration in minutes (default: 30)
+        service: Service ID to determine slot duration (optional, defaults to 30 mins)
 
     Returns:
         List of available time slots
@@ -1479,74 +1495,95 @@ async def get_available_slots(astrologer: str, date: str, duration: Optional[str
         slot_date = datetime.strptime(date, "%Y-%m-%d")
         day_of_week = slot_date.weekday()  # 0=Monday, 6=Sunday
 
-        # Get astrologer's availability for this day of week
-        availability = await db.astrologer_availability.find_one({
+        # Get ALL astrologer's availability ranges for this day of week
+        availability_ranges = await db.astrologer_availability.find({
             "astrologer": astrologer,
             "day_of_week": day_of_week,
             "is_active": True
-        })
+        }).to_list(10)
 
-        # If no availability defined, use default working hours (11 AM - 11 PM IST)
-        if not availability:
-            start_time = "11:00"
-            end_time = "23:00"
-            slot_duration = 30
-        else:
-            start_time = availability["start_time"]
-            end_time = availability["end_time"]
-            slot_duration = availability.get("slot_duration_minutes", 30)
+        # If no availability defined, use default time ranges
+        if not availability_ranges:
+            availability_ranges = [
+                {"start_time": "09:30", "end_time": "10:30", "slot_duration_minutes": 30},
+                {"start_time": "13:00", "end_time": "15:00", "slot_duration_minutes": 30},
+                {"start_time": "18:30", "end_time": "22:00", "slot_duration_minutes": 30}
+            ]
 
         # Get current time in IST
         ist = pytz.timezone('Asia/Kolkata')
         now_ist = datetime.now(ist)
 
-        # Generate time slots
-        slots = []
-        current_time = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
-        end_datetime = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+        # Determine slot duration based on service
+        slot_duration = 30  # Default duration
+        if service and service in SERVICE_DURATION:
+            slot_duration = SERVICE_DURATION[service]
 
-        # Make current_time and end_datetime timezone-aware (IST)
-        current_time = ist.localize(current_time)
-        end_datetime = ist.localize(end_datetime)
+        # Generate time slots from all availability ranges
+        all_slots = []
 
-        while current_time < end_datetime:
-            slot_end = current_time + timedelta(minutes=slot_duration)
-            if slot_end > end_datetime:
-                break
+        for availability in availability_ranges:
+            start_time = availability["start_time"]
+            end_time = availability["end_time"]
 
-            slot_start_str = current_time.strftime("%H:%M")
-            slot_end_str = slot_end.strftime("%H:%M")
+            current_time = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
+            end_datetime = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
 
-            # Check if this slot is already booked
-            existing_booking = await db.bookings.find_one({
-                "astrologer": astrologer,
-                "preferred_date": date,
-                "preferred_time": slot_start_str,
-                "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]}
-            })
+            # Make current_time and end_datetime timezone-aware (IST)
+            current_time = ist.localize(current_time)
+            end_datetime = ist.localize(end_datetime)
 
-            # Check if slot exists in time_slots collection
-            existing_slot = await db.time_slots.find_one({
-                "astrologer": astrologer,
-                "date": date,
-                "start_time": slot_start_str,
-                "is_available": False
-            })
+            while current_time < end_datetime:
+                # Calculate slot end time based on service duration
+                slot_end = current_time + timedelta(minutes=slot_duration)
 
-            is_available = existing_booking is None and existing_slot is None
+                # Check if slot fits within availability window
+                if slot_end > end_datetime:
+                    break
 
-            # Don't show past slots (compare with IST time)
-            if current_time > now_ist and is_available:
-                slots.append({
-                    "start_time": slot_start_str,
-                    "end_time": slot_end_str,
-                    "is_available": True,
-                    "display": f"{slot_start_str} - {slot_end_str}"
+                slot_start_str = current_time.strftime("%H:%M")
+                slot_end_str = slot_end.strftime("%H:%M")
+
+                # Check if this slot is already booked
+                # We need to check if ANY booking overlaps with this time
+                existing_booking = await db.bookings.find_one({
+                    "astrologer": astrologer,
+                    "preferred_date": date,
+                    "preferred_time": slot_start_str,
+                    "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]}
                 })
 
-            current_time = slot_end
+                # Check if slot exists in time_slots collection
+                existing_slot = await db.time_slots.find_one({
+                    "astrologer": astrologer,
+                    "date": date,
+                    "start_time": slot_start_str,
+                    "is_available": False
+                })
 
-        return {"slots": slots, "date": date, "astrologer": astrologer}
+                is_available = existing_booking is None and existing_slot is None
+
+                # Don't show past slots (compare with IST time)
+                if current_time > now_ist and is_available:
+                    # Format time in 12-hour format with AM/PM
+                    start_12hr = current_time.strftime("%I:%M %p")
+                    end_12hr = slot_end.strftime("%I:%M %p")
+
+                    all_slots.append({
+                        "start_time": slot_start_str,
+                        "end_time": slot_end_str,
+                        "is_available": True,
+                        "display": f"{start_12hr} - {end_12hr}",
+                        "duration": slot_duration
+                    })
+
+                # Move to next slot based on service duration
+                current_time = current_time + timedelta(minutes=slot_duration)
+
+        # Sort slots by start time
+        all_slots.sort(key=lambda x: x["start_time"])
+
+        return {"slots": all_slots, "date": date, "astrologer": astrologer}
 
     except ValueError as e:
         logger.error(f"Invalid date format: {str(e)}")
@@ -1597,11 +1634,66 @@ async def get_astrologer_availability(astrologer: str):
         availability = await db.astrologer_availability.find(
             {"astrologer": astrologer, "is_active": True},
             {"_id": 0}
-        ).to_list(10)
+        ).to_list(100)
 
         return {"astrologer": astrologer, "availability": availability}
     except Exception as e:
         logger.error(f"Error fetching astrologer availability: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/admin/reset-availability")
+async def reset_availability():
+    """
+    Admin endpoint to reset availability to new time slots.
+    This will delete all existing availability and create new ones.
+    """
+    try:
+        astrologer_name = "Acharyaa Indira Pandey"
+
+        # Delete all existing availability for this astrologer
+        delete_result = await db.astrologer_availability.delete_many({
+            "astrologer": astrologer_name
+        })
+        logger.info(f"Deleted {delete_result.deleted_count} old availability records")
+
+        # New time slots:
+        # 9:30 AM - 10:30 AM
+        # 1:00 PM - 3:00 PM
+        # 6:30 PM - 10:00 PM
+        time_ranges = [
+            {"start_time": "09:30", "end_time": "10:30"},
+            {"start_time": "13:00", "end_time": "15:00"},
+            {"start_time": "18:30", "end_time": "22:00"}
+        ]
+
+        availability_data = []
+        # Add availability for all 7 days (Monday to Sunday)
+        # Using 30-minute slots as standard
+        for day in range(7):
+            for time_range in time_ranges:
+                availability_data.append({
+                    "id": str(uuid.uuid4()),
+                    "astrologer": astrologer_name,
+                    "day_of_week": day,
+                    "start_time": time_range["start_time"],
+                    "end_time": time_range["end_time"],
+                    "slot_duration_minutes": 30,
+                    "is_active": True,
+                    "created_at": datetime.utcnow().isoformat(),
+                    "updated_at": datetime.utcnow().isoformat()
+                })
+
+        result = await db.astrologer_availability.insert_many(availability_data)
+        logger.info(f"✅ Created {len(availability_data)} new availability records")
+
+        return {
+            "message": "Availability reset successfully",
+            "deleted": delete_result.deleted_count,
+            "created": len(availability_data),
+            "time_ranges": time_ranges
+        }
+    except Exception as e:
+        logger.error(f"Error resetting availability: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get Razorpay key for frontend

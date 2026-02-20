@@ -1,14 +1,53 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Star, Users, Award, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
 import { mockStats, mockServices, mockTestimonials } from '../mockData';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import PlanetaryAnimation from '../components/PlanetaryAnimation';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Home = () => {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
+  const [canBookFirstTime, setCanBookFirstTime] = useState(false);
+  const [checkingFirstBooking, setCheckingFirstBooking] = useState(true);
+
+  // Check if user can book first-time consultation
+  useEffect(() => {
+    const checkFirstBookingStatus = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          // If not logged in, show the banner to encourage sign-up
+          setCanBookFirstTime(true);
+          setCheckingFirstBooking(false);
+          return;
+        }
+
+        const response = await axios.get(`${API}/auth/first-booking-status`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        setCanBookFirstTime(response.data.can_book_first_time);
+        setCheckingFirstBooking(false);
+      } catch (error) {
+        console.error('Error checking first booking status:', error);
+        // On error, show the banner (fail-safe)
+        setCanBookFirstTime(true);
+        setCheckingFirstBooking(false);
+      }
+    };
+
+    checkFirstBookingStatus();
+  }, [isAuthenticated]);
 
   // Helper function to get translated service data
   const getServiceTranslation = (service) => {
@@ -131,6 +170,141 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Free First Consultation Banner - Only show if user can book first time */}
+      {!checkingFirstBooking && canBookFirstTime && (
+      <section className="py-16 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
+        {/* Decorative Elements */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-0 left-1/2 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-green-400">
+              <div className="relative">
+                {/* Ribbon */}
+                <div className="absolute top-6 -left-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-2 shadow-lg transform -rotate-3 z-20">
+                  <span className="font-bold text-sm tracking-wide">🎁 SPECIAL OFFER</span>
+                </div>
+
+                <div className="p-8 md:p-12">
+                  <div className="flex flex-col md:flex-row items-center gap-8">
+                    {/* Left Side - Text Content */}
+                    <div className="flex-1 text-center md:text-left">
+                      <div className="inline-block mb-4">
+                        <span className="bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md animate-pulse">
+                          ✨ FIRST TIME USERS ONLY
+                        </span>
+                      </div>
+
+                      <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
+                          Get Your First Consultation
+                        </span>
+                      </h2>
+
+                      <div className="mb-6">
+                        <div className="inline-flex items-baseline gap-3">
+                          <span className="text-7xl md:text-8xl font-black text-green-600">FREE</span>
+                          <div className="text-left">
+                            <p className="text-sm text-gray-600 font-semibold">5-10 Minutes</p>
+                            <p className="text-xs text-gray-500">Expert Guidance</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                        Experience the power of Vedic astrology with a complimentary consultation.
+                        Get personalized insights into your life's most important questions.
+                      </p>
+
+                      <ul className="text-left space-y-2 mb-8 max-w-md mx-auto md:mx-0">
+                        {[
+                          'No credit card required',
+                          'Instant booking confirmation',
+                          'Expert astrologer guidance',
+                          'One-time offer for new users'
+                        ].map((item, index) => (
+                          <li key={index} className="flex items-center gap-2 text-gray-700">
+                            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                              </svg>
+                            </div>
+                            <span className="font-medium">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Link to="/booking">
+                        <Button
+                          size="lg"
+                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-10 py-7 text-xl font-bold shadow-2xl shadow-green-500/50 transform hover:scale-105 transition-all duration-300 rounded-xl"
+                        >
+                          🎯 Claim Your Free Session Now
+                          <ArrowRight className="ml-2 w-6 h-6" />
+                        </Button>
+                      </Link>
+
+                      <p className="text-xs text-gray-500 mt-4 italic">
+                        ⏰ Limited slots available daily. Book now to secure your spot!
+                      </p>
+                    </div>
+
+                    {/* Right Side - Visual Element */}
+                    <div className="flex-shrink-0 relative">
+                      <div className="relative w-64 h-64 md:w-80 md:h-80">
+                        {/* Glowing Circle Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full animate-pulse opacity-20"></div>
+
+                        {/* Main Circle */}
+                        <div className="absolute inset-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl">
+                          <div className="text-center text-white p-6">
+                            <Sparkles className="w-16 h-16 mx-auto mb-4 animate-spin-slow" />
+                            <p className="text-6xl font-black mb-2">100%</p>
+                            <p className="text-xl font-bold">FREE</p>
+                            <p className="text-sm opacity-90 mt-2">First Time</p>
+                            <p className="text-sm opacity-90">Consultation</p>
+                          </div>
+                        </div>
+
+                        {/* Floating Icons */}
+                        <div className="absolute -top-4 -right-4 bg-yellow-400 rounded-full p-3 shadow-lg animate-bounce">
+                          <Star className="w-8 h-8 text-yellow-900" fill="currentColor" />
+                        </div>
+                        <div className="absolute -bottom-4 -left-4 bg-purple-400 rounded-full p-3 shadow-lg animate-bounce animation-delay-1000">
+                          <Award className="w-8 h-8 text-purple-900" fill="currentColor" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Accent Bar */}
+                <div className="h-3 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
+              </div>
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-8 flex flex-wrap justify-center gap-8 text-center">
+              <div className="flex items-center gap-2 text-gray-700">
+                <Users className="w-5 h-5 text-green-600" />
+                <span className="font-semibold">10,000+ Happy Clients</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-700">
+                <Star className="w-5 h-5 text-yellow-500" fill="currentColor" />
+                <span className="font-semibold">4.9/5 Average Rating</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-700">
+                <Award className="w-5 h-5 text-purple-600" />
+                <span className="font-semibold">20+ Years Experience</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      )}
 
       {/* Why Choose Section */}
       <section className="py-20 relative">

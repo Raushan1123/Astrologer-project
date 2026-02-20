@@ -167,14 +167,15 @@ const Booking = () => {
     }
   }, [formData.service, formData.consultationDuration]);
 
-  // Fetch slots when astrologer or date changes
+  // Fetch slots when astrologer, date, or service changes
   useEffect(() => {
     if (formData.astrologer && formData.preferredDate) {
-      fetchAvailableSlots(formData.astrologer, formData.preferredDate);
+      // Pass service if selected, otherwise backend will use default 30-min slots
+      fetchAvailableSlots(formData.astrologer, formData.preferredDate, formData.service);
     } else {
       setAvailableSlots([]);
     }
-  }, [formData.astrologer, formData.preferredDate]);
+  }, [formData.astrologer, formData.preferredDate, formData.service]);
 
   // Load Razorpay script
   const loadRazorpay = () => {
@@ -255,7 +256,7 @@ const Booking = () => {
   };
 
   // Fetch available time slots when astrologer and date are selected
-  const fetchAvailableSlots = async (astrologer, date) => {
+  const fetchAvailableSlots = async (astrologer, date, service) => {
     if (!astrologer || !date) {
       setAvailableSlots([]);
       return;
@@ -263,8 +264,14 @@ const Booking = () => {
 
     setLoadingSlots(true);
     try {
+      // Build params - only include service if it's selected
+      const params = { astrologer, date };
+      if (service) {
+        params.service = service;
+      }
+
       const response = await axios.get(`${API}/available-slots`, {
-        params: { astrologer, date }
+        params: params
       });
       setAvailableSlots(response.data.slots || []);
     } catch (error) {
