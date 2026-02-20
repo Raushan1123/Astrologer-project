@@ -114,12 +114,14 @@ export const translations = {
       healthDesc: 'Guidance on health matters and understanding your life\'s purpose and direction.',
       vastu: 'Vastu Consultation',
       vastuDesc: 'Home and office Vastu analysis for positive energy flow and prosperity.',
-      numerology: 'Numerology',
-      numerologyDesc: 'Discover the power of numbers in your life and their influence on your destiny.',
+      palmistry: 'Palmistry',
+      palmistryDesc: 'Discover insights about your personality, life path, and future through palm reading.',
       gemstone: 'Gemstone Remedies & Sales',
       gemstoneDesc: 'Personalized gemstone recommendations based on your birth chart. Purchase authentic, energized gemstones directly.',
       childbirth: 'Auspicious Childbirth Timing (Muhurat)',
-      childbirthDesc: 'Select the most auspicious and suitable time for childbirth to ensure a prosperous future for your child.'
+      childbirthDesc: 'Select the most auspicious and suitable time for childbirth to ensure a prosperous future for your child.',
+      namingCeremony: 'Naming Ceremony',
+      namingCeremonyDesc: 'Choose the perfect name for your child based on astrological calculations and numerology for a prosperous future.'
     },
     pricing: {
       duration1: '5-10 Minutes',
@@ -476,12 +478,14 @@ export const translations = {
       healthDesc: 'स्वास्थ्य मामलों पर मार्गदर्शन और आपके जीवन के उद्देश्य और दिशा को समझना।',
       vastu: 'वास्तु परामर्श',
       vastuDesc: 'सकारात्मक ऊर्जा प्रवाह और समृद्धि के लिए घर और कार्यालय वास्तु विश्लेषण।',
-      numerology: 'अंकशास्त्र',
-      numerologyDesc: 'अपने जीवन में संख्याओं की शक्ति और आपकी नियति पर उनके प्रभाव की खोज करें।',
+      palmistry: 'हस्तरेखा विज्ञान',
+      palmistryDesc: 'हस्तरेखा पढ़ने के माध्यम से अपने व्यक्तित्व, जीवन पथ और भविष्य के बारे में जानकारी प्राप्त करें।',
       gemstone: 'रत्न उपचार और बिक्री',
       gemstoneDesc: 'आपकी जन्म कुंडली के आधार पर व्यक्तिगत रत्न सिफारिशें। प्रामाणिक, ऊर्जावान रत्न सीधे खरीदें।',
       childbirth: 'शुभ प्रसव समय (मुहूर्त)',
-      childbirthDesc: 'अपने बच्चे के समृद्ध भविष्य को सुनिश्चित करने के लिए प्रसव के लिए सबसे शुभ और उपयुक्त समय का चयन करें।'
+      childbirthDesc: 'अपने बच्चे के समृद्ध भविष्य को सुनिश्चित करने के लिए प्रसव के लिए सबसे शुभ और उपयुक्त समय का चयन करें।',
+      namingCeremony: 'नामकरण संस्कार',
+      namingCeremonyDesc: 'समृद्ध भविष्य के लिए ज्योतिषीय गणना और अंकशास्त्र के आधार पर अपने बच्चे के लिए सही नाम चुनें।'
     },
     pricing: {
       duration1: '5-10 मिनट',

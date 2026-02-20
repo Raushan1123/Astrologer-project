@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Label } from '../components/ui/label';
@@ -18,12 +18,17 @@ const API = `${BACKEND_URL}/api`;
 
 const Booking = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t, language } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(false);
+  const [canBookFirstTime, setCanBookFirstTime] = useState(false);
+  const [checkingFirstBooking, setCheckingFirstBooking] = useState(true);
+  const [preSelectedService, setPreSelectedService] = useState(null);
+  const [calculatedPrice, setCalculatedPrice] = useState(0);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -70,9 +75,10 @@ const Booking = () => {
       { id: "3", title: t('services.marriage') },
       { id: "4", title: t('services.health') },
       { id: "5", title: t('services.vastu') },
-      { id: "6", title: t('services.numerology') },
+      { id: "6", title: t('services.palmistry') },
       { id: "7", title: t('services.gemstone') },
-      { id: "8", title: t('services.childbirth') }
+      { id: "8", title: t('services.childbirth') },
+      { id: "9", title: t('services.namingCeremony') }
     ];
   };
 
@@ -91,6 +97,75 @@ const Booking = () => {
     toast.error('You must accept the disclaimer to book a consultation.');
     navigate('/');
   };
+
+  // Handle URL parameters for pre-selected service
+  useEffect(() => {
+    const serviceId = searchParams.get('serviceId');
+    const serviceName = searchParams.get('serviceName');
+    const duration = searchParams.get('duration');
+    const price = searchParams.get('price');
+    const discountPercent = searchParams.get('discountPercent');
+
+    if (serviceId && serviceName) {
+      setPreSelectedService({
+        id: serviceId,
+        name: serviceName,
+        duration: duration,
+        price: parseFloat(price),
+        discountPercent: parseFloat(discountPercent)
+      });
+
+      // Auto-populate the service field
+      setFormData(prev => ({ ...prev, service: serviceId }));
+    }
+  }, [searchParams]);
+
+  // Check if user can book first-time consultation
+  useEffect(() => {
+    const checkFirstBookingStatus = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          setCheckingFirstBooking(false);
+          return;
+        }
+
+        const response = await axios.get(`${API}/auth/first-booking-status`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        setCanBookFirstTime(response.data.can_book_first_time);
+        setCheckingFirstBooking(false);
+      } catch (error) {
+        console.error('Error checking first booking status:', error);
+        setCheckingFirstBooking(false);
+      }
+    };
+
+    checkFirstBookingStatus();
+  }, []);
+
+  // Calculate price based on service and duration
+  useEffect(() => {
+    if (formData.service && formData.consultationDuration) {
+      // If duration is 5-10 mins, it's free
+      if (formData.consultationDuration === '5-10') {
+        setCalculatedPrice(0);
+      } else if (formData.consultationDuration === '10+') {
+        // Find the selected service from mockServices
+        const selectedService = mockServices.find(s => s.id === formData.service);
+        if (selectedService) {
+          // Calculate discounted price
+          const discountedPrice = Math.round(selectedService.actualPrice * (1 - selectedService.discountPercent / 100));
+          setCalculatedPrice(discountedPrice);
+        }
+      }
+    } else {
+      setCalculatedPrice(0);
+    }
+  }, [formData.service, formData.consultationDuration]);
 
   // Fetch slots when astrologer or date changes
   useEffect(() => {
@@ -241,8 +316,15 @@ const Booking = () => {
         message: formData.message || ''
       };
 
+      console.log('Booking payload:', bookingPayload);
+
       // Create booking via backend API
-      const response = await axios.post(`${API}/bookings`, bookingPayload);
+      const token = localStorage.getItem('authToken');
+      const response = await axios.post(`${API}/bookings`, bookingPayload, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const bookingData = response.data;
 
       // Check if payment is required (duration > 10 mins means paid consultation)
@@ -274,8 +356,37 @@ const Booking = () => {
 
     } catch (error) {
       console.error('Booking error:', error);
-      const errorMessage = error.response?.data?.detail || 'Failed to submit booking. Please try again.';
-      toast.error(errorMessage);
+      console.error('Error response:', error.response);
+      console.error('Error data:', error.response?.data);
+
+      // Handle different error response formats
+      let errorMessage = 'Failed to submit booking. Please try again.';
+
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        console.log('Error data type:', typeof errorData);
+        console.log('Error data detail:', errorData.detail);
+
+        // Handle FastAPI validation errors
+        if (errorData.detail && Array.isArray(errorData.detail)) {
+          // Extract validation error messages
+          errorMessage = errorData.detail.map(err => {
+            const field = err.loc ? err.loc[err.loc.length - 1] : 'field';
+            const message = err.msg || 'Invalid value';
+            return `${field}: ${message}`;
+          }).join(', ');
+        } else if (typeof errorData.detail === 'string') {
+          errorMessage = errorData.detail;
+        } else if (typeof errorData.detail === 'object' && errorData.detail !== null) {
+          // Handle object detail
+          errorMessage = JSON.stringify(errorData.detail);
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      }
+
+      console.log('Final error message:', errorMessage);
+      toast.error(String(errorMessage));
     } finally {
       setLoading(false);
     }
@@ -338,7 +449,7 @@ const Booking = () => {
                   </div>
                   <div className="bg-gradient-to-br from-orange-400 to-pink-500 text-white px-8 py-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
                     <p className="text-sm font-semibold mb-1">Special Discount</p>
-                    <p className="text-4xl font-bold mb-2">UP TO 30% OFF</p>
+                    <p className="text-4xl font-bold mb-2">UP TO 25% OFF</p>
                     <p className="text-xs opacity-90">On All Consultations</p>
                   </div>
                 </div>
@@ -531,18 +642,24 @@ const Booking = () => {
                         value={formData.service}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, service: value }))}
                         required
+                        disabled={preSelectedService !== null}
                       >
                         <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder={t('booking.selectService')} />
+                          <SelectValue placeholder={preSelectedService ? preSelectedService.name : t('booking.selectService')} />
                         </SelectTrigger>
                         <SelectContent>
                           {translatedServices.map((service) => (
-                            <SelectItem key={service.id} value={service.title}>
+                            <SelectItem key={service.id} value={service.id}>
                               {service.title}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      {preSelectedService && (
+                        <p className="text-xs text-purple-600 mt-1">
+                          ✓ Service pre-selected from Services page
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -553,16 +670,37 @@ const Booking = () => {
                         value={formData.consultationDuration}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, consultationDuration: value }))}
                         required
+                        disabled={checkingFirstBooking}
                       >
                         <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder={t('booking.duration')} />
+                          <SelectValue placeholder={checkingFirstBooking ? "Loading..." : t('booking.duration')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="5-10">{t('pricing.duration1')} ({t('pricing.price1')} - {t('pricing.badge1')})</SelectItem>
-                          <SelectItem value="10-20">{t('pricing.duration2')} ({t('pricing.price2')})</SelectItem>
-                          <SelectItem value="20+">{t('pricing.duration3')} ({t('pricing.price3')})</SelectItem>
+                          {canBookFirstTime && (
+                            <SelectItem value="5-10">
+                              5-10 mins (Free for first-time users)
+                            </SelectItem>
+                          )}
+                          <SelectItem value="10+">
+                            10+ mins {formData.service && calculatedPrice > 0 ? `(₹${calculatedPrice})` : ''}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
+                      {!canBookFirstTime && !checkingFirstBooking && (
+                        <p className="text-sm text-amber-600 mt-2">
+                          ℹ️ First-time free consultation (5-10 mins) is only available for your first booking.
+                        </p>
+                      )}
+                      {calculatedPrice > 0 && formData.consultationDuration === '10+' && (
+                        <div className="mt-3 p-3 bg-gradient-to-br from-purple-50 to-amber-50 rounded-lg border border-purple-200">
+                          <p className="text-sm font-semibold text-purple-900">
+                            💰 Consultation Fee: <span className="text-xl">₹{calculatedPrice}</span>
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            🎉 Holi Offer: 25% discount already applied!
+                          </p>
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -685,34 +823,6 @@ const Booking = () => {
                   <p className="text-sm text-gray-500 text-center mt-4">
                     Your selected time slot will be reserved. We'll send you a confirmation email shortly.
                   </p>
-                  <div className="mt-6 p-6 bg-gradient-to-r from-pink-50 via-purple-50 to-orange-50 rounded-lg border-2 border-purple-200">
-                    <div className="text-center mb-3">
-                      <p className="text-lg font-bold text-purple-900 mb-2">🎉 Holi Special Pricing 🎉</p>
-                    </div>
-                    <div className="space-y-2 text-sm text-gray-700">
-                      <div className="flex justify-between items-center">
-                        <span><strong>5-10 mins:</strong> Free (First-time only)</span>
-                        <span className="text-green-600 font-bold">FREE</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span><strong>10-20 mins:</strong></span>
-                        <div className="text-right">
-                          <span className="line-through text-gray-400 mr-2">₹2,100</span>
-                          <span className="text-orange-600 font-bold text-lg">₹1,500</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span><strong>20+ mins:</strong></span>
-                        <div className="text-right">
-                          <span className="line-through text-gray-400 mr-2">₹3,000</span>
-                          <span className="text-orange-600 font-bold text-lg">₹2,100</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-600 text-center mt-4 italic">
-                      Special services like gemstone consultations priced separately.
-                    </p>
-                  </div>
                 </div>
               </form>
             </Card>

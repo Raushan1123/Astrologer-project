@@ -40,56 +40,90 @@ export const mockServices = [
     title: "Birth Chart (Kundli) Analysis",
     description: "Detailed analysis of your birth chart to understand your life path, strengths, and challenges.",
     icon: "Star",
-    image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591"
+    image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591",
+    duration: "30 mins",
+    actualPrice: 4100,
+    discountPercent: 25
   },
   {
     id: "2",
     title: "Career & Business Guidance",
     description: "Strategic insights for career growth, business decisions, and professional success.",
     icon: "Briefcase",
-    image: "https://images.unsplash.com/photo-1729335511883-29eade10006b"
+    image: "https://images.unsplash.com/photo-1729335511883-29eade10006b",
+    duration: "30 mins",
+    actualPrice: 3500,
+    discountPercent: 25
   },
   {
     id: "3",
     title: "Marriage & Relationship Compatibility",
     description: "Comprehensive compatibility analysis for harmonious relationships and marriages.",
     icon: "Heart",
-    image: "https://images.unsplash.com/photo-1600429991827-5224817554f8"
+    image: "https://images.unsplash.com/photo-1600429991827-5224817554f8",
+    duration: "45 mins",
+    actualPrice: 5100,
+    discountPercent: 25
   },
   {
     id: "4",
     title: "Health & Life Path Insights",
     description: "Guidance on health matters and understanding your life's purpose and direction.",
     icon: "Activity",
-    image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88"
+    image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88",
+    duration: "30 mins",
+    actualPrice: 3500,
+    discountPercent: 25
   },
   {
     id: "5",
     title: "Vastu Consultation",
     description: "Home and office Vastu analysis for positive energy flow and prosperity.",
     icon: "Home",
-    image: "https://images.unsplash.com/photo-1729335511904-9b8690184935"
+    image: "https://images.unsplash.com/photo-1729335511904-9b8690184935",
+    duration: "20-30 mins",
+    actualPrice: 3000,
+    discountPercent: 25
   },
   {
     id: "6",
-    title: "Numerology",
-    description: "Discover the power of numbers in your life and their influence on your destiny.",
-    icon: "Hash",
-    image: "https://images.unsplash.com/photo-1758926384162-b3783d5fa09e"
+    title: "Palmistry",
+    description: "Discover insights about your personality, life path, and future through palm reading.",
+    icon: "Hand",
+    image: "https://images.unsplash.com/photo-1758926384162-b3783d5fa09e",
+    duration: "15 mins",
+    actualPrice: 2000,
+    discountPercent: 25
   },
   {
     id: "7",
     title: "Gemstone Remedies & Sales",
     description: "Personalized gemstone recommendations based on your birth chart. Purchase authentic, energized gemstones directly.",
     icon: "Gem",
-    image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591"
+    image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591",
+    duration: "20 mins",
+    actualPrice: 3500,
+    discountPercent: 25
   },
   {
     id: "8",
     title: "Auspicious Childbirth Timing (Muhurat)",
     description: "Select the most auspicious and suitable time for childbirth to ensure a prosperous future for your child.",
     icon: "Baby",
-    image: "https://images.unsplash.com/photo-1729335511904-9b8690184935"
+    image: "https://images.unsplash.com/photo-1729335511904-9b8690184935",
+    duration: "30 mins",
+    actualPrice: 3500,
+    discountPercent: 25
+  },
+  {
+    id: "9",
+    title: "Naming Ceremony",
+    description: "Choose the perfect name for your child based on astrological calculations and numerology for a prosperous future.",
+    icon: "Sparkles",
+    image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591",
+    duration: "10 mins",
+    actualPrice: 1100,
+    discountPercent: 25
   }
 ];
 

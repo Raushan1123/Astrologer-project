@@ -25,6 +25,7 @@ class User(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     created_at: datetime
+    first_booking_completed: bool = False
 
 
 class PasswordResetRequest(BaseModel):
@@ -38,8 +39,7 @@ class PasswordReset(BaseModel):
 
 class ConsultationDuration(str, Enum):
     SHORT = "5-10"
-    MEDIUM = "10-20"
-    LONG = "20+"
+    LONG = "10+"
 
 
 class ConsultationType(str, Enum):

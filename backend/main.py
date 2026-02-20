@@ -310,14 +310,40 @@ async def send_email(to_email: str, subject: str, body: str):
             return False
 
 
-# Calculate consultation price
-def calculate_price(duration: str) -> int:
-    prices = {
-        "5-10": 0,  # Free for first time
-        "10-20": 150000,  # ₹1,500 in paise
-        "20+": 210000  # ₹2,100 in paise
-    }
-    return prices.get(duration, 0)
+# Service pricing mapping (service ID to price details)
+SERVICE_PRICING = {
+    "1": {"actualPrice": 4100, "discountPercent": 25},  # Birth Chart
+    "2": {"actualPrice": 3500, "discountPercent": 25},  # Career
+    "3": {"actualPrice": 5100, "discountPercent": 25},  # Marriage
+    "4": {"actualPrice": 3500, "discountPercent": 25},  # Health
+    "5": {"actualPrice": 3000, "discountPercent": 25},  # Vastu
+    "6": {"actualPrice": 2000, "discountPercent": 25},  # Palmistry
+    "7": {"actualPrice": 3500, "discountPercent": 25},  # Gemstone
+    "8": {"actualPrice": 3500, "discountPercent": 25},  # Childbirth
+    "9": {"actualPrice": 1100, "discountPercent": 25},  # Naming Ceremony
+}
+
+# Calculate consultation price based on duration and service
+def calculate_price(duration: str, service: str = None) -> int:
+    # If duration is 5-10 mins, it's always free
+    if duration == "5-10":
+        return 0
+
+    # For 10+ mins, calculate based on service
+    if duration == "10+" and service:
+        # Try to extract service ID from service string
+        # Service could be either ID or name
+        service_id = service
+
+        # If service is in our pricing map, use it
+        if service_id in SERVICE_PRICING:
+            pricing = SERVICE_PRICING[service_id]
+            # Calculate discounted price and convert to paise
+            discounted_price = round(pricing["actualPrice"] * (1 - pricing["discountPercent"] / 100))
+            return discounted_price * 100  # Convert to paise
+
+    # Default fallback
+    return 0
 
 
 # Root endpoint
@@ -351,7 +377,8 @@ async def signup(user_data: UserCreate):
             "email": user_data.email,
             "phone": user_data.phone,
             "password": hashed_password,
-            "created_at": datetime.now(timezone.utc)
+            "created_at": datetime.now(timezone.utc),
+            "first_booking_completed": False
         }
 
         await db.users.insert_one(user)
@@ -423,9 +450,20 @@ async def verify_token(current_user: dict = Depends(get_current_user)):
         name=current_user["name"],
         email=current_user["email"],
         phone=current_user.get("phone"),
-        created_at=current_user["created_at"]
+        created_at=current_user["created_at"],
+        first_booking_completed=current_user.get("first_booking_completed", False)
     )
     return {"user": user_response.model_dump()}
+
+
+@api_router.get("/auth/first-booking-status")
+async def get_first_booking_status(current_user: dict = Depends(get_current_user)):
+    """Check if user can access first-time booking discount (5-10 mins option)"""
+    first_booking_completed = current_user.get("first_booking_completed", False)
+    return {
+        "can_book_first_time": not first_booking_completed,
+        "first_booking_completed": first_booking_completed
+    }
 
 
 @api_router.post("/auth/forgot-password")
@@ -558,10 +596,18 @@ async def reset_password(reset_data: PasswordReset):
 
 # Booking endpoints
 @api_router.post("/bookings")
-async def create_booking(booking_data: BookingCreate, background_tasks: BackgroundTasks):
+async def create_booking(
+    booking_data: BookingCreate,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user)
+):
     try:
-        # Calculate price
-        amount = calculate_price(booking_data.consultation_duration)
+        # Check if this is user's first booking
+        user_bookings_count = await db.bookings.count_documents({"email": current_user["email"]})
+        is_first_booking = user_bookings_count == 0
+
+        # Calculate price based on duration and service
+        amount = calculate_price(booking_data.consultation_duration, booking_data.service)
 
         # Create Razorpay order if amount > 0 and Razorpay is enabled
         razorpay_order_id = None
@@ -594,6 +640,14 @@ async def create_booking(booking_data: BookingCreate, background_tasks: Backgrou
         booking_doc['updated_at'] = booking_doc['updated_at'].isoformat()
 
         await db.bookings.insert_one(booking_doc)
+
+        # Mark first booking as completed for the user
+        if is_first_booking:
+            await db.users.update_one(
+                {"email": current_user["email"]},
+                {"$set": {"first_booking_completed": True}}
+            )
+            logger.info(f"Marked first booking completed for user: {current_user['email']}")
 
         # Send confirmation email in background (non-blocking)
         amount_display = (

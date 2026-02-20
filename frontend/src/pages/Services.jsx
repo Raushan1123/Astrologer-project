@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { mockServices, consultationPricing } from '../mockData';
-import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hash, Sparkles, CheckCircle, Gem, Baby, BadgeCheck, Clock, IndianRupee } from 'lucide-react';
+import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hand, Sparkles, CheckCircle, Gem, Baby, BadgeCheck, Clock, IndianRupee } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const iconMap = {
@@ -12,9 +12,10 @@ const iconMap = {
   Heart,
   Activity,
   Home,
-  Hash,
+  Hand,
   Gem,
-  Baby
+  Baby,
+  Sparkles
 };
 
 const Services = () => {
@@ -28,9 +29,10 @@ const Services = () => {
       'Marriage & Relationship Compatibility': { title: 'marriage', desc: 'marriageDesc' },
       'Health & Life Path Insights': { title: 'health', desc: 'healthDesc' },
       'Vastu Consultation': { title: 'vastu', desc: 'vastuDesc' },
-      'Numerology': { title: 'numerology', desc: 'numerologyDesc' },
+      'Palmistry': { title: 'palmistry', desc: 'palmistryDesc' },
       'Gemstone Remedies & Sales': { title: 'gemstone', desc: 'gemstoneDesc' },
-      'Auspicious Childbirth Timing (Muhurat)': { title: 'childbirth', desc: 'childbirthDesc' }
+      'Auspicious Childbirth Timing (Muhurat)': { title: 'childbirth', desc: 'childbirthDesc' },
+      'Naming Ceremony': { title: 'namingCeremony', desc: 'namingCeremonyDesc' }
     };
 
     const keys = serviceMap[service.title];
@@ -94,6 +96,13 @@ const Services = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 via-purple-900/50 to-transparent" />
 
+                    {/* Holi Offer Badge */}
+                    <div className="absolute top-4 right-4">
+                      <span className="bg-gradient-to-r from-pink-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                        🎉 Holi Offer
+                      </span>
+                    </div>
+
                     {/* Icon */}
                     <div className="absolute bottom-4 left-4">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-xl">
@@ -111,13 +120,43 @@ const Services = () => {
                       {translatedService.description}
                     </p>
 
-                    <Link to="/booking">
+                    {/* Duration and Price */}
+                    <div className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-amber-50 rounded-lg border border-purple-100">
+                      <div className="flex items-center gap-2 text-sm text-gray-700 mb-3">
+                        <Clock className="w-4 h-4 text-purple-600" />
+                        <span className="font-semibold text-purple-900">Duration:</span>
+                        <span className="font-medium">{service.duration}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1">
+                            <IndianRupee className="w-5 h-5 text-purple-900" />
+                            <span className="text-2xl font-bold text-purple-900">
+                              {Math.round(service.actualPrice * (1 - service.discountPercent / 100))}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <IndianRupee className="w-3 h-3 text-gray-400" />
+                            <span className="text-sm text-gray-500 line-through">
+                              {service.actualPrice}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-xs font-bold text-white bg-gradient-to-r from-green-500 to-green-600 px-3 py-1.5 rounded-full shadow-md">
+                          {service.discountPercent}% OFF
+                        </span>
+                      </div>
+                    </div>
+
+                    <Link
+                      to={`/booking?serviceId=${service.id}&serviceName=${encodeURIComponent(translatedService.title)}&duration=${encodeURIComponent(service.duration)}&price=${service.actualPrice}&discountPercent=${service.discountPercent}`}
+                      className="block"
+                    >
                       <Button
-                        variant="ghost"
-                        className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
                       >
                         {t('common.bookNow')}
-                        <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                        <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </Link>
                   </div>
