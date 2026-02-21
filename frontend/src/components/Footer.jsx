@@ -62,7 +62,7 @@ const Footer = () => {
                 'Marriage Compatibility',
                 'Health Insights',
                 'Vastu Consultation',
-                'Numerology',
+                'Palmistry',
                 'Gemstone Remedies',
                 'Childbirth Timing'
               ].map((service) => (
