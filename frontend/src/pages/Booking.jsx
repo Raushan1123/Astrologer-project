@@ -273,6 +273,8 @@ const Booking = () => {
       const response = await axios.get(`${API}/available-slots`, {
         params: params
       });
+      console.log('Available slots response:', response.data);
+      console.log('Number of slots:', response.data.slots?.length);
       setAvailableSlots(response.data.slots || []);
     } catch (error) {
       console.error('Error fetching slots:', error);

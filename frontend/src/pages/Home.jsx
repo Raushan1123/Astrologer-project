@@ -173,53 +173,53 @@ const Home = () => {
 
       {/* Free First Consultation Banner - Only show if user can book first time */}
       {!checkingFirstBooking && canBookFirstTime && (
-      <section className="py-16 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
+      <section className="py-8 md:py-16 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
         {/* Decorative Elements */}
         <div className="absolute top-0 left-0 w-64 h-64 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
         <div className="absolute bottom-0 left-1/2 w-64 h-64 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-3 md:px-4 relative z-10">
           <div className="max-w-5xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-4 border-green-400">
+            <div className="bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden border-2 md:border-4 border-green-400">
               <div className="relative">
                 {/* Ribbon */}
-                <div className="absolute top-6 -left-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-2 shadow-lg transform -rotate-3 z-20">
-                  <span className="font-bold text-sm tracking-wide">🎁 SPECIAL OFFER</span>
+                <div className="absolute top-4 md:top-6 -left-1 md:-left-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 md:px-8 py-1.5 md:py-2 shadow-lg transform -rotate-3 z-20">
+                  <span className="font-bold text-xs md:text-sm tracking-wide">🎁 SPECIAL OFFER</span>
                 </div>
 
-                <div className="p-8 md:p-12">
-                  <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="p-4 md:p-8 lg:p-12 pt-12 md:pt-8">
+                  <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
                     {/* Left Side - Text Content */}
-                    <div className="flex-1 text-center md:text-left">
-                      <div className="inline-block mb-4">
-                        <span className="bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-md animate-pulse">
+                    <div className="flex-1 text-center md:text-left w-full">
+                      <div className="inline-block mb-3 md:mb-4">
+                        <span className="bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold px-3 md:px-4 py-1 md:py-1.5 rounded-full shadow-md animate-pulse">
                           ✨ FIRST TIME USERS ONLY
                         </span>
                       </div>
 
-                      <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
                           Get Your First Consultation
                         </span>
                       </h2>
 
-                      <div className="mb-6">
-                        <div className="inline-flex items-baseline gap-3">
-                          <span className="text-7xl md:text-8xl font-black text-green-600">FREE</span>
+                      <div className="mb-4 md:mb-6">
+                        <div className="inline-flex items-baseline gap-2 md:gap-3">
+                          <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-green-600">FREE</span>
                           <div className="text-left">
-                            <p className="text-sm text-gray-600 font-semibold">5-10 Minutes</p>
+                            <p className="text-xs sm:text-sm text-gray-600 font-semibold">5-10 Minutes</p>
                             <p className="text-xs text-gray-500">Expert Guidance</p>
                           </div>
                         </div>
                       </div>
 
-                      <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                      <p className="text-sm sm:text-base md:text-lg text-gray-700 mb-4 md:mb-6 leading-relaxed px-2 md:px-0">
                         Experience the power of Vedic astrology with a complimentary consultation.
                         Get personalized insights into your life's most important questions.
                       </p>
 
-                      <ul className="text-left space-y-2 mb-8 max-w-md mx-auto md:mx-0">
+                      <ul className="text-left space-y-1.5 md:space-y-2 mb-6 md:mb-8 max-w-md mx-auto md:mx-0 text-sm md:text-base">
                         {[
                           'No credit card required',
                           'Instant booking confirmation',
@@ -227,33 +227,33 @@ const Home = () => {
                           'One-time offer for new users'
                         ].map((item, index) => (
                           <li key={index} className="flex items-center gap-2 text-gray-700">
-                            <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
                               </svg>
                             </div>
-                            <span className="font-medium">{item}</span>
+                            <span className="font-medium text-sm md:text-base">{item}</span>
                           </li>
                         ))}
                       </ul>
 
-                      <Link to="/booking">
+                      <Link to="/booking" className="block">
                         <Button
                           size="lg"
-                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-10 py-7 text-xl font-bold shadow-2xl shadow-green-500/50 transform hover:scale-105 transition-all duration-300 rounded-xl"
+                          className="w-full md:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 md:px-10 py-5 md:py-7 text-base md:text-xl font-bold shadow-2xl shadow-green-500/50 transform hover:scale-105 transition-all duration-300 rounded-xl"
                         >
                           🎯 Claim Your Free Session Now
-                          <ArrowRight className="ml-2 w-6 h-6" />
+                          <ArrowRight className="ml-2 w-4 h-4 md:w-6 md:h-6" />
                         </Button>
                       </Link>
 
-                      <p className="text-xs text-gray-500 mt-4 italic">
+                      <p className="text-xs text-gray-500 mt-3 md:mt-4 italic px-2 md:px-0">
                         ⏰ Limited slots available daily. Book now to secure your spot!
                       </p>
                     </div>
 
                     {/* Right Side - Visual Element */}
-                    <div className="flex-shrink-0 relative">
+                    <div className="flex-shrink-0 relative hidden md:block">
                       <div className="relative w-64 h-64 md:w-80 md:h-80">
                         {/* Glowing Circle Background */}
                         <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full animate-pulse opacity-20"></div>
@@ -282,23 +282,23 @@ const Home = () => {
                 </div>
 
                 {/* Bottom Accent Bar */}
-                <div className="h-3 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
+                <div className="h-2 md:h-3 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
               </div>
             </div>
 
             {/* Trust Indicators */}
-            <div className="mt-8 flex flex-wrap justify-center gap-8 text-center">
-              <div className="flex items-center gap-2 text-gray-700">
-                <Users className="w-5 h-5 text-green-600" />
-                <span className="font-semibold">10,000+ Happy Clients</span>
+            <div className="mt-6 md:mt-8 flex flex-wrap justify-center gap-4 md:gap-8 text-center px-2">
+              <div className="flex items-center gap-1.5 md:gap-2 text-gray-700">
+                <Users className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
+                <span className="font-semibold text-xs md:text-base">10,000+ Happy Clients</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-700">
-                <Star className="w-5 h-5 text-yellow-500" fill="currentColor" />
-                <span className="font-semibold">4.9/5 Average Rating</span>
+              <div className="flex items-center gap-1.5 md:gap-2 text-gray-700">
+                <Star className="w-4 h-4 md:w-5 md:h-5 text-yellow-500 flex-shrink-0" fill="currentColor" />
+                <span className="font-semibold text-xs md:text-base">4.9/5 Average Rating</span>
               </div>
-              <div className="flex items-center gap-2 text-gray-700">
-                <Award className="w-5 h-5 text-purple-600" />
-                <span className="font-semibold">20+ Years Experience</span>
+              <div className="flex items-center gap-1.5 md:gap-2 text-gray-700">
+                <Award className="w-4 h-4 md:w-5 md:h-5 text-purple-600 flex-shrink-0" />
+                <span className="font-semibold text-xs md:text-base">20+ Years Experience</span>
               </div>
             </div>
           </div>
