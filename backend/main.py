@@ -1231,6 +1231,124 @@ async def subscribe_newsletter(newsletter: Newsletter):
         logger.error(f"Error subscribing to newsletter: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Gemstone Inquiry
+@api_router.post("/gemstone-inquiry")
+async def gemstone_inquiry(
+    inquiry_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Handle gemstone price inquiry and send notification to Indira Pandey"""
+    try:
+        gemstone = inquiry_data.get('gemstone', {})
+        customer = inquiry_data.get('customer', {})
+
+        # Get admin email (Indira Pandey's email)
+        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+
+        # Send notification email to Indira Pandey
+        admin_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">💎 New Gemstone Price Inquiry</h2>
+                <p>A customer has inquired about gemstone pricing.</p>
+
+                <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #7c3aed; margin-top: 0;">Gemstone Details:</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 8px 0;"><strong>Gemstone:</strong></td><td>{gemstone.get('name', 'N/A')}</td></tr>
+                        <tr><td style="padding: 8px 0;"><strong>Weight:</strong></td><td>{gemstone.get('weight', 'N/A')}</td></tr>
+                        <tr><td style="padding: 8px 0;"><strong>Quality:</strong></td><td>{gemstone.get('quality', 'N/A')}</td></tr>
+                    </table>
+                </div>
+
+                <div style="background-color: #ede9fe; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="color: #7c3aed; margin-top: 0;">Customer Details:</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{customer.get('name', 'N/A')}</td></tr>
+                        <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{customer.get('email', 'N/A')}</td></tr>
+                        <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{customer.get('phone', 'N/A')}</td></tr>
+                    </table>
+                </div>
+
+                <div style="background-color: #fff7ed; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f97316;">
+                    <h3 style="color: #7c3aed; margin-top: 0;">Customer Message:</h3>
+                    <p style="white-space: pre-wrap; color: #374151;">{customer.get('message', 'No message provided')}</p>
+                </div>
+
+                <div style="margin: 30px 0; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                    <strong>Action Required:</strong> Please contact the customer to provide pricing and availability information.
+                </div>
+
+                <p style="margin-top: 30px;">
+                    Best regards,<br>
+                    <strong>Astrology Website System</strong>
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        # Send email to admin
+        await send_email(
+            admin_email,
+            f"💎 Gemstone Inquiry - {gemstone.get('name', 'Gemstone')} - {customer.get('name', 'Customer')}",
+            admin_email_body
+        )
+
+        # Send confirmation email to customer
+        customer_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">Thank You for Your Inquiry</h2>
+                <p>Dear {customer.get('name', 'Customer')},</p>
+
+                <p>Thank you for your interest in our <strong>{gemstone.get('name', 'gemstone')}</strong>.</p>
+
+                <div style="background-color: #d1fae5; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                    <strong>✅ Your inquiry has been received!</strong><br>
+                    Our team will contact you shortly with pricing and availability details.
+                </div>
+
+                <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Gemstone Details:</strong></p>
+                    <ul style="margin: 10px 0;">
+                        <li>Name: {gemstone.get('name', 'N/A')}</li>
+                        <li>Weight: {gemstone.get('weight', 'N/A')}</li>
+                        <li>Quality: {gemstone.get('quality', 'N/A')}</li>
+                    </ul>
+                </div>
+
+                <p>If you have any questions in the meantime, feel free to contact us.</p>
+
+                <p style="margin-top: 30px;">
+                    Best regards,<br>
+                    <strong>Acharyaa Indira Pandey Team</strong>
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        # Send confirmation to customer
+        await send_email(
+            customer.get('email', ''),
+            f"Gemstone Inquiry Confirmation - {gemstone.get('name', 'Gemstone')}",
+            customer_email_body
+        )
+
+        logger.info(f"Gemstone inquiry sent for {gemstone.get('name')} by {customer.get('email')}")
+
+        return {
+            "message": "Inquiry sent successfully. We'll contact you shortly.",
+            "gemstone": gemstone.get('name')
+        }
+
+    except Exception as e:
+        logger.error(f"Error processing gemstone inquiry: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process inquiry")
+
 # Testimonials
 @api_router.get("/testimonials")
 async def get_testimonials(limit: int = 50, approved_only: bool = True):

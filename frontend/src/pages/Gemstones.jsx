@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -7,6 +7,7 @@ import { Sparkles, ShoppingCart, CheckCircle, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -65,8 +66,14 @@ const mockGemstones = [
 
 const Gemstones = () => {
   const { t } = useLanguage();
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   const [gemstones, setGemstones] = useState(mockGemstones);
   const [loading, setLoading] = useState(false);
+  const [sendingInquiry, setSendingInquiry] = useState(false);
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [selectedGemstone, setSelectedGemstone] = useState(null);
+  const [inquiryMessage, setInquiryMessage] = useState('');
 
   // Uncomment when backend is ready
   // useEffect(() => {
@@ -85,9 +92,59 @@ const Gemstones = () => {
   //   }
   // };
 
-  const handleInquiry = (gemstone) => {
-    toast.success(`Inquiry sent for ${gemstone.name}! We'll contact you shortly.`);
-    // In production, send inquiry to backend
+  const handleInquiryClick = (gemstone) => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      toast.error(t('gemstones.loginRequired') || 'Please log in to inquire about gemstone prices');
+      navigate('/login', { state: { from: '/gemstones' } });
+      return;
+    }
+
+    setSelectedGemstone(gemstone);
+    setInquiryMessage('');
+    setShowInquiryModal(true);
+  };
+
+  const handleSubmitInquiry = async () => {
+    // Validate message length
+    if (inquiryMessage.trim().length < 10) {
+      toast.error(t('gemstones.messageMinLength') || 'Please enter at least 10 characters in your message');
+      return;
+    }
+
+    setSendingInquiry(true);
+    try {
+      const gemstoneName = t(`gemstones.${selectedGemstone.key}.name`);
+      const token = localStorage.getItem('token');
+
+      // Send inquiry email to Indira Pandey
+      await axios.post(`${API}/gemstone-inquiry`, {
+        gemstone: {
+          name: gemstoneName,
+          weight: selectedGemstone.weight,
+          quality: selectedGemstone.quality
+        },
+        customer: {
+          name: user?.name || 'Customer',
+          email: user?.email || '',
+          phone: user?.phone || '',
+          message: inquiryMessage
+        }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      toast.success(t('gemstones.inquirySent') || `Inquiry sent for ${gemstoneName}! We'll contact you shortly.`);
+      setShowInquiryModal(false);
+      setInquiryMessage('');
+    } catch (error) {
+      console.error('Error sending inquiry:', error);
+      toast.error(t('gemstones.inquiryError') || 'Failed to send inquiry. Please try again or contact us directly.');
+    } finally {
+      setSendingInquiry(false);
+    }
   };
 
   return (
@@ -187,7 +244,7 @@ const Gemstones = () => {
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => handleInquiry(gemstone)}
+                      onClick={() => handleInquiryClick(gemstone)}
                       className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
                       disabled={!gemstone.in_stock}
                     >
@@ -281,6 +338,74 @@ const Gemstones = () => {
           </Card>
         </div>
       </section>
+
+      {/* Inquiry Modal */}
+      {showInquiryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-2xl font-bold text-purple-900 mb-4">
+              {t('gemstones.inquiryModalTitle') || 'Gemstone Inquiry'}
+            </h3>
+
+            {selectedGemstone && (
+              <div className="mb-4 p-4 bg-purple-50 rounded-lg">
+                <p className="font-semibold text-purple-900">
+                  {t(`gemstones.${selectedGemstone.key}.name`)}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {t('gemstones.weight')}: {selectedGemstone.weight}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Quality: {selectedGemstone.quality}
+                </p>
+              </div>
+            )}
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('gemstones.inquiryMessageLabel') || 'Your Message'}
+                <span className="text-red-500">*</span>
+                <span className="text-xs text-gray-500 ml-2">
+                  ({t('gemstones.minCharacters') || 'Minimum 10 characters'})
+                </span>
+              </label>
+              <textarea
+                value={inquiryMessage}
+                onChange={(e) => setInquiryMessage(e.target.value)}
+                placeholder={t('gemstones.inquiryMessagePlaceholder') || 'Please tell us about your requirements, preferred weight, budget, or any specific questions...'}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                rows="5"
+              />
+              <div className="text-right mt-1">
+                <span className={`text-xs ${inquiryMessage.length >= 10 ? 'text-green-600' : 'text-gray-500'}`}>
+                  {inquiryMessage.length} / 10 {t('gemstones.characters') || 'characters'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  setShowInquiryModal(false);
+                  setInquiryMessage('');
+                }}
+                variant="outline"
+                className="flex-1"
+                disabled={sendingInquiry}
+              >
+                {t('gemstones.cancel') || 'Cancel'}
+              </Button>
+              <Button
+                onClick={handleSubmitInquiry}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                disabled={sendingInquiry || inquiryMessage.trim().length < 10}
+              >
+                {sendingInquiry ? (t('gemstones.sending') || 'Sending...') : (t('gemstones.submit') || 'Submit Inquiry')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
