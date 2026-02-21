@@ -115,7 +115,7 @@ const Gemstones = () => {
     setSendingInquiry(true);
     try {
       const gemstoneName = t(`gemstones.${selectedGemstone.key}.name`);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
 
       // Send inquiry email to Indira Pandey
       await axios.post(`${API}/gemstone-inquiry`, {
