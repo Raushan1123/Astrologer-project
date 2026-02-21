@@ -5,7 +5,7 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from 'sonner';
-import { Mail, Phone, MapPin, Clock, Send, MessageCircle, Facebook, Instagram, Youtube } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, MessageCircle } from 'lucide-react';
 import {
  Accordion,
   AccordionContent,
@@ -270,40 +270,6 @@ const Contact = () => {
                     referrerPolicy="no-referrer-when-downgrade"
                     title="Ghaziabad Location"
                   />
-                </div>
-              </Card>
-
-              {/* Social Media */}
-              <Card className="p-6 shadow-xl bg-gradient-to-br from-purple-900 to-purple-800 text-white">
-                <h3 className="text-2xl font-bold mb-4">{t('contact.socialTitle')}</h3>
-                <p className="text-purple-100 mb-6">
-                  {t('contact.socialSubtitle')}
-                </p>
-                <div className="flex gap-4">
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-full bg-white/20 hover:bg-amber-500 flex items-center justify-center transition-all duration-300 transform hover:scale-110"
-                  >
-                    <Facebook className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-full bg-white/20 hover:bg-amber-500 flex items-center justify-center transition-all duration-300 transform hover:scale-110"
-                  >
-                    <Instagram className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="https://youtube.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-12 h-12 rounded-full bg-white/20 hover:bg-amber-500 flex items-center justify-center transition-all duration-300 transform hover:scale-110"
-                  >
-                    <Youtube className="w-5 h-5" />
-                  </a>
                 </div>
               </Card>
 

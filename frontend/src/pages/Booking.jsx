@@ -55,11 +55,6 @@ const Booking = () => {
         experience: "20"
       },
       {
-        id: "2",
-        name: t('team.astrologer2Name'),
-        experience: "40"
-      },
-      {
         id: "3",
         name: t('team.astrologer3Name'),
         experience: "2"

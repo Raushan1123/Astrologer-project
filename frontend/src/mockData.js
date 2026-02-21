@@ -2,34 +2,34 @@
 export const mockTestimonials = [
   {
     id: "1",
-    name: "Rahul S.",
+    name: "Anjali Sharma",
     rating: 5,
-    text: "My business growth improved after her guidance. Highly accurate predictions!",
+    text: "Acharyaa Indira Pandey's guidance helped me navigate through a difficult career transition. Her predictions were remarkably accurate and the remedies she suggested brought positive changes within months.",
     service: "Career Guidance",
     date: "2024-11-15"
   },
   {
     id: "2",
-    name: "Priya M.",
+    name: "Vikram Malhotra",
     rating: 5,
-    text: "Her remedies changed my life completely. Very grateful for her support.",
-    service: "Personalized Remedies",
+    text: "I was skeptical at first, but her detailed birth chart analysis revealed insights about my personality and life path that were incredibly accurate. The gemstone recommendation has brought noticeable improvements in my health.",
+    service: "Birth Chart Analysis",
     date: "2024-10-20"
   },
   {
     id: "3",
-    name: "Sneha K.",
+    name: "Meera Kapoor",
     rating: 5,
-    text: "Very calm, understanding and precise readings. Highly recommended!",
-    service: "Birth Chart Analysis",
+    text: "Her marriage compatibility reading saved my relationship. The understanding and remedies she provided helped us overcome our differences. Forever grateful for her wisdom and compassion.",
+    service: "Marriage Compatibility",
     date: "2024-09-05"
   },
   {
     id: "4",
-    name: "Amit P.",
+    name: "Rajesh Patel",
     rating: 5,
-    text: "Her marriage compatibility analysis was spot on. Thank you!",
-    service: "Relationship Compatibility",
+    text: "The Vastu consultation transformed my home's energy completely. My family relationships improved and business started flourishing. Her knowledge of Vedic sciences is truly exceptional.",
+    service: "Vastu Consultation",
     date: "2024-08-12"
   }
 ];
@@ -136,7 +136,8 @@ export const mockBlogs = [
     author: "Acharyaa Indira Pandey",
     date: "2024-11-28",
     category: "Astrology Basics",
-    readTime: "5 min read"
+    readTime: "5 min read",
+    externalUrl: "https://www.astrology.com/article/birth-chart-basics"
   },
   {
     id: "2",
@@ -146,7 +147,8 @@ export const mockBlogs = [
     author: "Acharyaa Indira Pandey",
     date: "2024-12-01",
     category: "Weekly Horoscope",
-    readTime: "3 min read"
+    readTime: "3 min read",
+    externalUrl: "https://www.astrology.com/horoscopes/daily-horoscope"
   },
   {
     id: "3",
@@ -156,7 +158,8 @@ export const mockBlogs = [
     author: "Acharyaa Indira Pandey",
     date: "2024-11-15",
     category: "Planetary Movements",
-    readTime: "7 min read"
+    readTime: "7 min read",
+    externalUrl: "https://www.astrology.com/article/mercury-retrograde-guide"
   },
   {
     id: "4",
@@ -166,7 +169,8 @@ export const mockBlogs = [
     author: "Acharyaa Indira Pandey",
     date: "2024-10-22",
     category: "Remedies",
-    readTime: "6 min read"
+    readTime: "6 min read",
+    externalUrl: "https://www.ganeshaspeaks.com/astrology/vedic-astrology/"
   }
 ];
 

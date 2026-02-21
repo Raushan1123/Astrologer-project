@@ -166,12 +166,16 @@ const Blog = () => {
                         <span>{filteredBlogs[0].readTime}</span>
                       </div>
                     </div>
-                    <Link to={`/blog/${filteredBlogs[0].id}`}>
+                    <a
+                      href={filteredBlogs[0].externalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
                         {t('blog.readFullArticle')}
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
-                    </Link>
+                    </a>
                   </div>
                 </div>
               </Card>
@@ -223,7 +227,11 @@ const Blog = () => {
                           <span>{blog.readTime}</span>
                         </div>
                       </div>
-                      <Link to={`/blog/${blog.id}`}>
+                      <a
+                        href={blog.externalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <Button
                           variant="ghost"
                           className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
@@ -231,7 +239,7 @@ const Blog = () => {
                           {t('blog.readMore')}
                           <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                         </Button>
-                      </Link>
+                      </a>
                     </div>
                   </Card>
                 ))}
