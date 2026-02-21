@@ -37,7 +37,7 @@ async def send_email_sendgrid(to_email: str, subject: str, body: str) -> bool:
         # Get SendGrid configuration from environment
         sendgrid_api_key = os.environ.get('SENDGRID_API_KEY', 'JXCCLF53CXVN2JQPGANHSFKV')
         from_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
-        from_name = os.environ.get('SENDGRID_FROM_NAME', 'Mrs. Indira Pandey Astrology')
+        from_name = os.environ.get('SENDGRID_FROM_NAME', 'Acharyaa Indira Pandey Astrology')
         
         # Check if SendGrid is configured
         if not sendgrid_api_key:

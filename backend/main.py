@@ -224,7 +224,7 @@ async def send_email(to_email: str, subject: str, body: str):
     Required environment variables:
     - SENDGRID_API_KEY: Your SendGrid API key
     - SENDGRID_FROM_EMAIL: Sender email (e.g., noreply@yourdomain.com)
-    - SENDGRID_FROM_NAME: Sender name (e.g., Mrs. Indira Pandey Astrology)
+    - SENDGRID_FROM_NAME: Sender name (e.g., Acharyaa Indira Pandey Astrology)
 
     Falls back to SMTP if SendGrid is not configured (for local development)
     """
@@ -235,7 +235,7 @@ async def send_email(to_email: str, subject: str, body: str):
         try:
             import requests
             from_email = os.environ.get('SENDGRID_FROM_EMAIL', 'noreply@astrology.com')
-            from_name = os.environ.get('SENDGRID_FROM_NAME', 'Mrs. Indira Pandey Astrology')
+            from_name = os.environ.get('SENDGRID_FROM_NAME', 'Acharyaa Indira Pandey Astrology')
 
             # Use requests directly to avoid SSL issues on macOS
             url = "https://api.sendgrid.com/v3/mail/send"
@@ -700,7 +700,7 @@ async def create_booking(
                 We will review your request and contact you within 24 hours.
                 </p>
                 <p style="margin-top: 30px;">Best regards,<br>
-                <strong>Mrs. Indira Pandey Team</strong></p>
+                <strong>Acharyaa Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>
@@ -741,6 +741,10 @@ async def create_booking(
                     </td><td>{booking.service}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
                     </td><td>{duration_display}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong>
+                    </td><td>{booking.preferred_date}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong>
+                    </td><td>{booking.preferred_time}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount:</strong>
                     </td><td>{amount_display}</td></tr>
                     <tr><td style="padding: 8px 0;">
@@ -748,10 +752,10 @@ async def create_booking(
                     </td><td>{consultation_type}</td></tr>
                 </table>
                 <p style="margin-top: 20px;">
-                We will review your request and contact you within 24 hours.
+                We will review your request and contact you within 24 hours to confirm your preferred time slot.
                 </p>
                 <p style="margin-top: 30px;">Best regards,<br>
-                <strong>Mrs. Indira Pandey Team</strong></p>
+                <strong>Acharyaa Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>
@@ -1036,7 +1040,7 @@ async def verify_payment(request: Request):
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_payment}</td></tr>
                 </table>
                 <p style="margin-top: 20px;">We will contact you shortly to schedule your consultation.</p>
-                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>
@@ -1142,7 +1146,7 @@ async def payment_failed(request: Request):
                     • Or contact us directly at {os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')}<br>
                     • We're here to help!
                 </div>
-                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>
@@ -1208,7 +1212,7 @@ async def create_contact_inquiry(inquiry: ContactInquiry):
                 <div style="background-color: #f3f4f6; padding: 15px; border-left: 4px solid #7c3aed; margin: 20px 0;">
                     <strong>Your Message:</strong><br>{inquiry.message}
                 </div>
-                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>
@@ -1247,7 +1251,7 @@ async def subscribe_newsletter(newsletter: Newsletter):
                     <li>Astrological insights</li>
                     <li>Special offers and updates</li>
                 </ul>
-                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>
@@ -1472,7 +1476,7 @@ async def create_testimonial(testimonial_data: TestimonialCreate, background_tas
 
                 <p>Your testimonial is currently under review and will be published on our website once approved.</p>
 
-                <p style="margin-top: 30px;">Best regards,<br><strong>Mrs. Indira Pandey Team</strong></p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
             </div>
         </body>
         </html>

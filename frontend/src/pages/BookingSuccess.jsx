@@ -93,7 +93,7 @@ const BookingSuccess = () => {
         key: key,
         amount: booking.amount,
         currency: 'INR',
-        name: 'Mrs. Indira Pandey Astrology',
+        name: 'Acharyaa Indira Pandey Astrology',
         description: `${booking.service} - ${booking.consultation_duration} mins`,
         order_id: booking.razorpay_order_id,
         handler: async function (response) {

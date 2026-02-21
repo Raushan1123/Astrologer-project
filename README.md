@@ -1,4 +1,4 @@
-# Mrs. Indira Pandey - Vedic Astrology Consultation Platform
+# Acharyaa Indira Pandey - Vedic Astrology Consultation Platform
 
 A professional, full-stack astrology booking and consultation platform built with React, FastAPI, and MongoDB.
 
@@ -435,7 +435,7 @@ Content-Type: application/json
   "name": "John Doe",
   "email": "john@example.com",
   "phone": "+919876543210",
-  "astrologer": "Mrs. Indira Pandey",
+  "astrologer": "Acharyaa Indira Pandey",
   "service": "Birth Chart Analysis",
   "consultation_duration": 20,
   "consultation_type": "online",
@@ -530,7 +530,7 @@ Content-Type: application/json
 
 ## 📝 License
 
-This project is proprietary software developed for Mrs. Indira Pandey's astrology consultation business.
+This project is proprietary software developed for Acharyaa Indira Pandey's astrology consultation business.
 
 ---
 

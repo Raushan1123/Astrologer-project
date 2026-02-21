@@ -13,8 +13,8 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold text-purple-800 mb-3">1. Acceptance of Terms</h2>
               <p>
-                By accessing and using the services of Mrs. Indira Pandey Astrology ("we," "our," or "us"), 
-                you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, 
+                By accessing and using the services of Acharyaa Indira Pandey Astrology ("we," "our," or "us"),
+                you accept and agree to be bound by these Terms of Service. If you do not agree to these terms,
                 please do not use our services.
               </p>
             </section>
@@ -89,8 +89,8 @@ const TermsOfService = () => {
             <section>
               <h2 className="text-2xl font-semibold text-purple-800 mb-3">7. Intellectual Property</h2>
               <p>
-                All content on this website, including text, graphics, logos, and images, is the property of 
-                Mrs. Indira Pandey Astrology and is protected by copyright laws. Unauthorized use is prohibited.
+                All content on this website, including text, graphics, logos, and images, is the property of
+                Acharyaa Indira Pandey Astrology and is protected by copyright laws. Unauthorized use is prohibited.
               </p>
             </section>
 
@@ -130,7 +130,7 @@ const TermsOfService = () => {
               <h2 className="text-2xl font-semibold text-purple-800 mb-3">12. Contact Information</h2>
               <p className="mb-3">For questions about these Terms of Service, please contact us:</p>
               <div className="bg-purple-50 p-4 rounded-lg">
-                <p><strong>Mrs. Indira Pandey</strong></p>
+                <p><strong>Acharyaa Indira Pandey</strong></p>
                 <p>Email: indirapandey2526@gmail.com</p>
                 <p>Phone: +91 8130420339</p>
                 <p>Location: Ghaziabad, India</p>
