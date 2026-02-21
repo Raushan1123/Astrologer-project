@@ -508,7 +508,9 @@ async def forgot_password(request: PasswordResetRequest, background_tasks: Backg
 
         # Send reset email
         frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+        logger.info(f"🔗 Using FRONTEND_URL: {frontend_url}")
         reset_link = f"{frontend_url}/reset-password/{reset_token}"
+        logger.info(f"🔗 Generated reset link: {reset_link}")
 
         email_body = f"""
         <html>

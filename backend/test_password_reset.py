@@ -3,13 +3,14 @@
 Test script to verify password reset functionality
 """
 import asyncio
+import os
 import sys
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime, timezone, timedelta
 import uuid
 
 # MongoDB connection
-MONGODB_URL = "mongodb+srv://raushan00567_db_user:Ed58htpHn2zjwQhF@cluster0.mkpmvbt.mongodb.net/astrology_db?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true"
+MONGODB_URL = os.environ.get('MONGODB_URL')
 
 async def test_password_reset():
     """Test password reset token creation and retrieval"""
