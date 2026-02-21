@@ -294,6 +294,12 @@ const Booking = () => {
       return;
     }
 
+    // Validate birth details (mandatory)
+    if (!formData.dateOfBirth || !formData.timeOfBirth || !formData.placeOfBirth) {
+      toast.error('Please provide all birth details (Date, Time, and Place of Birth)');
+      return;
+    }
+
     // Validate date and time slot selection
     if (!formData.preferredDate || !formData.preferredTime) {
       toast.error('Please select a date and time slot for your consultation');
@@ -560,7 +566,7 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="placeOfBirth" className="text-gray-700 font-medium mb-2">
-                        {t('booking.placeOfBirth')}
+                        {t('booking.placeOfBirth')} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="placeOfBirth"
@@ -568,6 +574,7 @@ const Booking = () => {
                         value={formData.placeOfBirth}
                         onChange={handleInputChange}
                         placeholder={t('booking.placeOfBirthPlaceholder')}
+                        required
                         className="border-purple-200 focus:border-purple-500"
                       />
                     </div>
@@ -581,7 +588,7 @@ const Booking = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="dateOfBirth" className="text-gray-700 font-medium mb-2">
-                        {t('booking.dateOfBirth')}
+                        {t('booking.dateOfBirth')} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="dateOfBirth"
@@ -590,13 +597,14 @@ const Booking = () => {
                         max={new Date().toISOString().split('T')[0]}
                         value={formData.dateOfBirth ? (typeof formData.dateOfBirth === 'string' ? formData.dateOfBirth : formData.dateOfBirth.toISOString().split('T')[0]) : ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                        required
                         className="border-purple-200 focus:border-purple-500"
                       />
                     </div>
 
                     <div>
                       <Label htmlFor="timeOfBirth" className="text-gray-700 font-medium mb-2">
-                        {t('booking.timeOfBirth')}
+                        {t('booking.timeOfBirth')} <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="timeOfBirth"
@@ -604,10 +612,11 @@ const Booking = () => {
                         type="time"
                         value={formData.timeOfBirth}
                         onChange={handleInputChange}
+                        required
                         className="border-purple-200 focus:border-purple-500"
                         placeholder="HH:MM"
                       />
-                      <p className="text-xs text-gray-500 mt-1">If known (improves accuracy)</p>
+                      <p className="text-xs text-gray-500 mt-1">Required for accurate predictions</p>
                     </div>
                   </div>
                 </div>

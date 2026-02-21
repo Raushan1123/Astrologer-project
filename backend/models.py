@@ -65,9 +65,9 @@ class BookingCreate(BaseModel):
     name: str
     email: EmailStr
     phone: str
-    date_of_birth: Optional[str] = None
-    time_of_birth: Optional[str] = None
-    place_of_birth: Optional[str] = None
+    date_of_birth: str  # Made required
+    time_of_birth: str  # Made required
+    place_of_birth: str  # Made required
     astrologer: str
     service: str
     consultation_type: ConsultationType
@@ -82,9 +82,9 @@ class Booking(BaseModel):
     name: str
     email: EmailStr
     phone: str
-    date_of_birth: Optional[str] = None
-    time_of_birth: Optional[str] = None
-    place_of_birth: Optional[str] = None
+    date_of_birth: str  # Made required
+    time_of_birth: str  # Made required
+    place_of_birth: str  # Made required
     astrologer: str
     service: str
     consultation_type: ConsultationType

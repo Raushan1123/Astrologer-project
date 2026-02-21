@@ -806,6 +806,22 @@ async def create_booking(
                     </td><td>{booking.email}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Phone:</strong>
                     </td><td>{booking.phone}</td></tr>
+                </table>
+
+                <h3 style="color: #7c3aed; margin-top: 20px;">Birth Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong>
+                    </td><td>{booking.date_of_birth}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong>
+                    </td><td>{booking.time_of_birth}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong>
+                    </td><td>{booking.place_of_birth}</td></tr>
+                </table>
+
+                <h3 style="color: #7c3aed; margin-top: 20px;">Consultation Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Chosen Astrologer:</strong>
+                    </td><td>{booking.astrologer}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Service:</strong>
                     </td><td>{booking.service}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
@@ -1044,6 +1060,18 @@ async def verify_payment(request: Request):
                     <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{booking['name']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking['email']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{booking['phone']}</td></tr>
+                </table>
+
+                <h3 style="color: #7c3aed; margin-top: 20px;">Birth Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong></td><td>{booking['date_of_birth']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong></td><td>{booking['time_of_birth']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong></td><td>{booking['place_of_birth']}</td></tr>
+                </table>
+
+                <h3 style="color: #7c3aed; margin-top: 20px;">Consultation Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Chosen Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_payment}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong></td><td>{booking['preferred_date']}</td></tr>
