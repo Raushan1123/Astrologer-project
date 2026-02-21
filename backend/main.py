@@ -512,33 +512,52 @@ async def forgot_password(request: PasswordResetRequest, background_tasks: Backg
 
         email_body = f"""
         <html>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #7c3aed;">Password Reset Request</h2>
-                <p>Hello {user['name']},</p>
-                <p>We received a request to reset your password for your Acharyaa Indira Pandey Astrology account.</p>
-                <p>Click the button below to reset your password:</p>
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{reset_link}"
-                       style="background: linear-gradient(to right, #7c3aed, #f59e0b);
-                              color: white;
-                              padding: 12px 30px;
-                              text-decoration: none;
-                              border-radius: 5px;
-                              display: inline-block;">
-                        Reset Password
-                    </a>
-                </div>
-                <p>Or copy and paste this link into your browser:</p>
-                <p style="background: #f3f4f6; padding: 10px; border-radius: 5px; word-break: break-all;">
-                    {reset_link}
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+                <h2 style="color: #7c3aed; margin-bottom: 20px;">Password Reset Request</h2>
+                <p style="margin-bottom: 15px;">Hello {user['name']},</p>
+                <p style="margin-bottom: 15px;">We received a request to reset your password for your Acharyaa Indira Pandey Astrology account.</p>
+                <p style="margin-bottom: 20px;">Click the button below to reset your password:</p>
+
+                <!-- Button with table for better email client compatibility -->
+                <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                    <tr>
+                        <td align="center">
+                            <table cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center" style="border-radius: 5px; background-color: #7c3aed;">
+                                        <a href="{reset_link}"
+                                           target="_blank"
+                                           style="font-size: 16px;
+                                                  font-weight: bold;
+                                                  color: #ffffff;
+                                                  text-decoration: none;
+                                                  padding: 15px 40px;
+                                                  display: inline-block;
+                                                  border-radius: 5px;">
+                                            Reset Password
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="margin-bottom: 10px; margin-top: 30px;">Or copy and paste this link into your browser:</p>
+                <p style="background: #f3f4f6; padding: 15px; border-radius: 5px; word-break: break-all; font-size: 14px; margin-bottom: 20px;">
+                    <a href="{reset_link}" style="color: #7c3aed; text-decoration: none;">{reset_link}</a>
                 </p>
-                <p><strong>This link will expire in 1 hour.</strong></p>
-                <p>If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
+                <p style="margin-bottom: 15px;"><strong>⏰ This link will expire in 1 hour.</strong></p>
+                <p style="margin-bottom: 20px; color: #666;">If you didn't request this password reset, please ignore this email. Your password will remain unchanged.</p>
                 <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-                <p style="color: #6b7280; font-size: 14px;">
+                <p style="color: #6b7280; font-size: 14px; margin-bottom: 0;">
                     Best regards,<br>
-                    Acharyaa Indira Pandey Astrology Team
+                    <strong>Acharyaa Indira Pandey Astrology Team</strong>
                 </p>
             </div>
         </body>
