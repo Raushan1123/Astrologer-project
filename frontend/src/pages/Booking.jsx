@@ -94,7 +94,7 @@ const Booking = () => {
 
   // Handle disclaimer decline
   const handleDisclaimerDecline = () => {
-    toast.error('You must accept the disclaimer to book a consultation.');
+    toast.error(t('booking.disclaimerError'));
     navigate('/');
   };
 
@@ -429,10 +429,10 @@ const Booking = () => {
             </div>
 
             <h1 className="text-5xl md:text-6xl font-bold text-purple-900 mb-6">
-              Book a Consultation
+              {t('booking.pageTitle')}
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Take the first step towards clarity and guidance. Fill out the form below to schedule your session.
+              {t('booking.pageSubtitle')}
             </p>
           </div>
         </div>
@@ -447,19 +447,19 @@ const Booking = () => {
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="flex-1 text-left">
                     <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 mb-3">
-                      🎉 Holi Special Offer! 🎊
+                      🎉 {t('booking.holiOffer')}! 🎊
                     </h2>
                     <p className="text-lg md:text-xl text-gray-700 font-semibold mb-2">
-                      Get Expert Astrology Consultation at Special Prices
+                      {t('booking.holiDescription')}
                     </p>
                     <p className="text-md text-orange-600 font-bold animate-pulse">
-                      ⏰ Limited Time Offer - Grab the Deal Now!
+                      ⏰ {t('home.freeConsultation.limitedSlots')}
                     </p>
                   </div>
                   <div className="bg-gradient-to-br from-orange-400 to-pink-500 text-white px-8 py-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
-                    <p className="text-sm font-semibold mb-1">Special Discount</p>
-                    <p className="text-4xl font-bold mb-2">UP TO 25% OFF</p>
-                    <p className="text-xs opacity-90">On All Consultations</p>
+                    <p className="text-sm font-semibold mb-1">{t('booking.holiOffer')}</p>
+                    <p className="text-4xl font-bold mb-2">{t('booking.holiDiscount')}</p>
+                    <p className="text-xs opacity-90">{t('booking.holiDescription')}</p>
                   </div>
                 </div>
               </div>
@@ -472,7 +472,7 @@ const Booking = () => {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl font-bold text-purple-900 mb-6 text-center">Choose Your Consultation Mode</h2>
+            <h2 className="text-2xl font-bold text-purple-900 mb-6 text-center">{t('booking.consultationModeTitle')}</h2>
             <div className="grid md:grid-cols-2 gap-6 mb-12">
               <Card className="p-6 hover:shadow-xl transition-all duration-300 border-2 border-purple-100 hover:border-purple-300">
                 <div className="flex items-start gap-4">
@@ -480,9 +480,9 @@ const Booking = () => {
                     <Video className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-purple-900 mb-2">Online Consultation</h3>
+                    <h3 className="text-xl font-bold text-purple-900 mb-2">{t('booking.onlineTitle')}</h3>
                     <p className="text-gray-600 leading-relaxed">
-                      Connect via video call from anywhere. Convenient, comfortable, and just as effective as in-person sessions.
+                      {t('booking.onlineDesc')}
                     </p>
                   </div>
                 </div>
@@ -494,9 +494,9 @@ const Booking = () => {
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-purple-900 mb-2">In-Person Consultation</h3>
+                    <h3 className="text-xl font-bold text-purple-900 mb-2">{t('booking.inPersonTitle')}</h3>
                     <p className="text-gray-600 leading-relaxed">
-                      Visit our Ghaziabad location for a personal, face-to-face consultation experience.
+                      {t('booking.inPersonDesc')}
                     </p>
                   </div>
                 </div>

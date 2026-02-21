@@ -15,10 +15,7 @@ const API = `${BACKEND_URL}/api`;
 const mockGemstones = [
   {
     id: '1',
-    name: 'Ruby (Manik)',
-    description: 'Powerful gemstone for Sun. Enhances leadership, confidence, and vitality.',
-    price: 500000,  // ₹5,000 in paise (hidden from display)
-    benefits: ['Boosts confidence', 'Enhances leadership', 'Improves vitality', 'Brings success'],
+    key: 'ruby',
     image: 'https://images.pexels.com/photos/1121123/pexels-photo-1121123.jpeg?auto=compress&cs=tinysrgb&w=800',
     in_stock: true,
     weight: '3-5 carats',
@@ -26,10 +23,7 @@ const mockGemstones = [
   },
   {
     id: '2',
-    name: 'Pearl (Moti)',
-    description: 'Gem for Moon. Brings emotional balance, peace, and mental clarity.',
-    price: 300000,  // ₹3,000 (hidden from display)
-    benefits: ['Emotional balance', 'Mental peace', 'Enhances intuition', 'Reduces stress'],
+    key: 'pearl',
     image: 'https://www.mycrowndowntown.com/images/gemstones/alt/pearl.jpg',
     in_stock: true,
     weight: '5-7 carats',
@@ -37,10 +31,7 @@ const mockGemstones = [
   },
   {
     id: '3',
-    name: 'Red Coral (Moonga)',
-    description: 'Mars gemstone. Provides courage, energy, and protection.',
-    price: 250000,  // ₹2,500 (hidden from display)
-    benefits: ['Increases courage', 'Boosts energy', 'Protection from enemies', 'Physical strength'],
+    key: 'redCoral',
     image: 'https://thevediccrystals.com/cdn/shop/files/Moonga_ring.jpg?v=1769072577&width=220',
     in_stock: true,
     weight: '6-8 carats',
@@ -48,10 +39,7 @@ const mockGemstones = [
   },
   {
     id: '4',
-    name: 'Emerald (Panna)',
-    description: 'Mercury stone. Enhances communication, intelligence, and business success.',
-    price: 800000,  // ₹8,000 (hidden from display)
-    benefits: ['Improves communication', 'Enhances intelligence', 'Business success', 'Memory boost'],
+    key: 'emerald',
     image: 'http://preciousearth.in/cdn/shop/articles/emerald-gemstone-collage_1.jpg?v=1708068826',
     in_stock: true,
     weight: '3-5 carats',
@@ -59,10 +47,7 @@ const mockGemstones = [
   },
   {
     id: '5',
-    name: 'Yellow Sapphire (Pukhraj)',
-    description: 'Jupiter gemstone. Brings wisdom, prosperity, and good fortune.',
-    price: 1000000,  // ₹10,000 (hidden from display)
-    benefits: ['Brings prosperity', 'Enhances wisdom', 'Good fortune', 'Marital happiness'],
+    key: 'yellowSapphire',
     image: 'https://rukminim2.flixcart.com/image/480/640/xif0q/pendant-locket/g/9/a/na-y-yellow451-sidhgems-original-imagrnzrzyzcfvvb.jpeg?q=20',
     in_stock: true,
     weight: '4-6 carats',
@@ -70,10 +55,7 @@ const mockGemstones = [
   },
   {
     id: '6',
-    name: 'Blue Sapphire (Neelam)',
-    description: 'Saturn stone. Powerful for career, discipline, and removing obstacles.',
-    price: 1500000,  // ₹15,000 (hidden from display)
-    benefits: ['Career advancement', 'Removes obstacles', 'Financial stability', 'Focus & discipline'],
+    key: 'blueSapphire',
     image: 'https://astrokapoor.com/wp-content/uploads/2018/09/Blue-sapphire-Neelam-stone.jpg.webp',
     in_stock: true,
     weight: '4-6 carats',
@@ -176,10 +158,10 @@ const Gemstones = () => {
                 {/* Content */}
                 <div className="p-6">
                   <h3 className="text-2xl font-bold text-purple-900 mb-2">
-                    {gemstone.name}
+                    {t(`gemstones.${gemstone.key}.name`)}
                   </h3>
                   <p className="text-gray-600 mb-4 leading-relaxed">
-                    {gemstone.description}
+                    {t(`gemstones.${gemstone.key}.description`)}
                   </p>
 
                   {/* Specs */}
@@ -191,12 +173,12 @@ const Gemstones = () => {
                   <div className="mb-4">
                     <p className="text-sm font-semibold text-purple-900 mb-2">{t('gemstones.benefitsLabel')}</p>
                     <div className="flex flex-wrap gap-2">
-                      {gemstone.benefits.slice(0, 3).map((benefit, idx) => (
+                      {[1, 2, 3, 4].map((idx) => (
                         <span
                           key={idx}
                           className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full"
                         >
-                          {benefit}
+                          {t(`gemstones.${gemstone.key}.benefit${idx}`)}
                         </span>
                       ))}
                     </div>

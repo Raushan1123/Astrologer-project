@@ -185,7 +185,7 @@ const Home = () => {
               <div className="relative">
                 {/* Ribbon */}
                 <div className="absolute top-4 md:top-6 -left-1 md:-left-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 md:px-8 py-1.5 md:py-2 shadow-lg transform -rotate-3 z-20">
-                  <span className="font-bold text-xs md:text-sm tracking-wide">🎁 SPECIAL OFFER</span>
+                  <span className="font-bold text-xs md:text-sm tracking-wide">🎁 {t('home.freeConsultation.specialOffer')}</span>
                 </div>
 
                 <div className="p-4 md:p-8 lg:p-12 pt-12 md:pt-8">
@@ -194,37 +194,36 @@ const Home = () => {
                     <div className="flex-1 text-center md:text-left w-full">
                       <div className="inline-block mb-3 md:mb-4">
                         <span className="bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold px-3 md:px-4 py-1 md:py-1.5 rounded-full shadow-md animate-pulse">
-                          ✨ FIRST TIME USERS ONLY
+                          ✨ {t('home.freeConsultation.firstTimeOnly')}
                         </span>
                       </div>
 
                       <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600">
-                          Get Your First Consultation
+                          {t('home.freeConsultation.title')}
                         </span>
                       </h2>
 
                       <div className="mb-4 md:mb-6">
                         <div className="inline-flex items-baseline gap-2 md:gap-3">
-                          <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-green-600">FREE</span>
+                          <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-green-600">{t('home.freeConsultation.free')}</span>
                           <div className="text-left">
-                            <p className="text-xs sm:text-sm text-gray-600 font-semibold">5-10 Minutes</p>
-                            <p className="text-xs text-gray-500">Expert Guidance</p>
+                            <p className="text-xs sm:text-sm text-gray-600 font-semibold">{t('home.freeConsultation.duration')}</p>
+                            <p className="text-xs text-gray-500">{t('home.freeConsultation.expertGuidance')}</p>
                           </div>
                         </div>
                       </div>
 
                       <p className="text-sm sm:text-base md:text-lg text-gray-700 mb-4 md:mb-6 leading-relaxed px-2 md:px-0">
-                        Experience the power of Vedic astrology with a complimentary consultation.
-                        Get personalized insights into your life's most important questions.
+                        {t('home.freeConsultation.description')}
                       </p>
 
                       <ul className="text-left space-y-1.5 md:space-y-2 mb-6 md:mb-8 max-w-md mx-auto md:mx-0 text-sm md:text-base">
                         {[
-                          'No credit card required',
-                          'Instant booking confirmation',
-                          'Expert astrologer guidance',
-                          'One-time offer for new users'
+                          t('home.freeConsultation.feature1'),
+                          t('home.freeConsultation.feature2'),
+                          t('home.freeConsultation.feature3'),
+                          t('home.freeConsultation.feature4')
                         ].map((item, index) => (
                           <li key={index} className="flex items-center gap-2 text-gray-700">
                             <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
@@ -242,13 +241,13 @@ const Home = () => {
                           size="lg"
                           className="w-full md:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 md:px-10 py-5 md:py-7 text-base md:text-xl font-bold shadow-2xl shadow-green-500/50 transform hover:scale-105 transition-all duration-300 rounded-xl"
                         >
-                          🎯 Claim Your Free Session Now
+                          🎯 {t('home.freeConsultation.ctaButton')}
                           <ArrowRight className="ml-2 w-4 h-4 md:w-6 md:h-6" />
                         </Button>
                       </Link>
 
                       <p className="text-xs text-gray-500 mt-3 md:mt-4 italic px-2 md:px-0">
-                        ⏰ Limited slots available daily. Book now to secure your spot!
+                        ⏰ {t('home.freeConsultation.limitedSlots')}
                       </p>
                     </div>
 
@@ -262,10 +261,10 @@ const Home = () => {
                         <div className="absolute inset-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl">
                           <div className="text-center text-white p-6">
                             <Sparkles className="w-16 h-16 mx-auto mb-4 animate-spin-slow" />
-                            <p className="text-6xl font-black mb-2">100%</p>
-                            <p className="text-xl font-bold">FREE</p>
-                            <p className="text-sm opacity-90 mt-2">First Time</p>
-                            <p className="text-sm opacity-90">Consultation</p>
+                            <p className="text-6xl font-black mb-2">{t('home.freeConsultation.badge100')}</p>
+                            <p className="text-xl font-bold">{t('home.freeConsultation.badgeFree')}</p>
+                            <p className="text-sm opacity-90 mt-2">{t('home.freeConsultation.badgeFirstTime')}</p>
+                            <p className="text-sm opacity-90">{t('home.freeConsultation.badgeConsultation')}</p>
                           </div>
                         </div>
 
@@ -290,15 +289,15 @@ const Home = () => {
             <div className="mt-6 md:mt-8 flex flex-wrap justify-center gap-4 md:gap-8 text-center px-2">
               <div className="flex items-center gap-1.5 md:gap-2 text-gray-700">
                 <Users className="w-4 h-4 md:w-5 md:h-5 text-green-600 flex-shrink-0" />
-                <span className="font-semibold text-xs md:text-base">10,000+ Happy Clients</span>
+                <span className="font-semibold text-xs md:text-base">5,000+ {t('home.freeConsultation.trustClients')}</span>
               </div>
               <div className="flex items-center gap-1.5 md:gap-2 text-gray-700">
                 <Star className="w-4 h-4 md:w-5 md:h-5 text-yellow-500 flex-shrink-0" fill="currentColor" />
-                <span className="font-semibold text-xs md:text-base">4.9/5 Average Rating</span>
+                <span className="font-semibold text-xs md:text-base">4.9/5 {t('home.freeConsultation.trustRating')}</span>
               </div>
               <div className="flex items-center gap-1.5 md:gap-2 text-gray-700">
                 <Award className="w-4 h-4 md:w-5 md:h-5 text-purple-600 flex-shrink-0" />
-                <span className="font-semibold text-xs md:text-base">20+ Years Experience</span>
+                <span className="font-semibold text-xs md:text-base">20+ {t('home.freeConsultation.trustExperience')}</span>
               </div>
             </div>
           </div>

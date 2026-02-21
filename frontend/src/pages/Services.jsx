@@ -205,75 +205,79 @@ const Services = () => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
-                Consultation Fees
+                {t('pricing.title')}
               </h2>
               <p className="text-lg text-gray-600">
-                Transparent time-based pricing for personalized astrological guidance
+                {t('pricing.subtitle')}
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {consultationPricing.map((plan, index) => (
-                <Card
-                  key={index}
-                  className={`p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ${
-                    plan.badge === 'Popular' ? 'border-2 border-purple-600 relative' : 'border-purple-100'
-                  }`}
-                >
-                  {plan.badge && (
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {consultationPricing.map((plan, index) => {
+                const isFirstTime = plan.badge === 'First Time Only';
+                const translatedDuration = isFirstTime ? t('pricing.duration1') : t('pricing.duration2');
+                const translatedPrice = isFirstTime ? t('pricing.price1') : t('pricing.price2');
+                const translatedDesc = isFirstTime ? t('pricing.desc1') : t('pricing.desc2');
+                const translatedBadge = isFirstTime ? t('pricing.badge1') : t('pricing.badge2');
+                const translatedFeatures = isFirstTime
+                  ? [t('pricing.feature1_1'), t('pricing.feature1_2'), t('pricing.feature1_3')]
+                  : [t('pricing.feature2_1'), t('pricing.feature2_2'), t('pricing.feature2_3'), t('pricing.feature2_4')];
+
+                return (
+                  <Card
+                    key={index}
+                    className={`p-8 hover:shadow-2xl transition-all duration-300 transform hover:scale-105 ${
+                      isFirstTime ? 'border-2 border-green-600 relative' : 'border-2 border-purple-600 relative'
+                    }`}
+                  >
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <span className={`px-4 py-1 rounded-full text-sm font-semibold ${
-                        plan.badge === 'Popular' ? 'bg-purple-600 text-white' :
-                        plan.badge === 'First Time Only' ? 'bg-green-600 text-white' :
-                        'bg-amber-600 text-white'
+                        isFirstTime ? 'bg-green-600 text-white' : 'bg-purple-600 text-white'
                       }`}>
-                        {plan.badge}
+                        {translatedBadge}
                       </span>
                     </div>
-                  )}
-                  
-                  <div className="text-center mb-6">
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <Clock className="w-6 h-6 text-purple-600" />
-                      <h3 className="text-2xl font-bold text-purple-900">{plan.duration}</h3>
-                    </div>
-                    <div className="flex items-center justify-center mb-2">
-                      {plan.price === 'Free' ? (
-                        <span className="text-4xl font-bold text-green-600">{plan.price}</span>
-                      ) : (
-                        <>
-                          <IndianRupee className="w-6 h-6 text-purple-900" />
-                          <span className="text-4xl font-bold text-purple-900">
-                            {plan.price.replace('₹', '')}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <p className="text-gray-600">{plan.description}</p>
-                  </div>
 
-                  <div className="space-y-3 mb-6">
-                    {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-2">
-                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{feature}</span>
+                    <div className="text-center mb-6">
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <Clock className="w-6 h-6 text-purple-600" />
+                        <h3 className="text-2xl font-bold text-purple-900">{translatedDuration}</h3>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center justify-center mb-2">
+                        {isFirstTime ? (
+                          <span className="text-4xl font-bold text-green-600">{translatedPrice}</span>
+                        ) : (
+                          <span className="text-2xl md:text-3xl font-bold text-purple-900">
+                            {translatedPrice}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-gray-600">{translatedDesc}</p>
+                    </div>
 
-                  <Link to="/booking" className="block">
-                    <Button
-                      className={`w-full ${
-                        plan.badge === 'Popular'
-                          ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white'
-                          : 'bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white'
-                      }`}
-                    >
-                      Book Now
-                    </Button>
-                  </Link>
-                </Card>
-              ))}
+                    <div className="space-y-3 mb-6">
+                      {translatedFeatures.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          <span className="text-gray-700">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <Link to="/booking" className="block">
+                      <Button
+                        className={`w-full ${
+                          isFirstTime
+                            ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white'
+                            : 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white'
+                        }`}
+                      >
+                        {t('pricing.bookNow')}
+                      </Button>
+                    </Link>
+                  </Card>
+                );
+              })}
             </div>
 
             <div className="mt-12 text-center">
@@ -282,11 +286,10 @@ const Services = () => {
                   <BadgeCheck className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
                   <div className="text-left">
                     <p className="text-gray-700 font-medium mb-1">
-                      Special Services Pricing
+                      {t('pricing.specialPricingTitle')}
                     </p>
                     <p className="text-gray-600 text-sm">
-                      Gemstone consultations and purchases are priced separately based on the gemstone type and quality. 
-                      Childbirth timing (Muhurat) consultations are customized based on detailed analysis requirements.
+                      {t('pricing.specialPricingDesc')}
                     </p>
                   </div>
                 </div>

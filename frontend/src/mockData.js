@@ -174,7 +174,7 @@ export const mockFAQs = [
   {
     id: "1",
     question: "How accurate are your predictions?",
-    answer: "With 20+ years of experience and 800+ satisfied clients, I maintain a 95%+ accuracy rate. My predictions are based on detailed birth chart analysis, planetary positions, and Vedic astrology principles."
+    answer: "With 20+ years of experience and 5000+ satisfied clients, I maintain a 95%+ accuracy rate. My predictions are based on detailed birth chart analysis, planetary positions, and Vedic astrology principles."
   },
   {
     id: "2",
@@ -200,7 +200,7 @@ export const mockFAQs = [
 
 export const mockStats = {
   experience: "20+",
-  clients: "800+",
+  clients: "5000+",
   satisfaction: "95%",
   consultationsPerWeek: "90-100"
 };
@@ -213,7 +213,7 @@ export const astrologers = [
     experience: "20+",
     specialization: ["Birth Chart Analysis", "Career Guidance", "Marriage Compatibility", "Gemstone Remedies"],
     image: "https://images.unsplash.com/photo-1554355202-11fbc45c7157",
-    bio: "With over 20 years of experience, Acharyaa Indira Pandey has guided 800+ clients through accurate predictions and personalized remedies.",
+    bio: "With over 20 years of experience, Acharyaa Indira Pandey has guided 5000+ clients through accurate predictions and personalized remedies.",
     available: true
   },
   {
@@ -247,17 +247,10 @@ export const consultationPricing = [
     badge: "First Time Only"
   },
   {
-    duration: "10-20 Minutes",
-    price: "₹1,500",
-    description: "Standard consultation session",
-    features: ["Birth chart overview", "Specific area guidance", "Basic remedies"],
-    badge: "Popular"
-  },
-  {
-    duration: "20+ Minutes",
-    price: "₹2,100",
-    description: "Comprehensive consultation session",
-    features: ["Detailed birth chart analysis", "Multiple area coverage", "Personalized remedies", "Follow-up support"],
-    badge: "Comprehensive"
+    duration: "10+ Minutes",
+    price: "Varies by Service",
+    description: "Professional consultation based on selected service",
+    features: ["Detailed analysis", "Service-specific guidance", "Personalized remedies", "Follow-up support"],
+    badge: "Standard"
   }
 ];
