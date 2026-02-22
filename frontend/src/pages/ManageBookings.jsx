@@ -257,24 +257,14 @@ const ManageBookings = () => {
                   {/* Actions */}
                   <div className="flex flex-col gap-3 lg:min-w-[200px]">
                     {(() => {
-                      // Check if booking is in the past
-                      const isPastBooking = booking.preferred_date &&
-                        new Date(booking.preferred_date + 'T' + (booking.preferred_time || '00:00')) < new Date();
-
                       const status = booking.status?.toUpperCase();
                       const paymentStatus = booking.payment_status?.toUpperCase();
 
-                      // Past bookings - show completed message
-                      if (isPastBooking && status !== 'CANCELLED') {
-                        return (
-                          <div className="text-sm text-blue-600 font-medium text-center flex items-center justify-center gap-2">
-                            <CheckCircle className="w-4 h-4" />
-                            Completed
-                          </div>
-                        );
-                      }
+                      // Check if booking date/time is in the past
+                      const isPastBooking = booking.preferred_date &&
+                        new Date(booking.preferred_date + 'T' + (booking.preferred_time || '00:00')) < new Date();
 
-                      // Cancelled bookings
+                      // 1. CANCELLED bookings - show cancelled message
                       if (status === 'CANCELLED') {
                         return (
                           <div className="text-sm text-red-600 font-medium text-center">
@@ -283,32 +273,52 @@ const ManageBookings = () => {
                         );
                       }
 
-                      // Future/Today bookings - show action buttons
-                      return (
-                        <>
-                          {/* Complete Payment Button - Show if payment is pending and amount > 0 */}
-                          {status === 'PENDING' && paymentStatus === 'PENDING' && booking.amount > 0 && (
-                            <Button
-                              onClick={() => handleCompletePayment(booking.id)}
-                              disabled={processingPaymentId === booking.id}
-                              className="bg-green-600 hover:bg-green-700 w-full"
-                            >
-                              {processingPaymentId === booking.id ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Processing Payment...
-                                </>
-                              ) : (
-                                <>
-                                  <CreditCard className="w-4 h-4 mr-2" />
-                                  Complete Payment
-                                </>
-                              )}
-                            </Button>
-                          )}
+                      // 2. CONFIRMED bookings with past date - show completed
+                      if (status === 'CONFIRMED' && isPastBooking) {
+                        return (
+                          <div className="text-sm text-blue-600 font-medium text-center flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
+                            Completed
+                          </div>
+                        );
+                      }
 
-                          {/* Cancel Button - Show if booking is pending */}
-                          {status === 'PENDING' && (
+                      // 3. CONFIRMED bookings (future) - show confirmed message
+                      if (status === 'CONFIRMED') {
+                        return (
+                          <div className="text-sm text-green-600 font-medium text-center flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
+                            Confirmed
+                          </div>
+                        );
+                      }
+
+                      // 4. PENDING bookings - show action buttons (regardless of date)
+                      if (status === 'PENDING') {
+                        return (
+                          <>
+                            {/* Complete Payment Button - Show if payment is pending and amount > 0 */}
+                            {paymentStatus === 'PENDING' && booking.amount > 0 && (
+                              <Button
+                                onClick={() => handleCompletePayment(booking.id)}
+                                disabled={processingPaymentId === booking.id}
+                                className="bg-green-600 hover:bg-green-700 w-full"
+                              >
+                                {processingPaymentId === booking.id ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Processing Payment...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CreditCard className="w-4 h-4 mr-2" />
+                                    Complete Payment
+                                  </>
+                                )}
+                              </Button>
+                            )}
+
+                            {/* Cancel Button - Always show for pending bookings */}
                             <Button
                               onClick={() => handleCancelBooking(booking.id)}
                               disabled={processingCancelId === booking.id}
@@ -327,17 +337,22 @@ const ManageBookings = () => {
                                 </>
                               )}
                             </Button>
-                          )}
+                          </>
+                        );
+                      }
 
-                          {/* Confirmed Status - for future bookings */}
-                          {status === 'CONFIRMED' && (
-                            <div className="text-sm text-green-600 font-medium text-center flex items-center justify-center gap-2">
-                              <CheckCircle className="w-4 h-4" />
-                              Confirmed
-                            </div>
-                          )}
-                        </>
-                      );
+                      // 5. COMPLETED status - show completed message
+                      if (status === 'COMPLETED') {
+                        return (
+                          <div className="text-sm text-blue-600 font-medium text-center flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
+                            Completed
+                          </div>
+                        );
+                      }
+
+                      // Default - no actions
+                      return null;
                     })()}
                   </div>
                 </div>
