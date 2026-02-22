@@ -1278,17 +1278,24 @@ async def retry_payment(
 ):
     """Create a new Razorpay order for a pending payment"""
     try:
+        logger.info(f"Retry payment requested for booking {booking_id} by user {current_user['email']}")
+
         # Find the booking
         booking = await db.bookings.find_one({"id": booking_id})
         if not booking:
+            logger.error(f"Booking {booking_id} not found")
             raise HTTPException(status_code=404, detail="Booking not found")
+
+        logger.info(f"Booking found: status={booking.get('status')}, payment_status={booking.get('payment_status')}, amount={booking.get('amount')}")
 
         # Verify the booking belongs to the current user
         if booking["email"] != current_user["email"]:
+            logger.error(f"User {current_user['email']} not authorized for booking {booking_id}")
             raise HTTPException(status_code=403, detail="Not authorized to access this booking")
 
-        # Check if payment is pending
-        if booking.get("payment_status") != PaymentStatus.PENDING:
+        # Check if payment is pending (compare with string value)
+        payment_status = booking.get("payment_status", "").lower()
+        if payment_status != PaymentStatus.PENDING.value and payment_status != "pending":
             raise HTTPException(
                 status_code=400,
                 detail=f"Payment is not pending. Current status: {booking.get('payment_status')}"
@@ -1296,11 +1303,15 @@ async def retry_payment(
 
         # Get the amount
         amount = booking.get("amount", 0)
+        logger.info(f"Booking amount: {amount}")
         if amount <= 0:
+            logger.error(f"No payment required for booking {booking_id}, amount={amount}")
             raise HTTPException(status_code=400, detail="No payment required for this booking")
 
         # Create new Razorpay order
+        logger.info(f"RAZORPAY_ENABLED={RAZORPAY_ENABLED}, razorpay_client={razorpay_client is not None}")
         if not RAZORPAY_ENABLED or razorpay_client is None:
+            logger.error("Razorpay is not enabled or client is None")
             raise HTTPException(status_code=503, detail="Payment service is not available")
 
         order_data = {

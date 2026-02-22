@@ -72,6 +72,14 @@ const ManageBookings = () => {
   const handleCompletePayment = async (bookingId) => {
     try {
       setProcessingPaymentId(bookingId);
+
+      // Check if Razorpay is loaded
+      if (!window.Razorpay) {
+        toast.error('Payment gateway is loading. Please try again in a moment.');
+        setProcessingPaymentId(null);
+        return;
+      }
+
       const token = getToken();
 
       // Create new payment order
