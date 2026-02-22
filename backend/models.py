@@ -82,9 +82,9 @@ class Booking(BaseModel):
     name: str
     email: EmailStr
     phone: str
-    date_of_birth: str  # Made required
-    time_of_birth: str  # Made required
-    place_of_birth: str  # Made required
+    date_of_birth: Optional[str] = None  # Optional - can be collected during call
+    time_of_birth: Optional[str] = None  # Optional - can be collected during call
+    place_of_birth: Optional[str] = None  # Optional - can be collected during call
     astrologer: str
     service: str
     consultation_type: ConsultationType
