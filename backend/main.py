@@ -844,11 +844,11 @@ async def create_booking(
                 <h3 style="color: #7c3aed; margin-top: 20px;">Birth Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong>
-                    </td><td>{booking.date_of_birth}</td></tr>
+                    </td><td>{booking.date_of_birth or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong>
-                    </td><td>{booking.time_of_birth}</td></tr>
+                    </td><td>{booking.time_of_birth or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong>
-                    </td><td>{booking.place_of_birth}</td></tr>
+                    </td><td>{booking.place_of_birth or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                 </table>
 
                 <h3 style="color: #7c3aed; margin-top: 20px;">Consultation Details:</h3>
@@ -1097,9 +1097,9 @@ async def verify_payment(request: Request):
 
                 <h3 style="color: #7c3aed; margin-top: 20px;">Birth Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
-                    <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong></td><td>{booking['date_of_birth']}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong></td><td>{booking['time_of_birth']}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong></td><td>{booking['place_of_birth']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong></td><td>{booking['date_of_birth'] or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong></td><td>{booking['time_of_birth'] or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong></td><td>{booking['place_of_birth'] or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                 </table>
 
                 <h3 style="color: #7c3aed; margin-top: 20px;">Consultation Details:</h3>

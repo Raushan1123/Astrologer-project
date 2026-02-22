@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { CheckCircle, Clock, Video, MapPin, Sparkles } from 'lucide-react';
 import { mockServices, astrologers } from '../mockData';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import DisclaimerModal from '../components/DisclaimerModal';
 import axios from 'axios';
 
@@ -20,6 +21,7 @@ const Booking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
@@ -45,6 +47,18 @@ const Booking = () => {
     preferredTime: '',
     message: ''
   });
+
+  // Auto-populate user data from logged-in user
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || prev.name,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone
+      }));
+    }
+  }, [user]);
 
   // Get translated astrologer data
   const getTranslatedAstrologers = () => {
@@ -294,11 +308,7 @@ const Booking = () => {
       return;
     }
 
-    // Validate birth details (mandatory)
-    if (!formData.dateOfBirth || !formData.timeOfBirth || !formData.placeOfBirth) {
-      toast.error('Please provide all birth details (Date, Time, and Place of Birth)');
-      return;
-    }
+    // Birth details are now optional - can be collected during the call
 
     // Validate date and time slot selection
     if (!formData.preferredDate || !formData.preferredTime) {
@@ -566,7 +576,7 @@ const Booking = () => {
 
                     <div>
                       <Label htmlFor="placeOfBirth" className="text-gray-700 font-medium mb-2">
-                        {t('booking.placeOfBirth')} <span className="text-red-500">*</span>
+                        {t('booking.placeOfBirth')} <span className="text-gray-500 text-sm">(Optional)</span>
                       </Label>
                       <Input
                         id="placeOfBirth"
@@ -574,7 +584,6 @@ const Booking = () => {
                         value={formData.placeOfBirth}
                         onChange={handleInputChange}
                         placeholder={t('booking.placeOfBirthPlaceholder')}
-                        required
                         className="border-purple-200 focus:border-purple-500"
                       />
                     </div>
@@ -584,11 +593,13 @@ const Booking = () => {
                 {/* Birth Details */}
                 <div>
                   <h3 className="text-2xl font-bold text-purple-900 mb-6">{t('booking.birthDetails')}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{t('booking.birthDetailsNote')}</p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {t('booking.birthDetailsNote')} <span className="text-purple-600 font-medium">(These details can be provided during the consultation call)</span>
+                  </p>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="dateOfBirth" className="text-gray-700 font-medium mb-2">
-                        {t('booking.dateOfBirth')} <span className="text-red-500">*</span>
+                        {t('booking.dateOfBirth')} <span className="text-gray-500 text-sm">(Optional)</span>
                       </Label>
                       <Input
                         id="dateOfBirth"
@@ -597,14 +608,13 @@ const Booking = () => {
                         max={new Date().toISOString().split('T')[0]}
                         value={formData.dateOfBirth ? (typeof formData.dateOfBirth === 'string' ? formData.dateOfBirth : formData.dateOfBirth.toISOString().split('T')[0]) : ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                        required
                         className="border-purple-200 focus:border-purple-500"
                       />
                     </div>
 
                     <div>
                       <Label htmlFor="timeOfBirth" className="text-gray-700 font-medium mb-2">
-                        {t('booking.timeOfBirth')} <span className="text-red-500">*</span>
+                        {t('booking.timeOfBirth')} <span className="text-gray-500 text-sm">(Optional)</span>
                       </Label>
                       <Input
                         id="timeOfBirth"
@@ -612,11 +622,10 @@ const Booking = () => {
                         type="time"
                         value={formData.timeOfBirth}
                         onChange={handleInputChange}
-                        required
                         className="border-purple-200 focus:border-purple-500"
                         placeholder="HH:MM"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Required for accurate predictions</p>
+                      <p className="text-xs text-gray-500 mt-1">Can be provided during the call if not available now</p>
                     </div>
                   </div>
                 </div>
