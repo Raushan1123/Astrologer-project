@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button';
 import { CheckCircle, Calendar, User, Phone, Mail, Download, ArrowRight, AlertCircle, CreditCard } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { getServiceName } from '../utils/serviceMapping';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -221,7 +222,7 @@ const BookingSuccess = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Service</p>
-                      <p className="font-medium text-gray-900">{booking.service}</p>
+                      <p className="font-medium text-gray-900">{getServiceName(booking.service)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Duration</p>

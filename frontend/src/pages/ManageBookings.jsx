@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getServiceName } from '../utils/serviceMapping';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -202,7 +203,7 @@ const ManageBookings = () => {
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-xl font-bold text-purple-900 mb-2">
-                          {booking.service}
+                          {getServiceName(booking.service)}
                         </h3>
                         <div className="flex gap-2 flex-wrap">
                           {getStatusBadge(booking.status)}

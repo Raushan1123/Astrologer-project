@@ -13,6 +13,7 @@ import {
 import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw, Star, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { getServiceName } from '../utils/serviceMapping';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -297,7 +298,7 @@ const Admin = () => {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                       <div>
                         <p className="text-gray-500">Service</p>
-                        <p className="font-medium text-gray-900">{booking.service}</p>
+                        <p className="font-medium text-gray-900">{getServiceName(booking.service)}</p>
                       </div>
                       <div>
                         <p className="text-gray-500">Duration</p>

@@ -313,6 +313,29 @@ async def send_email(to_email: str, subject: str, body: str):
             return False
 
 
+# Service ID to Name mapping
+SERVICE_NAMES = {
+    "1": "Birth Chart (Kundli) Analysis",
+    "2": "Career & Business Guidance",
+    "3": "Marriage & Relationship Compatibility",
+    "4": "Health & Life Path Insights",
+    "5": "Vastu Consultation",
+    "6": "Palmistry",
+    "7": "Gemstone Remedies & Sales",
+    "8": "Auspicious Childbirth Timing (Muhurat)",
+    "9": "Naming Ceremony",
+}
+
+def get_service_name(service_id_or_name: str) -> str:
+    """Convert service ID to human-readable name, or return as-is if already a name"""
+    if not service_id_or_name:
+        return "General Consultation"
+    # If it's a service ID, return the mapped name
+    if service_id_or_name in SERVICE_NAMES:
+        return SERVICE_NAMES[service_id_or_name]
+    # Otherwise, return as-is (might already be a service name)
+    return service_id_or_name
+
 # Service pricing mapping (service ID to price details)
 SERVICE_PRICING = {
     "1": {"actualPrice": 4100, "discountPercent": 25},  # Birth Chart
@@ -673,9 +696,11 @@ async def create_booking(
         if amount > 0:
             payment_status = PaymentStatus.PENDING
             booking_status = BookingStatus.PENDING
+            logger.info(f"Creating PAID booking: amount=₹{amount/100}, status=PENDING, payment=PENDING")
         else:
             payment_status = PaymentStatus.COMPLETED
             booking_status = BookingStatus.CONFIRMED  # Free bookings are auto-confirmed
+            logger.info(f"Creating FREE booking: amount=₹0, status=CONFIRMED, payment=COMPLETED")
 
         booking = Booking(
             **booking_dict,
@@ -734,6 +759,7 @@ async def create_booking(
         )
         consultation_type = booking.consultation_type.value.title()
         duration_display = f"{booking.consultation_duration.value} minutes"
+        service_name = get_service_name(booking.service)
 
         email_body = f"""
         <html>
@@ -749,7 +775,7 @@ async def create_booking(
                     <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong>
                     </td><td>{booking.astrologer}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Service:</strong>
-                    </td><td>{booking.service}</td></tr>
+                    </td><td>{service_name}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
                     </td><td>{duration_display}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount:</strong>
@@ -800,7 +826,7 @@ async def create_booking(
                     <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong>
                     </td><td>{booking.astrologer}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Service:</strong>
-                    </td><td>{booking.service}</td></tr>
+                    </td><td>{service_name}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong>
                     </td><td>{duration_display}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong>
@@ -1109,7 +1135,7 @@ async def cancel_booking(
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong></td><td>{booking.get('preferred_date', 'N/A')}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong></td><td>{booking.get('preferred_time', 'N/A')}</td></tr>
                 </table>
@@ -1150,7 +1176,7 @@ async def cancel_booking(
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount:</strong></td><td>₹{booking.get('amount', 0)/100}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Payment Status:</strong></td><td>{booking.get('payment_status', 'N/A')}</td></tr>
                 </table>
@@ -1349,14 +1375,63 @@ async def retry_payment(
 
 @api_router.put("/bookings/{booking_id}/status")
 async def update_booking_status(booking_id: str, status: str):
+    """
+    Update booking status with automatic payment_status synchronization.
+
+    Rules:
+    - If status is CONFIRMED, payment_status must be COMPLETED
+    - If status is PENDING and payment_status is COMPLETED, reject the update
+    - If status is CANCELLED or COMPLETED, keep payment_status as is
+    """
     try:
+        # Normalize status to lowercase
+        status = status.lower()
+
+        # Validate status
+        valid_statuses = ['pending', 'confirmed', 'completed', 'cancelled']
+        if status not in valid_statuses:
+            raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}")
+
+        # Get current booking to check payment status
+        booking = await db.bookings.find_one({"id": booking_id})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        current_payment_status = booking.get('payment_status', '').lower()
+
+        # Enforce consistency rules
+        update_fields = {
+            "status": status,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+
+        # Rule 1: If setting status to CONFIRMED, payment must be COMPLETED
+        if status == 'confirmed':
+            if current_payment_status != 'completed':
+                raise HTTPException(
+                    status_code=400,
+                    detail="Cannot set status to CONFIRMED when payment is not COMPLETED. Please complete payment first."
+                )
+
+        # Rule 2: If setting status to PENDING but payment is COMPLETED, this is inconsistent
+        if status == 'pending' and current_payment_status == 'completed':
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot set status to PENDING when payment is already COMPLETED. This would create an inconsistent state."
+            )
+
+        # Update the booking
         result = await db.bookings.update_one(
             {"id": booking_id},
-            {"$set": {"status": status, "updated_at": datetime.now(timezone.utc).isoformat()}}
+            {"$set": update_fields}
         )
+
         if result.modified_count == 0:
-            raise HTTPException(status_code=404, detail="Booking not found")
-        return {"message": "Status updated successfully"}
+            raise HTTPException(status_code=404, detail="Booking not found or no changes made")
+
+        logger.info(f"Booking {booking_id} status updated to {status} (payment_status: {current_payment_status})")
+        return {"message": "Status updated successfully", "status": status, "payment_status": current_payment_status}
+
     except HTTPException:
         raise
     except Exception as e:
@@ -1415,7 +1490,7 @@ async def verify_payment(request: Request):
                     <tr><td style="padding: 8px 0;"><strong>Payment ID:</strong></td><td>{razorpay_payment_id}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount Paid:</strong></td><td>₹{booking['amount']/100}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Booking Status:</strong></td><td style="color: #10b981;">Confirmed</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_payment}</td></tr>
                 </table>
                 <p style="margin-top: 20px;">We will contact you shortly to schedule your consultation.</p>
@@ -1455,7 +1530,7 @@ async def verify_payment(request: Request):
                 <h3 style="color: #7c3aed; margin-top: 20px;">Consultation Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Chosen Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_payment}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong></td><td>{booking['preferred_date']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong></td><td>{booking['preferred_time']}</td></tr>
@@ -1516,7 +1591,7 @@ async def payment_failed(request: Request):
                 <h3 style="color: #7c3aed;">Booking Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Amount:</strong></td><td>₹{booking['amount']/100}</td></tr>
                 </table>
                 <div style="margin-top: 30px; padding: 15px; background-color: #dbeafe; border-left: 4px solid #3b82f6;">
@@ -1549,7 +1624,7 @@ async def payment_failed(request: Request):
                     <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{booking['name']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking['email']}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{booking['phone']}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display_failed}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
                 </table>
