@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Sparkles, Languages, User, LogOut, UserCircle } from 'lucide-react';
+import { Menu, X, Sparkles, Languages, User, LogOut, UserCircle, Calendar } from 'lucide-react';
 import { Button } from './ui/button';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -104,6 +104,14 @@ const Header = () => {
                         <p className="text-sm font-semibold text-purple-900">{user?.name}</p>
                         <p className="text-xs text-gray-600">{user?.email}</p>
                       </div>
+                      <Link
+                        to="/manage-bookings"
+                        onClick={() => setShowUserMenu(false)}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 transition-colors"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        My Bookings
+                      </Link>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -180,6 +188,14 @@ const Header = () => {
                     <p className="text-sm font-semibold text-purple-900">{user?.name}</p>
                     <p className="text-xs text-gray-600">{user?.email}</p>
                   </div>
+                  <Link
+                    to="/manage-bookings"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-50 text-purple-600 font-medium transition-colors hover:bg-purple-100"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    My Bookings
+                  </Link>
                   <button
                     onClick={() => {
                       handleLogout();

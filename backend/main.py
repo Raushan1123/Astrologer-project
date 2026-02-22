@@ -686,6 +686,33 @@ async def create_booking(
 
         await db.bookings.insert_one(booking_doc)
 
+        # Reserve the time slot if date and time are provided
+        if booking_data.preferred_date and booking_data.preferred_time:
+            # Check if slot is already booked
+            existing_booking = await db.bookings.find_one({
+                "astrologer": booking_data.astrologer,
+                "preferred_date": booking_data.preferred_date,
+                "preferred_time": booking_data.preferred_time,
+                "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]},
+                "id": {"$ne": booking.id}
+            })
+
+            if not existing_booking:
+                # Reserve the slot
+                slot_doc = {
+                    "id": str(uuid.uuid4()),
+                    "astrologer": booking_data.astrologer,
+                    "date": booking_data.preferred_date,
+                    "start_time": booking_data.preferred_time,
+                    "end_time": booking_data.preferred_time,  # Will be calculated based on duration
+                    "is_available": False,
+                    "booking_id": booking.id,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+                await db.time_slots.insert_one(slot_doc)
+                logger.info(f"Reserved time slot: {booking_data.preferred_date} at {booking_data.preferred_time} for booking {booking.id}")
+
         # Mark first booking as completed ONLY if user used the free 5-10 mins option
         if booking_data.consultation_duration == "5-10":
             await db.users.update_one(
@@ -983,18 +1010,324 @@ async def get_booking(booking_id: str):
         booking = await db.bookings.find_one({"id": booking_id}, {"_id": 0})
         if not booking:
             raise HTTPException(status_code=404, detail="Booking not found")
-        
+
         # Convert ISO strings back to datetime
         if isinstance(booking.get('created_at'), str):
             booking['created_at'] = datetime.fromisoformat(booking['created_at'])
         if isinstance(booking.get('updated_at'), str):
             booking['updated_at'] = datetime.fromisoformat(booking['updated_at'])
-        
+
         return booking
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error fetching booking: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/user/bookings")
+async def get_user_bookings(current_user: dict = Depends(get_current_user)):
+    """Get all bookings for the current user"""
+    try:
+        bookings = await db.bookings.find(
+            {"email": current_user["email"]},
+            {"_id": 0}
+        ).sort("created_at", -1).to_list(length=100)
+
+        # Convert datetime objects to ISO strings for JSON serialization
+        for booking in bookings:
+            if isinstance(booking.get('created_at'), datetime):
+                booking['created_at'] = booking['created_at'].isoformat()
+            if isinstance(booking.get('updated_at'), datetime):
+                booking['updated_at'] = booking['updated_at'].isoformat()
+
+        return {"bookings": bookings}
+    except Exception as e:
+        logger.error(f"Error fetching user bookings: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.put("/bookings/{booking_id}/cancel")
+async def cancel_booking(
+    booking_id: str,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user)
+):
+    """Cancel a booking"""
+    try:
+        # Find the booking
+        booking = await db.bookings.find_one({"id": booking_id})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        # Verify the booking belongs to the current user
+        if booking["email"] != current_user["email"]:
+            raise HTTPException(status_code=403, detail="Not authorized to cancel this booking")
+
+        # Check if booking is already cancelled
+        if booking["status"] == BookingStatus.CANCELLED:
+            raise HTTPException(status_code=400, detail="Booking is already cancelled")
+
+        # Release the time slot if it was booked
+        if booking.get("preferred_date") and booking.get("preferred_time"):
+            # Remove the slot from time_slots collection if it exists
+            await db.time_slots.delete_many({
+                "astrologer": booking["astrologer"],
+                "date": booking["preferred_date"],
+                "start_time": booking["preferred_time"],
+                "booking_id": booking_id
+            })
+            logger.info(f"Released time slot for {booking['astrologer']} on {booking['preferred_date']} at {booking['preferred_time']}")
+
+        # Update booking status
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {
+                "$set": {
+                    "status": BookingStatus.CANCELLED,
+                    "updated_at": datetime.now(timezone.utc)
+                }
+            }
+        )
+
+        # Send cancellation email to customer
+        customer_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">Booking Cancelled</h2>
+                <p>Dear {booking['name']},</p>
+                <p>Your booking has been cancelled as requested.</p>
+
+                <h3 style="color: #7c3aed;">Cancelled Booking Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong></td><td>{booking.get('preferred_date', 'N/A')}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong></td><td>{booking.get('preferred_time', 'N/A')}</td></tr>
+                </table>
+
+                {f'<p style="margin-top: 20px; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;"><strong>Refund Information:</strong><br>If you have made a payment, a refund will be processed within 5-7 business days.</p>' if booking.get('payment_status') == PaymentStatus.COMPLETED else ''}
+
+                <p style="margin-top: 20px;">If you have any questions, please contact us.</p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
+
+        background_tasks.add_task(
+            send_email,
+            booking['email'],
+            "Booking Cancelled",
+            customer_email_body
+        )
+
+        # Send notification to admin
+        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #ef4444;">Booking Cancelled by Customer</h2>
+                <p>A booking has been cancelled:</p>
+
+                <h3 style="color: #7c3aed;">Customer Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{booking['name']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking['email']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{booking['phone']}</td></tr>
+                </table>
+
+                <h3 style="color: #7c3aed; margin-top: 20px;">Booking Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{booking['service']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Amount:</strong></td><td>₹{booking.get('amount', 0)/100}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Payment Status:</strong></td><td>{booking.get('payment_status', 'N/A')}</td></tr>
+                </table>
+
+                {f'<p style="margin-top: 20px; padding: 15px; background-color: #fee2e2; border-left: 4px solid #ef4444;"><strong>Action Required:</strong> Process refund for ₹{booking.get("amount", 0)/100} if payment was completed.</p>' if booking.get('payment_status') == PaymentStatus.COMPLETED else ''}
+            </div>
+        </body>
+        </html>
+        """
+
+        background_tasks.add_task(
+            send_email,
+            admin_email,
+            f"Booking Cancelled - {booking['name']}",
+            admin_email_body
+        )
+
+        logger.info(f"Booking {booking_id} cancelled by user {current_user['email']}")
+        return {"message": "Booking cancelled successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error cancelling booking: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.put("/bookings/{booking_id}")
+async def update_booking(
+    booking_id: str,
+    booking_data: BookingCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update a booking (only if status is PENDING)"""
+    try:
+        # Find the booking
+        booking = await db.bookings.find_one({"id": booking_id})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        # Verify the booking belongs to the current user
+        if booking["email"] != current_user["email"]:
+            raise HTTPException(status_code=403, detail="Not authorized to update this booking")
+
+        # Check if booking can be updated (only PENDING bookings)
+        if booking["status"] != BookingStatus.PENDING:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot update booking with status: {booking['status']}"
+            )
+
+        # Check if date/time is being changed
+        old_date = booking.get("preferred_date")
+        old_time = booking.get("preferred_time")
+        new_date = booking_data.preferred_date
+        new_time = booking_data.preferred_time
+
+        # If date or time changed, release old slot and check new slot availability
+        if (old_date != new_date or old_time != new_time):
+            # Release old slot if it exists
+            if old_date and old_time:
+                await db.time_slots.delete_many({
+                    "astrologer": booking["astrologer"],
+                    "date": old_date,
+                    "start_time": old_time,
+                    "booking_id": booking_id
+                })
+                logger.info(f"Released old time slot: {old_date} at {old_time}")
+
+            # Check if new slot is available
+            if new_date and new_time:
+                # Check if slot is already booked by another booking
+                existing_booking = await db.bookings.find_one({
+                    "astrologer": booking_data.astrologer,
+                    "preferred_date": new_date,
+                    "preferred_time": new_time,
+                    "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]},
+                    "id": {"$ne": booking_id}  # Exclude current booking
+                })
+
+                if existing_booking:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="This time slot is no longer available. Please choose another slot."
+                    )
+
+                # Reserve the new slot
+                slot_doc = {
+                    "id": str(uuid.uuid4()),
+                    "astrologer": booking_data.astrologer,
+                    "date": new_date,
+                    "start_time": new_time,
+                    "end_time": new_time,  # Will be calculated based on duration
+                    "is_available": False,
+                    "booking_id": booking_id,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+                await db.time_slots.insert_one(slot_doc)
+                logger.info(f"Reserved new time slot: {new_date} at {new_time}")
+
+        # Update booking
+        update_data = booking_data.model_dump()
+        update_data["updated_at"] = datetime.now(timezone.utc)
+
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {"$set": update_data}
+        )
+
+        logger.info(f"Booking {booking_id} updated by user {current_user['email']}")
+        return {"message": "Booking updated successfully"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating booking: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/bookings/{booking_id}/retry-payment")
+async def retry_payment(
+    booking_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new Razorpay order for a pending payment"""
+    try:
+        # Find the booking
+        booking = await db.bookings.find_one({"id": booking_id})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        # Verify the booking belongs to the current user
+        if booking["email"] != current_user["email"]:
+            raise HTTPException(status_code=403, detail="Not authorized to access this booking")
+
+        # Check if payment is pending
+        if booking.get("payment_status") != PaymentStatus.PENDING:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Payment is not pending. Current status: {booking.get('payment_status')}"
+            )
+
+        # Get the amount
+        amount = booking.get("amount", 0)
+        if amount <= 0:
+            raise HTTPException(status_code=400, detail="No payment required for this booking")
+
+        # Create new Razorpay order
+        if not RAZORPAY_ENABLED or razorpay_client is None:
+            raise HTTPException(status_code=503, detail="Payment service is not available")
+
+        order_data = {
+            "amount": amount,
+            "currency": "INR",
+            "payment_capture": 1
+        }
+        razorpay_order = razorpay_client.order.create(data=order_data)
+        razorpay_order_id = razorpay_order['id']
+
+        # Update booking with new order ID
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {
+                "$set": {
+                    "razorpay_order_id": razorpay_order_id,
+                    "updated_at": datetime.now(timezone.utc)
+                }
+            }
+        )
+
+        logger.info(f"New payment order created for booking {booking_id}")
+        return {
+            "razorpay_order_id": razorpay_order_id,
+            "amount": amount,
+            "currency": "INR",
+            "razorpay_key_id": RAZORPAY_KEY_ID
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating payment order: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.put("/bookings/{booking_id}/status")

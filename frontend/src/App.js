@@ -19,6 +19,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Booking from "./pages/Booking";
 import BookingSuccess from "./pages/BookingSuccess";
+import ManageBookings from "./pages/ManageBookings";
 import Contact from "./pages/Contact";
 import Gemstones from "./pages/Gemstones";
 import Admin from "./pages/Admin";
@@ -56,6 +57,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <BookingSuccess />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-bookings"
+                element={
+                  <ProtectedRoute>
+                    <ManageBookings />
                   </ProtectedRoute>
                 }
               />
