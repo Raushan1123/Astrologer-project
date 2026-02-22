@@ -667,15 +667,21 @@ async def create_booking(
 
         # Create booking
         booking_dict = booking_data.model_dump()
-        payment_status = (
-            PaymentStatus.PENDING if amount > 0
-            else PaymentStatus.COMPLETED
-        )
+
+        # For free bookings (5-10 mins), payment is completed and booking is confirmed
+        # For paid bookings, payment is pending and booking is pending
+        if amount > 0:
+            payment_status = PaymentStatus.PENDING
+            booking_status = BookingStatus.PENDING
+        else:
+            payment_status = PaymentStatus.COMPLETED
+            booking_status = BookingStatus.CONFIRMED  # Free bookings are auto-confirmed
+
         booking = Booking(
             **booking_dict,
             amount=amount,
             razorpay_order_id=razorpay_order_id,
-            status=BookingStatus.PENDING,
+            status=booking_status,
             payment_status=payment_status
         )
 
@@ -1321,7 +1327,7 @@ async def retry_payment(
             "razorpay_order_id": razorpay_order_id,
             "amount": amount,
             "currency": "INR",
-            "razorpay_key_id": RAZORPAY_KEY_ID
+            "razorpay_key_id": os.environ.get('RAZORPAY_KEY_ID')
         }
 
     except HTTPException:

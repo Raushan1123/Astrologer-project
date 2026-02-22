@@ -18,7 +18,8 @@ const ManageBookings = () => {
   const { t } = useLanguage();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [processingBookingId, setProcessingBookingId] = useState(null);
+  const [processingPaymentId, setProcessingPaymentId] = useState(null);
+  const [processingCancelId, setProcessingCancelId] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -37,6 +38,7 @@ const ManageBookings = () => {
       const response = await axios.get(`${API}/user/bookings`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Fetched bookings:', response.data.bookings);
       setBookings(response.data.bookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
@@ -52,7 +54,7 @@ const ManageBookings = () => {
     }
 
     try {
-      setProcessingBookingId(bookingId);
+      setProcessingCancelId(bookingId);
       const token = getToken();
       await axios.put(`${API}/bookings/${bookingId}/cancel`, {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -63,15 +65,15 @@ const ManageBookings = () => {
       console.error('Error cancelling booking:', error);
       toast.error(error.response?.data?.detail || 'Failed to cancel booking');
     } finally {
-      setProcessingBookingId(null);
+      setProcessingCancelId(null);
     }
   };
 
   const handleCompletePayment = async (bookingId) => {
     try {
-      setProcessingBookingId(bookingId);
+      setProcessingPaymentId(bookingId);
       const token = getToken();
-      
+
       // Create new payment order
       const response = await axios.post(
         `${API}/bookings/${bookingId}/retry-payment`,
@@ -92,7 +94,7 @@ const ManageBookings = () => {
         handler: async function (response) {
           try {
             // Verify payment
-            await axios.post(`${API}/payment/verify`, {
+            await axios.post(`${API}/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
@@ -103,6 +105,14 @@ const ManageBookings = () => {
           } catch (error) {
             console.error('Payment verification failed:', error);
             toast.error('Payment verification failed');
+          } finally {
+            setProcessingPaymentId(null);
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            // User closed the payment modal without completing payment
+            setProcessingPaymentId(null);
           }
         },
         prefill: {
@@ -117,11 +127,12 @@ const ManageBookings = () => {
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();
-      setProcessingBookingId(null);
+
+      // Don't clear processing state here - wait for modal to close or payment to complete
     } catch (error) {
       console.error('Error initiating payment:', error);
       toast.error(error.response?.data?.detail || 'Failed to initiate payment');
-      setProcessingBookingId(null);
+      setProcessingPaymentId(null);
     }
   };
 
@@ -132,7 +143,8 @@ const ManageBookings = () => {
       COMPLETED: { color: 'bg-blue-100 text-blue-800', label: 'Completed' },
       CANCELLED: { color: 'bg-red-100 text-red-800', label: 'Cancelled' }
     };
-    const config = statusConfig[status] || statusConfig.PENDING;
+    const normalizedStatus = status?.toUpperCase() || 'PENDING';
+    const config = statusConfig[normalizedStatus] || statusConfig.PENDING;
     return <Badge className={config.color}>{config.label}</Badge>;
   };
 
@@ -142,7 +154,8 @@ const ManageBookings = () => {
       COMPLETED: { color: 'bg-green-100 text-green-800', label: 'Paid' },
       FAILED: { color: 'bg-red-100 text-red-800', label: 'Failed' }
     };
-    const config = statusConfig[paymentStatus] || statusConfig.PENDING;
+    const normalizedStatus = paymentStatus?.toUpperCase() || 'PENDING';
+    const config = statusConfig[normalizedStatus] || statusConfig.PENDING;
     return <Badge className={config.color}>{config.label}</Badge>;
   };
 
@@ -155,10 +168,10 @@ const ManageBookings = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-purple-900 mb-2">My Bookings</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-purple-900 mb-2">My Bookings</h1>
           <p className="text-gray-600">Manage your consultation bookings</p>
         </div>
 
@@ -235,59 +248,89 @@ const ManageBookings = () => {
 
                   {/* Actions */}
                   <div className="flex flex-col gap-3 lg:min-w-[200px]">
-                    {booking.status === 'PENDING' && booking.payment_status === 'PENDING' && booking.amount > 0 && (
-                      <Button
-                        onClick={() => handleCompletePayment(booking.id)}
-                        disabled={processingBookingId === booking.id}
-                        className="bg-green-600 hover:bg-green-700 w-full"
-                      >
-                        {processingBookingId === booking.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            Complete Payment
-                          </>
-                        )}
-                      </Button>
-                    )}
+                    {(() => {
+                      // Check if booking is in the past
+                      const isPastBooking = booking.preferred_date &&
+                        new Date(booking.preferred_date + 'T' + (booking.preferred_time || '00:00')) < new Date();
 
-                    {booking.status === 'PENDING' && (
-                      <Button
-                        onClick={() => handleCancelBooking(booking.id)}
-                        disabled={processingBookingId === booking.id}
-                        variant="destructive"
-                        className="w-full"
-                      >
-                        {processingBookingId === booking.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Cancelling...
-                          </>
-                        ) : (
-                          <>
-                            <X className="w-4 h-4 mr-2" />
-                            Cancel Booking
-                          </>
-                        )}
-                      </Button>
-                    )}
+                      const status = booking.status?.toUpperCase();
+                      const paymentStatus = booking.payment_status?.toUpperCase();
 
-                    {booking.status === 'CANCELLED' && (
-                      <div className="text-sm text-red-600 font-medium text-center">
-                        This booking was cancelled
-                      </div>
-                    )}
+                      // Past bookings - show completed message
+                      if (isPastBooking && status !== 'CANCELLED') {
+                        return (
+                          <div className="text-sm text-blue-600 font-medium text-center flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
+                            Completed
+                          </div>
+                        );
+                      }
 
-                    {booking.status === 'CONFIRMED' && (
-                      <div className="text-sm text-green-600 font-medium text-center flex items-center justify-center gap-2">
-                        <CheckCircle className="w-4 h-4" />
-                        Confirmed
-                      </div>
-                    )}
+                      // Cancelled bookings
+                      if (status === 'CANCELLED') {
+                        return (
+                          <div className="text-sm text-red-600 font-medium text-center">
+                            This booking was cancelled
+                          </div>
+                        );
+                      }
+
+                      // Future/Today bookings - show action buttons
+                      return (
+                        <>
+                          {/* Complete Payment Button - Show if payment is pending and amount > 0 */}
+                          {status === 'PENDING' && paymentStatus === 'PENDING' && booking.amount > 0 && (
+                            <Button
+                              onClick={() => handleCompletePayment(booking.id)}
+                              disabled={processingPaymentId === booking.id}
+                              className="bg-green-600 hover:bg-green-700 w-full"
+                            >
+                              {processingPaymentId === booking.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Processing Payment...
+                                </>
+                              ) : (
+                                <>
+                                  <CreditCard className="w-4 h-4 mr-2" />
+                                  Complete Payment
+                                </>
+                              )}
+                            </Button>
+                          )}
+
+                          {/* Cancel Button - Show if booking is pending */}
+                          {status === 'PENDING' && (
+                            <Button
+                              onClick={() => handleCancelBooking(booking.id)}
+                              disabled={processingCancelId === booking.id}
+                              variant="destructive"
+                              className="w-full"
+                            >
+                              {processingCancelId === booking.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Cancelling...
+                                </>
+                              ) : (
+                                <>
+                                  <X className="w-4 h-4 mr-2" />
+                                  Cancel Booking
+                                </>
+                              )}
+                            </Button>
+                          )}
+
+                          {/* Confirmed Status - for future bookings */}
+                          {status === 'CONFIRMED' && (
+                            <div className="text-sm text-green-600 font-medium text-center flex items-center justify-center gap-2">
+                              <CheckCircle className="w-4 h-4" />
+                              Confirmed
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               </Card>
