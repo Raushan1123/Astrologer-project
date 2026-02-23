@@ -208,6 +208,20 @@ async def startup_event():
     # Run initialization in background to not block startup
     asyncio.create_task(init_db())
 
+    # Schedule auto-cancel of expired bookings (runs every hour)
+    async def periodic_auto_cancel():
+        while True:
+            try:
+                await asyncio.sleep(3600)  # Wait 1 hour
+                logger.info("Running periodic auto-cancel of expired bookings...")
+                cancelled_count = await auto_cancel_expired_bookings()
+                if cancelled_count > 0:
+                    logger.info(f"Periodic auto-cancel: {cancelled_count} booking(s) cancelled")
+            except Exception as e:
+                logger.error(f"Error in periodic auto-cancel: {str(e)}")
+
+    asyncio.create_task(periodic_auto_cancel())
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -662,6 +676,126 @@ async def reset_password(reset_data: PasswordReset):
         raise HTTPException(status_code=500, detail="Failed to reset password")
 
 
+# Auto-cancel expired bookings function
+async def auto_cancel_expired_bookings():
+    """
+    Auto-cancel bookings that:
+    1. Have a preferred_date in the past
+    2. Status is still PENDING
+    3. Payment status is PENDING
+
+    This prevents users from paying for expired bookings.
+    """
+    try:
+        now = datetime.now(timezone.utc)
+
+        # Find all pending bookings with past dates and pending payment
+        expired_bookings = await db.bookings.find({
+            "status": BookingStatus.PENDING,
+            "payment_status": PaymentStatus.PENDING,
+            "preferred_date": {"$exists": True, "$ne": None}
+        }).to_list(length=None)
+
+        cancelled_count = 0
+
+        for booking in expired_bookings:
+            try:
+                # Parse the booking date
+                booking_date_str = booking.get('preferred_date')
+                booking_time_str = booking.get('preferred_time', '00:00')
+
+                # Combine date and time
+                booking_datetime_str = f"{booking_date_str}T{booking_time_str}"
+                booking_datetime = datetime.fromisoformat(booking_datetime_str.replace('Z', '+00:00'))
+
+                # Make timezone-aware if not already
+                if booking_datetime.tzinfo is None:
+                    booking_datetime = booking_datetime.replace(tzinfo=timezone.utc)
+
+                # Check if booking is in the past
+                if booking_datetime < now:
+                    # Cancel the booking
+                    await db.bookings.update_one(
+                        {"id": booking['id']},
+                        {
+                            "$set": {
+                                "status": BookingStatus.CANCELLED,
+                                "updated_at": now,
+                                "cancellation_reason": "Auto-cancelled: Booking date passed with pending payment"
+                            }
+                        }
+                    )
+
+                    cancelled_count += 1
+                    logger.info(
+                        f"Auto-cancelled expired booking {booking['id']} "
+                        f"(Date: {booking_date_str}, Customer: {booking.get('email')})"
+                    )
+
+                    # Send cancellation email to customer
+                    try:
+                        customer_email_body = f"""
+                        <html>
+                        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                                <h2 style="color: #ef4444;">Booking Auto-Cancelled</h2>
+                                <p>Dear {booking.get('name')},</p>
+                                <p>Your booking has been automatically cancelled because the scheduled date has passed and payment was not completed.</p>
+
+                                <h3 style="color: #7c3aed;">Booking Details:</h3>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking.get('service'))}</td></tr>
+                                    <tr><td style="padding: 8px 0;"><strong>Scheduled Date:</strong></td><td>{booking_date_str}</td></tr>
+                                    <tr><td style="padding: 8px 0;"><strong>Scheduled Time:</strong></td><td>{booking_time_str}</td></tr>
+                                </table>
+
+                                <p style="margin-top: 20px;">If you would like to book a new consultation, please visit our website.</p>
+                                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
+                            </div>
+                        </body>
+                        </html>
+                        """
+                        await send_email(
+                            booking.get('email'),
+                            "Booking Auto-Cancelled - Payment Not Completed",
+                            customer_email_body
+                        )
+                    except Exception as email_error:
+                        logger.error(f"Failed to send cancellation email: {str(email_error)}")
+
+            except Exception as booking_error:
+                logger.error(f"Error processing booking {booking.get('id')}: {str(booking_error)}")
+                continue
+
+        if cancelled_count > 0:
+            logger.info(f"✅ Auto-cancelled {cancelled_count} expired booking(s)")
+
+        return cancelled_count
+
+    except Exception as e:
+        logger.error(f"Error in auto_cancel_expired_bookings: {str(e)}")
+        return 0
+
+
+@api_router.post("/admin/cancel-expired-bookings")
+async def trigger_cancel_expired_bookings():
+    """
+    Admin endpoint to manually trigger auto-cancellation of expired bookings.
+    Can also be called by a cron job.
+    """
+    try:
+        cancelled_count = await auto_cancel_expired_bookings()
+        return {
+            "success": True,
+            "message": f"Auto-cancelled {cancelled_count} expired booking(s)",
+            "cancelled_count": cancelled_count
+        }
+    except Exception as e:
+        logger.error(f"Error triggering auto-cancel: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Booking endpoints
 @api_router.post("/bookings")
 async def create_booking(
@@ -1100,6 +1234,57 @@ async def cancel_booking(
         if booking["status"] == BookingStatus.CANCELLED:
             raise HTTPException(status_code=400, detail="Booking is already cancelled")
 
+        # Process refund if payment was completed
+        refund_status = None
+        refund_id = None
+
+        if booking.get("payment_status") == PaymentStatus.COMPLETED and booking.get("razorpay_payment_id"):
+            if RAZORPAY_ENABLED and razorpay_client:
+                try:
+                    payment_id = booking["razorpay_payment_id"]
+                    amount = booking.get("amount", 0)
+
+                    # Create refund in Razorpay
+                    # Razorpay refund API: https://razorpay.com/docs/api/refunds/
+                    refund = razorpay_client.payment.refund(payment_id, {
+                        "amount": amount,  # Full refund
+                        "speed": "normal",  # normal (5-7 days) or optimum (instant if available)
+                        "notes": {
+                            "booking_id": booking_id,
+                            "reason": "Booking cancelled by customer"
+                        }
+                    })
+
+                    refund_id = refund.get("id")
+                    refund_status = refund.get("status")  # "processed" or "pending"
+
+                    # Update booking with refund information
+                    await db.bookings.update_one(
+                        {"id": booking_id},
+                        {
+                            "$set": {
+                                "refund_id": refund_id,
+                                "refund_status": refund_status,
+                                "refund_amount": amount,
+                                "refund_initiated_at": datetime.now(timezone.utc)
+                            }
+                        }
+                    )
+
+                    logger.info(
+                        f"✅ Refund initiated for booking {booking_id}: "
+                        f"₹{amount/100} (Refund ID: {refund_id}, Status: {refund_status})"
+                    )
+
+                except Exception as refund_error:
+                    logger.error(f"❌ Refund failed for booking {booking_id}: {str(refund_error)}")
+                    # Continue with cancellation even if refund fails
+                    # Admin will need to process refund manually
+                    refund_status = "failed"
+            else:
+                logger.warning(f"Razorpay not enabled - manual refund required for booking {booking_id}")
+                refund_status = "manual_required"
+
         # Release the time slot if it was booked
         if booking.get("preferred_date") and booking.get("preferred_time"):
             # Remove the slot from time_slots collection if it exists
@@ -1117,10 +1302,47 @@ async def cancel_booking(
             {
                 "$set": {
                     "status": BookingStatus.CANCELLED,
-                    "updated_at": datetime.now(timezone.utc)
+                    "updated_at": datetime.now(timezone.utc),
+                    "cancelled_by": current_user["email"],
+                    "cancelled_at": datetime.now(timezone.utc)
                 }
             }
         )
+
+        # Generate refund notice HTML
+        refund_notice_html = ""
+        if booking.get('payment_status') == PaymentStatus.COMPLETED:
+            if refund_status == "processed" or refund_status == "pending":
+                refund_notice_html = f'''
+                <div style="margin-top: 20px; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Refund Initiated:</strong><br>
+                    A full refund of ₹{booking.get('amount', 0)/100} has been initiated to your original payment method.<br>
+                    <strong>Refund ID:</strong> {refund_id}<br>
+                    <strong>Status:</strong> {refund_status.title()}<br>
+                    <em>The refund will be credited to your account within 5-7 business days.</em>
+                </div>
+                '''
+            elif refund_status == "failed":
+                refund_notice_html = '''
+                <div style="margin-top: 20px; padding: 15px; background-color: #fee2e2; border-left: 4px solid #ef4444;">
+                    <strong>⚠️ Refund Processing Issue:</strong><br>
+                    We encountered an issue processing your refund automatically. Our team has been notified and will process your refund manually within 24 hours.
+                </div>
+                '''
+            elif refund_status == "manual_required":
+                refund_notice_html = '''
+                <div style="margin-top: 20px; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                    <strong>💳 Refund Processing:</strong><br>
+                    Your refund will be processed manually by our team within 24 hours.
+                </div>
+                '''
+            else:
+                refund_notice_html = '''
+                <div style="margin-top: 20px; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                    <strong>Refund Information:</strong><br>
+                    A refund will be processed within 5-7 business days.
+                </div>
+                '''
 
         # Send cancellation email to customer
         customer_email_body = f"""
@@ -1140,7 +1362,7 @@ async def cancel_booking(
                     <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong></td><td>{booking.get('preferred_time', 'N/A')}</td></tr>
                 </table>
 
-                {f'<p style="margin-top: 20px; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;"><strong>Refund Information:</strong><br>If you have made a payment, a refund will be processed within 5-7 business days.</p>' if booking.get('payment_status') == PaymentStatus.COMPLETED else ''}
+                {refund_notice_html}
 
                 <p style="margin-top: 20px;">If you have any questions, please contact us.</p>
                 <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
@@ -1645,6 +1867,225 @@ async def payment_failed(request: Request):
     except Exception as e:
         logger.error(f"Error handling payment failure: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# Razorpay Webhook for Refund Status Updates
+@api_router.post("/razorpay-webhook")
+async def razorpay_webhook(request: Request):
+    """
+    Webhook endpoint to receive refund status updates from Razorpay.
+
+    Razorpay sends webhooks for events like:
+    - refund.processed: Refund successfully processed
+    - refund.failed: Refund failed
+    - refund.speed_changed: Refund speed changed
+
+    Setup: Add this URL in Razorpay Dashboard > Settings > Webhooks
+    URL: https://your-domain.com/api/razorpay-webhook
+    """
+    try:
+        # Get webhook payload
+        payload = await request.body()
+        webhook_signature = request.headers.get('X-Razorpay-Signature', '')
+
+        if not RAZORPAY_ENABLED or razorpay_client is None:
+            logger.warning("Razorpay webhook received but Razorpay not configured")
+            return {"status": "ignored"}
+
+        # Verify webhook signature (important for security)
+        webhook_secret = os.environ.get('RAZORPAY_WEBHOOK_SECRET', '')
+        if webhook_secret:
+            try:
+                razorpay_client.utility.verify_webhook_signature(
+                    payload.decode('utf-8'),
+                    webhook_signature,
+                    webhook_secret
+                )
+            except Exception as verify_error:
+                logger.error(f"Webhook signature verification failed: {str(verify_error)}")
+                raise HTTPException(status_code=400, detail="Invalid webhook signature")
+
+        # Parse webhook data
+        import json
+        data = json.loads(payload)
+        event = data.get('event')
+        payload_data = data.get('payload', {})
+        refund_entity = payload_data.get('refund', {}).get('entity', {})
+
+        logger.info(f"Received Razorpay webhook: {event}")
+
+        # Handle refund events
+        if event in ['refund.processed', 'refund.failed', 'refund.speed_changed']:
+            refund_id = refund_entity.get('id')
+            refund_status = refund_entity.get('status')  # processed, failed, pending
+            payment_id = refund_entity.get('payment_id')
+            amount = refund_entity.get('amount')
+
+            # Find booking by refund_id or payment_id
+            booking = await db.bookings.find_one({
+                "$or": [
+                    {"refund_id": refund_id},
+                    {"razorpay_payment_id": payment_id}
+                ]
+            })
+
+            if booking:
+                # Update refund status in database
+                update_data = {
+                    "refund_status": refund_status,
+                    "refund_updated_at": datetime.now(timezone.utc)
+                }
+
+                if event == 'refund.processed':
+                    update_data["refund_completed_at"] = datetime.now(timezone.utc)
+
+                await db.bookings.update_one(
+                    {"id": booking['id']},
+                    {"$set": update_data}
+                )
+
+                logger.info(
+                    f"✅ Updated refund status for booking {booking['id']}: "
+                    f"{refund_status} (Refund ID: {refund_id})"
+                )
+
+                # Send email notification to customer if refund is processed
+                if event == 'refund.processed':
+                    refund_email_body = f"""
+                    <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #10b981;">✅ Refund Processed Successfully</h2>
+                            <p>Dear {booking.get('name')},</p>
+                            <p>Your refund has been successfully processed!</p>
+
+                            <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                                <strong>Refund Details:</strong><br>
+                                <strong>Amount:</strong> ₹{amount/100}<br>
+                                <strong>Refund ID:</strong> {refund_id}<br>
+                                <strong>Booking ID:</strong> {booking['id']}<br>
+                                <strong>Status:</strong> Processed
+                            </div>
+
+                            <p>The refund amount will be credited to your original payment method within 5-7 business days.</p>
+                            <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
+                        </div>
+                    </body>
+                    </html>
+                    """
+                    await send_email(
+                        booking.get('email'),
+                        "✅ Refund Processed Successfully",
+                        refund_email_body
+                    )
+
+                elif event == 'refund.failed':
+                    # Notify admin about failed refund
+                    admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+                    admin_email_body = f"""
+                    <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #ef4444;">❌ Refund Failed - Action Required</h2>
+                            <p>A refund has failed and requires manual processing:</p>
+
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                                <tr><td style="padding: 8px 0;"><strong>Customer:</strong></td><td>{booking.get('name')}</td></tr>
+                                <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking.get('email')}</td></tr>
+                                <tr><td style="padding: 8px 0;"><strong>Amount:</strong></td><td>₹{amount/100}</td></tr>
+                                <tr><td style="padding: 8px 0;"><strong>Refund ID:</strong></td><td>{refund_id}</td></tr>
+                                <tr><td style="padding: 8px 0;"><strong>Payment ID:</strong></td><td>{payment_id}</td></tr>
+                            </table>
+
+                            <p style="margin-top: 20px; padding: 15px; background-color: #fee2e2; border-left: 4px solid #ef4444;">
+                                <strong>Action Required:</strong> Please process this refund manually through Razorpay dashboard or contact Razorpay support.
+                            </p>
+                        </div>
+                    </body>
+                    </html>
+                    """
+                    await send_email(admin_email, "❌ Refund Failed - Manual Action Required", admin_email_body)
+            else:
+                logger.warning(f"Booking not found for refund_id: {refund_id}, payment_id: {payment_id}")
+
+        return {"status": "success"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing Razorpay webhook: {str(e)}")
+        # Return 200 to prevent Razorpay from retrying
+        return {"status": "error", "message": str(e)}
+
+
+# Get refund status for a booking
+@api_router.get("/bookings/{booking_id}/refund-status")
+async def get_refund_status(
+    booking_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get the current refund status for a booking.
+    Also syncs with Razorpay to get the latest status.
+    """
+    try:
+        booking = await db.bookings.find_one({"id": booking_id})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        # Verify the booking belongs to the current user
+        if booking["email"] != current_user["email"]:
+            raise HTTPException(status_code=403, detail="Not authorized")
+
+        refund_info = {
+            "booking_id": booking_id,
+            "has_refund": booking.get("refund_id") is not None,
+            "refund_id": booking.get("refund_id"),
+            "refund_status": booking.get("refund_status"),
+            "refund_amount": booking.get("refund_amount"),
+            "refund_initiated_at": booking.get("refund_initiated_at"),
+            "refund_completed_at": booking.get("refund_completed_at"),
+            "refund_updated_at": booking.get("refund_updated_at")
+        }
+
+        # If refund exists and Razorpay is enabled, fetch latest status
+        if refund_info["has_refund"] and RAZORPAY_ENABLED and razorpay_client:
+            try:
+                refund_id = booking.get("refund_id")
+                payment_id = booking.get("razorpay_payment_id")
+
+                # Fetch refund details from Razorpay
+                refund = razorpay_client.payment.refund(payment_id, refund_id)
+
+                latest_status = refund.get("status")
+
+                # Update database if status changed
+                if latest_status != booking.get("refund_status"):
+                    await db.bookings.update_one(
+                        {"id": booking_id},
+                        {
+                            "$set": {
+                                "refund_status": latest_status,
+                                "refund_updated_at": datetime.now(timezone.utc)
+                            }
+                        }
+                    )
+                    refund_info["refund_status"] = latest_status
+                    logger.info(f"Updated refund status for booking {booking_id}: {latest_status}")
+
+            except Exception as sync_error:
+                logger.error(f"Error syncing refund status from Razorpay: {str(sync_error)}")
+                # Return database status if sync fails
+
+        return refund_info
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting refund status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # Contact inquiry
 @api_router.post("/contact")

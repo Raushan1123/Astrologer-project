@@ -26,6 +26,7 @@ import Gemstones from "./pages/Gemstones";
 import Admin from "./pages/Admin";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import CancellationPolicy from "./pages/CancellationPolicy";
 
 function App() {
   return (
@@ -75,6 +76,7 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/cancellation-policy" element={<CancellationPolicy />} />
             </Routes>
             <Footer />
             <Toaster />
