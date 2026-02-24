@@ -30,6 +30,8 @@ const Services = () => {
   useEffect(() => {
     const detectCountry = async () => {
       try {
+        console.log('🌍 Services Page: Starting country detection...');
+        console.log('📡 API URL:', API);
         setLoadingCountry(true);
 
         // Check if there's a test_country parameter in URL for testing
@@ -42,20 +44,32 @@ const Services = () => {
           console.log('🧪 Testing mode: Using test country:', testCountry);
         }
 
+        console.log('📡 Making API call to:', url);
         const response = await axios.get(url);
+        console.log('✅ API Response:', response.data);
+
         const country = response.data.country || 'India';
+        console.log('✅ Detected country for Services page:', country, '(source:', response.data.source + ')');
+        console.log('🌍 Setting country state to:', country);
         setDetectedCountry(country);
-        console.log('Detected country for Services page:', country, '(source:', response.data.source + ')');
+        setLoadingCountry(false);
+        console.log('✅ Country detection complete');
       } catch (error) {
-        console.error('Error detecting country:', error);
+        console.error('❌ Error detecting country:', error);
+        console.error('❌ Error details:', error.response?.data || error.message);
         setDetectedCountry('India'); // Fallback to India
-      } finally {
         setLoadingCountry(false);
       }
     };
 
     detectCountry();
   }, []);
+
+  // Log when country changes
+  useEffect(() => {
+    console.log('🔄 Country state changed to:', detectedCountry);
+    console.log('⏳ Loading country:', loadingCountry);
+  }, [detectedCountry, loadingCountry]);
 
   // PPP (Purchasing Power Parity) multipliers for different countries/regions
   const getPPPMultiplier = (country) => {
@@ -119,7 +133,10 @@ const Services = () => {
 
   // Calculate discounted price based on service and detected country with PPP
   const calculateServicePrice = (service) => {
-    if (loadingCountry) return service.discountedPrice;
+    if (loadingCountry) {
+      console.log('⏳ Still loading country, using base price');
+      return service.discountedPrice;
+    }
 
     // Step 1: Calculate base discounted price
     const basePrice = service.actualPrice * (1 - service.discountPercent / 100);
@@ -134,6 +151,13 @@ const Services = () => {
     if (service.id === '3') {
       finalPrice = finalPrice * 1.5;
     }
+
+    console.log(`💰 Service ${service.id} price calculation:`, {
+      country: detectedCountry,
+      pppMultiplier,
+      basePrice,
+      finalPrice: Math.round(finalPrice)
+    });
 
     return Math.round(finalPrice);
   };
