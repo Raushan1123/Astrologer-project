@@ -150,8 +150,8 @@ const Header = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-purple-100 animate-in slide-in-from-top duration-300">
-            <nav className="flex flex-col gap-2">
+          <div className="md:hidden py-4 border-t border-purple-100 animate-in slide-in-from-top duration-300 max-h-[calc(100vh-5rem)] overflow-y-auto bg-white">
+            <nav className="flex flex-col gap-2 pb-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -196,12 +196,13 @@ const Header = () => {
                     <Calendar className="w-4 h-4" />
                     My Bookings
                   </Link>
+                  <div className="border-t border-purple-100 my-2"></div>
                   <button
                     onClick={() => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-50 text-red-600 font-medium transition-colors hover:bg-red-100"
+                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-red-50 text-red-600 font-medium transition-colors hover:bg-red-100 mb-4"
                   >
                     <LogOut className="w-4 h-4" />
                     Logout
