@@ -82,6 +82,7 @@ class Booking(BaseModel):
     name: str
     email: EmailStr
     phone: str
+    country: str = "India"  # Default to India
     date_of_birth: Optional[str] = None  # Optional - can be collected during call
     time_of_birth: Optional[str] = None  # Optional - can be collected during call
     place_of_birth: Optional[str] = None  # Optional - can be collected during call

@@ -43,7 +43,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591",
     duration: "30 mins",
     actualPrice: 4100,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "2",
@@ -53,7 +54,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1729335511883-29eade10006b",
     duration: "30 mins",
     actualPrice: 3500,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "3",
@@ -63,7 +65,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1600429991827-5224817554f8",
     duration: "45 mins",
     actualPrice: 5100,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "4",
@@ -73,7 +76,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88",
     duration: "30 mins",
     actualPrice: 3500,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "5",
@@ -83,7 +87,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1729335511904-9b8690184935",
     duration: "20-30 mins",
     actualPrice: 3000,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "6",
@@ -93,7 +98,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1758926384162-b3783d5fa09e",
     duration: "15 mins",
     actualPrice: 2000,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "7",
@@ -103,7 +109,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591",
     duration: "20 mins",
     actualPrice: 3500,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "8",
@@ -113,7 +120,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1729335511904-9b8690184935",
     duration: "30 mins",
     actualPrice: 3500,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   },
   {
     id: "9",
@@ -123,7 +131,8 @@ export const mockServices = [
     image: "https://images.unsplash.com/photo-1515942661900-94b3d1972591",
     duration: "10 mins",
     actualPrice: 1100,
-    discountPercent: 25
+    discountPercent: 25,
+    markup: 20  // 20% markup applied to final price
   }
 ];
 

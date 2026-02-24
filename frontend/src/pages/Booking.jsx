@@ -48,6 +48,68 @@ const Booking = () => {
     message: ''
   });
 
+  // State for detected country
+  const [detectedCountry, setDetectedCountry] = useState('India');
+  const [loadingCountry, setLoadingCountry] = useState(true);
+
+  // Detect country from IP on component mount
+  useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        console.log('🔍 Starting country detection...');
+        console.log('📍 Current URL:', window.location.href);
+        console.log('🔧 API URL:', API);
+
+        setLoadingCountry(true);
+
+        // Check if there's a country parameter passed from Services page
+        const urlParams = new URLSearchParams(window.location.search);
+        const countryFromUrl = urlParams.get('country');
+        const testCountry = urlParams.get('test_country');
+
+        console.log('🔍 URL Parameters:', Object.fromEntries(urlParams));
+        console.log('🌍 Country from URL:', countryFromUrl);
+        console.log('🧪 Test country parameter:', testCountry);
+
+        // Priority: country from URL > test_country > detect from IP
+        if (countryFromUrl) {
+          // Use country passed from Services page
+          setDetectedCountry(countryFromUrl);
+          console.log('✅ Using country from Services page:', countryFromUrl);
+          setLoadingCountry(false);
+          return;
+        }
+
+        // Otherwise, detect from IP or use test_country
+        let url = `${API}/detect-country`;
+        if (testCountry) {
+          url += `?test_country=${encodeURIComponent(testCountry)}`;
+          console.log('🧪 Testing mode: Using test country:', testCountry);
+          console.log('📡 API call URL:', url);
+        } else {
+          console.log('📡 API call URL (no test):', url);
+        }
+
+        console.log('📡 Making API call to:', url);
+        const response = await axios.get(url);
+        console.log('✅ API Response:', response.data);
+
+        const country = response.data.country || 'India';
+        setDetectedCountry(country);
+        console.log('✅ Detected country:', country, '(source:', response.data.source + ')');
+      } catch (error) {
+        console.error('❌ Error detecting country:', error);
+        console.error('❌ Error details:', error.response?.data || error.message);
+        setDetectedCountry('India'); // Fallback to India
+      } finally {
+        setLoadingCountry(false);
+        console.log('✅ Country detection complete');
+      }
+    };
+
+    detectCountry();
+  }, []);
+
   // Auto-populate user data from logged-in user
   useEffect(() => {
     if (user) {
@@ -156,25 +218,143 @@ const Booking = () => {
     checkFirstBookingStatus();
   }, []);
 
-  // Calculate price based on service and duration
+  // PPP (Purchasing Power Parity) multipliers for different countries/regions
+  const getPPPMultiplier = (country) => {
+    const countryLower = country.toLowerCase();
+
+    // High-income countries (Higher PPP multiplier)
+    const highIncomeCountries = {
+      'united states': 3.5,
+      'usa': 3.5,
+      'canada': 3.2,
+      'united kingdom': 3.0,
+      'uk': 3.0,
+      'australia': 3.2,
+      'new zealand': 3.0,
+      'switzerland': 4.0,
+      'norway': 3.8,
+      'denmark': 3.5,
+      'sweden': 3.3,
+      'germany': 2.8,
+      'france': 2.8,
+      'netherlands': 2.9,
+      'belgium': 2.8,
+      'austria': 2.8,
+      'ireland': 3.0,
+      'singapore': 2.5,
+      'hong kong': 2.5,
+      'japan': 2.3,
+      'south korea': 2.0,
+    };
+
+    // Upper-middle-income countries (Medium-high PPP multiplier)
+    const upperMiddleIncomeCountries = {
+      'united arab emirates': 2.8,
+      'uae': 2.8,
+      'dubai': 2.8,
+      'saudi arabia': 2.5,
+      'qatar': 3.0,
+      'kuwait': 2.7,
+      'bahrain': 2.5,
+      'oman': 2.3,
+      'israel': 2.5,
+      'italy': 2.5,
+      'spain': 2.3,
+      'portugal': 2.0,
+      'greece': 1.8,
+      'poland': 1.7,
+      'czech republic': 1.8,
+      'malaysia': 1.5,
+      'china': 1.8,
+      'russia': 1.5,
+      'brazil': 1.6,
+      'mexico': 1.7,
+      'argentina': 1.5,
+      'chile': 1.8,
+      'turkey': 1.4,
+      'south africa': 1.6,
+    };
+
+    // Lower-middle-income countries (Medium PPP multiplier)
+    const lowerMiddleIncomeCountries = {
+      'thailand': 1.3,
+      'indonesia': 1.2,
+      'philippines': 1.2,
+      'vietnam': 1.1,
+      'egypt': 1.2,
+      'morocco': 1.2,
+      'ukraine': 1.1,
+      'colombia': 1.3,
+      'peru': 1.3,
+      'ecuador': 1.2,
+    };
+
+    // Check which category the country falls into
+    if (highIncomeCountries[countryLower]) {
+      return highIncomeCountries[countryLower];
+    } else if (upperMiddleIncomeCountries[countryLower]) {
+      return upperMiddleIncomeCountries[countryLower];
+    } else if (lowerMiddleIncomeCountries[countryLower]) {
+      return lowerMiddleIncomeCountries[countryLower];
+    } else if (countryLower === 'india') {
+      return 1.0; // Base price for India
+    } else {
+      // Default for unlisted countries (assume medium-high income)
+      return 2.0;
+    }
+  };
+
+  // Calculate price based on service, duration, and detected country with PPP
   useEffect(() => {
-    if (formData.service && formData.consultationDuration) {
+    if (formData.service && formData.consultationDuration && !loadingCountry) {
+      console.log('💰 Calculating price:', {
+        service: formData.service,
+        duration: formData.consultationDuration,
+        country: detectedCountry
+      });
+
       // If duration is 5-10 mins, it's free
       if (formData.consultationDuration === '5-10') {
         setCalculatedPrice(0);
+        console.log('✅ Free consultation (5-10 mins)');
       } else if (formData.consultationDuration === '10+') {
         // Find the selected service from mockServices
         const selectedService = mockServices.find(s => s.id === formData.service);
         if (selectedService) {
-          // Calculate discounted price
-          const discountedPrice = Math.round(selectedService.actualPrice * (1 - selectedService.discountPercent / 100));
-          setCalculatedPrice(discountedPrice);
+          console.log('📋 Selected service:', selectedService.title, 'Actual Price:', selectedService.actualPrice);
+
+          // Step 1: Calculate base discounted price
+          const basePrice = selectedService.actualPrice * (1 - selectedService.discountPercent / 100);
+          console.log('💵 Base price after discount:', basePrice);
+
+          // Step 2: Get PPP multiplier for the country
+          const pppMultiplier = getPPPMultiplier(detectedCountry);
+          console.log('🌍 Country:', detectedCountry, '| PPP Multiplier:', pppMultiplier);
+
+          // Step 3: Apply PPP multiplier
+          let finalPrice = basePrice * pppMultiplier;
+          console.log('💵 Price after PPP adjustment:', finalPrice);
+
+          // Step 4: For Marriage Compatibility service, apply additional 1.5x multiplier for all countries
+          if (formData.service === '3') {
+            finalPrice = finalPrice * 1.5;
+            console.log('💰 Marriage Compatibility - Applied 1.5x multiplier:', finalPrice);
+          }
+
+          const roundedPrice = Math.round(finalPrice);
+          console.log('✅ Final calculated price:', roundedPrice);
+          setCalculatedPrice(roundedPrice);
         }
       }
     } else {
       setCalculatedPrice(0);
+      console.log('⏳ Waiting for:', {
+        hasService: !!formData.service,
+        hasDuration: !!formData.consultationDuration,
+        loadingCountry
+      });
     }
-  }, [formData.service, formData.consultationDuration]);
+  }, [formData.service, formData.consultationDuration, detectedCountry, loadingCountry]);
 
   // Fetch slots when astrologer, date, or service changes
   useEffect(() => {
@@ -320,6 +500,7 @@ const Booking = () => {
 
     try {
       // Prepare data for backend (convert camelCase to snake_case)
+      // Country is detected automatically on backend from IP address
       const bookingPayload = {
         name: formData.name,
         email: formData.email,
@@ -340,12 +521,36 @@ const Booking = () => {
 
       // Create booking via backend API
       const token = localStorage.getItem('authToken');
-      const response = await axios.post(`${API}/bookings`, bookingPayload, {
+
+      // Check if country or test_country parameter is in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const countryFromUrl = urlParams.get('country');
+      const testCountry = urlParams.get('test_country');
+
+      // Build API URL with country parameter if present
+      // Priority: test_country > country from Services page
+      let apiUrl = `${API}/bookings`;
+      if (testCountry) {
+        apiUrl += `?test_country=${encodeURIComponent(testCountry)}`;
+        console.log('🧪 Using test country for booking:', testCountry);
+      } else if (countryFromUrl) {
+        apiUrl += `?test_country=${encodeURIComponent(countryFromUrl)}`;
+        console.log('🌍 Using country from Services page for booking:', countryFromUrl);
+      }
+
+      const response = await axios.post(apiUrl, bookingPayload, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       const bookingData = response.data;
+
+      // Verify price calculation matches between frontend and backend
+      const backendPriceInRupees = bookingData.amount / 100;
+      console.log('💰 Price Verification:');
+      console.log('  Frontend calculated:', calculatedPrice);
+      console.log('  Backend calculated:', backendPriceInRupees);
+      console.log('  Match:', calculatedPrice === Math.round(backendPriceInRupees));
 
       // Check if payment is required (duration > 10 mins means paid consultation)
       if (bookingData.amount > 0 && bookingData.razorpay_order_id) {
@@ -448,6 +653,8 @@ const Booking = () => {
           </div>
         </div>
       </section>
+
+
 
       {/* Holi Offer Banner */}
       <section className="py-8">
@@ -721,6 +928,7 @@ const Booking = () => {
                           <p className="text-xs text-gray-600 mt-1">
                             🎉 Holi Offer: 25% discount already applied!
                           </p>
+
                         </div>
                       )}
                     </div>

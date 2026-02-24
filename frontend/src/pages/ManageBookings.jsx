@@ -271,10 +271,17 @@ const ManageBookings = () => {
           return true;
       }
     }).sort((a, b) => {
-      // Sort by preferred_date (or created_at if no preferred_date), newest first
-      const dateA = a.preferred_date ? new Date(a.preferred_date) : new Date(a.created_at);
-      const dateB = b.preferred_date ? new Date(b.preferred_date) : new Date(b.created_at);
-      return dateB - dateA;
+      // For upcoming bookings, sort by created_at (when booking was made), newest first
+      // For other filters, sort by preferred_date (or created_at if no preferred_date), newest first
+      if (activeFilter === 'upcoming') {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateB - dateA; // Newest bookings first
+      } else {
+        const dateA = a.preferred_date ? new Date(a.preferred_date) : new Date(a.created_at);
+        const dateB = b.preferred_date ? new Date(b.preferred_date) : new Date(b.created_at);
+        return dateB - dateA;
+      }
     });
   };
 

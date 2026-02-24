@@ -376,8 +376,68 @@ SERVICE_DURATION = {
     "9": 10,  # Naming Ceremony - 10 mins
 }
 
-# Calculate consultation price based on duration and service
-def calculate_price(duration: str, service: str = None) -> int:
+# PPP (Purchasing Power Parity) multipliers for different countries/regions
+def get_ppp_multiplier(country: str) -> float:
+    """
+    Get PPP multiplier based on country's economic status.
+    Returns a multiplier to adjust pricing based on purchasing power.
+    """
+    country_lower = country.lower()
+
+    # High-income countries (Higher PPP multiplier)
+    high_income_countries = {
+        'united states': 3.5, 'usa': 3.5, 'canada': 3.2, 'united kingdom': 3.0, 'uk': 3.0,
+        'australia': 3.2, 'new zealand': 3.0, 'switzerland': 4.0, 'norway': 3.8, 'denmark': 3.5,
+        'sweden': 3.3, 'germany': 2.8, 'france': 2.8, 'netherlands': 2.9, 'belgium': 2.8,
+        'austria': 2.8, 'ireland': 3.0, 'singapore': 2.5, 'hong kong': 2.5, 'japan': 2.3,
+        'south korea': 2.0,
+    }
+
+    # Upper-middle-income countries (Medium-high PPP multiplier)
+    upper_middle_income_countries = {
+        'united arab emirates': 2.8, 'uae': 2.8, 'dubai': 2.8, 'saudi arabia': 2.5, 'qatar': 3.0,
+        'kuwait': 2.7, 'bahrain': 2.5, 'oman': 2.3, 'israel': 2.5, 'italy': 2.5, 'spain': 2.3,
+        'portugal': 2.0, 'greece': 1.8, 'poland': 1.7, 'czech republic': 1.8, 'malaysia': 1.5,
+        'china': 1.8, 'russia': 1.5, 'brazil': 1.6, 'mexico': 1.7, 'argentina': 1.5, 'chile': 1.8,
+        'turkey': 1.4, 'south africa': 1.6,
+    }
+
+    # Lower-middle-income countries (Medium PPP multiplier)
+    lower_middle_income_countries = {
+        'thailand': 1.3, 'indonesia': 1.2, 'philippines': 1.2, 'vietnam': 1.1, 'egypt': 1.2,
+        'morocco': 1.2, 'ukraine': 1.1, 'colombia': 1.3, 'peru': 1.3, 'ecuador': 1.2,
+    }
+
+    # Check which category the country falls into
+    if country_lower in high_income_countries:
+        return high_income_countries[country_lower]
+    elif country_lower in upper_middle_income_countries:
+        return upper_middle_income_countries[country_lower]
+    elif country_lower in lower_middle_income_countries:
+        return lower_middle_income_countries[country_lower]
+    elif country_lower == 'india':
+        return 1.0  # Base price for India
+    else:
+        return 2.0  # Default for unlisted countries (assume medium-high income)
+
+
+# Calculate consultation price based on duration, service, and country with PPP
+def calculate_price(duration: str, service: str = None, country: str = "India") -> int:
+    """
+    Calculate consultation price with PPP (Purchasing Power Parity) model:
+    1. Free consultations (5-10 mins) are always free
+    2. Base price = actualPrice * (1 - discountPercent/100)
+    3. Apply PPP multiplier based on country (1.0x for India, up to 4.0x for high-income countries)
+    4. For Marriage Compatibility service: Apply additional 1.5x multiplier
+
+    PPP Multipliers:
+    - India: 1.0x (base)
+    - Lower-middle income (Thailand, Vietnam, etc.): 1.1x - 1.3x
+    - Upper-middle income (UAE, Malaysia, etc.): 1.4x - 2.8x
+    - High income (USA, UK, Australia, etc.): 2.0x - 4.0x
+
+    Returns: Price in paise (multiply by 100)
+    """
     # If duration is 5-10 mins, it's always free
     if duration == "5-10":
         return 0
@@ -385,15 +445,33 @@ def calculate_price(duration: str, service: str = None) -> int:
     # For 10+ mins, calculate based on service
     if duration == "10+" and service:
         # Try to extract service ID from service string
-        # Service could be either ID or name
         service_id = service
 
         # If service is in our pricing map, use it
         if service_id in SERVICE_PRICING:
             pricing = SERVICE_PRICING[service_id]
-            # Calculate discounted price and convert to paise
-            discounted_price = round(pricing["actualPrice"] * (1 - pricing["discountPercent"] / 100))
-            return discounted_price * 100  # Convert to paise
+
+            # Step 1: Calculate base discounted price
+            base_price = pricing["actualPrice"] * (1 - pricing["discountPercent"] / 100)
+            logger.info(f"Base price after discount: ₹{base_price}")
+
+            # Step 2: Get PPP multiplier for the country
+            ppp_multiplier = get_ppp_multiplier(country)
+            logger.info(f"Country: {country} | PPP Multiplier: {ppp_multiplier}x")
+
+            # Step 3: Apply PPP multiplier
+            final_price = base_price * ppp_multiplier
+            logger.info(f"Price after PPP adjustment: ₹{final_price}")
+
+            # Step 4: For Marriage Compatibility service, apply additional 1.5x multiplier
+            if service_id == "3":  # Service 3 is Marriage Compatibility
+                final_price = final_price * 1.5
+                logger.info(f"Marriage Compatibility - Applied 1.5x multiplier: ₹{final_price}")
+
+            # Round and convert to paise
+            final_price_paise = round(final_price * 100)
+            logger.info(f"Final price: ₹{final_price} ({final_price_paise} paise)")
+            return final_price_paise
 
     # Default fallback
     return 0
@@ -407,6 +485,71 @@ async def root():
         "status": "online",
         "razorpay_enabled": RAZORPAY_ENABLED
     }
+
+
+# Get country from IP address
+@api_router.get("/detect-country")
+async def detect_country(request: Request, test_country: str = None):
+    """
+    Detect user's country based on their IP address.
+    Uses ipapi.co free API for geolocation.
+
+    Args:
+        test_country: Optional parameter to simulate a country for testing (e.g., ?test_country=UAE)
+
+    Returns country name or "India" as default.
+    """
+    try:
+        # For testing: allow manual country override
+        if test_country:
+            logger.info(f"🧪 Testing mode: Using test country: {test_country}")
+            return {
+                "country": test_country,
+                "ip": "test",
+                "source": "test_mode"
+            }
+
+        # Get client IP address
+        # Check X-Forwarded-For header first (for proxies/load balancers)
+        client_ip = request.headers.get("X-Forwarded-For")
+        if client_ip:
+            # X-Forwarded-For can contain multiple IPs, take the first one
+            client_ip = client_ip.split(",")[0].strip()
+        else:
+            # Fallback to direct client IP
+            client_ip = request.client.host
+
+        logger.info(f"Detecting country for IP: {client_ip}")
+
+        # Skip geolocation for localhost/private IPs
+        if client_ip in ["127.0.0.1", "localhost", "::1"] or client_ip.startswith("192.168.") or client_ip.startswith("10."):
+            logger.info("Localhost detected, defaulting to India")
+            return {"country": "India", "ip": client_ip, "source": "localhost"}
+
+        # Use ipapi.co free API (no API key required, 1000 requests/day)
+        import httpx
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(f"https://ipapi.co/{client_ip}/json/")
+
+            if response.status_code == 200:
+                data = response.json()
+                country = data.get("country_name", "India")
+                logger.info(f"Detected country: {country} for IP: {client_ip}")
+                return {
+                    "country": country,
+                    "ip": client_ip,
+                    "country_code": data.get("country_code"),
+                    "city": data.get("city"),
+                    "source": "ipapi"
+                }
+            else:
+                logger.warning(f"IP geolocation API returned status {response.status_code}")
+                return {"country": "India", "ip": client_ip, "source": "fallback"}
+
+    except Exception as e:
+        logger.error(f"Error detecting country: {str(e)}")
+        # Default to India on any error
+        return {"country": "India", "ip": "unknown", "source": "error"}
 
 
 # Authentication endpoints
@@ -800,16 +943,48 @@ async def trigger_cancel_expired_bookings():
 @api_router.post("/bookings")
 async def create_booking(
     booking_data: BookingCreate,
+    request: Request,
     background_tasks: BackgroundTasks,
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    test_country: str = None  # Add test_country parameter for testing
 ):
     try:
+        # Check if test_country parameter is provided (for testing)
+        if test_country:
+            country = test_country
+            logger.info(f"🧪 Testing mode: Using test country for booking: {country}")
+        else:
+            # Detect country from IP address
+            client_ip = request.headers.get("X-Forwarded-For")
+            if client_ip:
+                client_ip = client_ip.split(",")[0].strip()
+            else:
+                client_ip = request.client.host
+
+            # Detect country
+            country = "India"  # Default
+            try:
+                if client_ip not in ["127.0.0.1", "localhost", "::1"] and not client_ip.startswith("192.168.") and not client_ip.startswith("10."):
+                    import httpx
+                    async with httpx.AsyncClient(timeout=3.0) as client:
+                        response = await client.get(f"https://ipapi.co/{client_ip}/json/")
+                        if response.status_code == 200:
+                            data = response.json()
+                            country = data.get("country_name", "India")
+                            logger.info(f"Detected country: {country} for booking from IP: {client_ip}")
+            except Exception as geo_error:
+                logger.warning(f"Geolocation failed, using default India: {str(geo_error)}")
+
         # Check if this is user's first booking
         user_bookings_count = await db.bookings.count_documents({"email": current_user["email"]})
         is_first_booking = user_bookings_count == 0
 
-        # Calculate price based on duration and service
-        amount = calculate_price(booking_data.consultation_duration, booking_data.service)
+        # Calculate price based on duration, service, and detected country
+        amount = calculate_price(
+            booking_data.consultation_duration,
+            booking_data.service,
+            country
+        )
 
         # Create Razorpay order if amount > 0 and Razorpay is enabled
         razorpay_order_id = None
@@ -838,6 +1013,7 @@ async def create_booking(
 
         booking = Booking(
             **booking_dict,
+            country=country,  # Store detected country
             amount=amount,
             razorpay_order_id=razorpay_order_id,
             status=booking_status,

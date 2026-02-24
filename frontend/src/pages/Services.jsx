@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { mockServices, consultationPricing } from '../mockData';
 import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hand, Sparkles, CheckCircle, Gem, Baby, BadgeCheck, Clock, IndianRupee } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import axios from 'axios';
+
+const API = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 const iconMap = {
   Star,
@@ -20,6 +23,120 @@ const iconMap = {
 
 const Services = () => {
   const { t } = useLanguage();
+  const [detectedCountry, setDetectedCountry] = useState('India');
+  const [loadingCountry, setLoadingCountry] = useState(true);
+
+  // Detect country from IP on component mount
+  useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        setLoadingCountry(true);
+
+        // Check if there's a test_country parameter in URL for testing
+        const urlParams = new URLSearchParams(window.location.search);
+        const testCountry = urlParams.get('test_country');
+
+        let url = `${API}/detect-country`;
+        if (testCountry) {
+          url += `?test_country=${encodeURIComponent(testCountry)}`;
+          console.log('🧪 Testing mode: Using test country:', testCountry);
+        }
+
+        const response = await axios.get(url);
+        const country = response.data.country || 'India';
+        setDetectedCountry(country);
+        console.log('Detected country for Services page:', country, '(source:', response.data.source + ')');
+      } catch (error) {
+        console.error('Error detecting country:', error);
+        setDetectedCountry('India'); // Fallback to India
+      } finally {
+        setLoadingCountry(false);
+      }
+    };
+
+    detectCountry();
+  }, []);
+
+  // PPP (Purchasing Power Parity) multipliers for different countries/regions
+  const getPPPMultiplier = (country) => {
+    const countryLower = country.toLowerCase();
+
+    // High-income countries (Higher PPP multiplier)
+    const highIncomeCountries = {
+      'united states': 3.5, 'usa': 3.5, 'canada': 3.2, 'united kingdom': 3.0, 'uk': 3.0,
+      'australia': 3.2, 'new zealand': 3.0, 'switzerland': 4.0, 'norway': 3.8, 'denmark': 3.5,
+      'sweden': 3.3, 'germany': 2.8, 'france': 2.8, 'netherlands': 2.9, 'belgium': 2.8,
+      'austria': 2.8, 'ireland': 3.0, 'singapore': 2.5, 'hong kong': 2.5, 'japan': 2.3,
+      'south korea': 2.0,
+    };
+
+    // Upper-middle-income countries (Medium-high PPP multiplier)
+    const upperMiddleIncomeCountries = {
+      'united arab emirates': 2.8, 'uae': 2.8, 'dubai': 2.8, 'saudi arabia': 2.5, 'qatar': 3.0,
+      'kuwait': 2.7, 'bahrain': 2.5, 'oman': 2.3, 'israel': 2.5, 'italy': 2.5, 'spain': 2.3,
+      'portugal': 2.0, 'greece': 1.8, 'poland': 1.7, 'czech republic': 1.8, 'malaysia': 1.5,
+      'china': 1.8, 'russia': 1.5, 'brazil': 1.6, 'mexico': 1.7, 'argentina': 1.5, 'chile': 1.8,
+      'turkey': 1.4, 'south africa': 1.6,
+    };
+
+    // Lower-middle-income countries (Medium PPP multiplier)
+    const lowerMiddleIncomeCountries = {
+      'thailand': 1.3, 'indonesia': 1.2, 'philippines': 1.2, 'vietnam': 1.1, 'egypt': 1.2,
+      'morocco': 1.2, 'ukraine': 1.1, 'colombia': 1.3, 'peru': 1.3, 'ecuador': 1.2,
+    };
+
+    // Check which category the country falls into
+    if (highIncomeCountries[countryLower]) {
+      return highIncomeCountries[countryLower];
+    } else if (upperMiddleIncomeCountries[countryLower]) {
+      return upperMiddleIncomeCountries[countryLower];
+    } else if (lowerMiddleIncomeCountries[countryLower]) {
+      return lowerMiddleIncomeCountries[countryLower];
+    } else if (countryLower === 'india') {
+      return 1.0; // Base price for India
+    } else {
+      return 2.0; // Default for unlisted countries
+    }
+  };
+
+  // Calculate original price (before discount) for the country
+  const calculateOriginalPrice = (service) => {
+    if (loadingCountry) return service.actualPrice;
+
+    // Step 1: Get PPP multiplier for the country
+    const pppMultiplier = getPPPMultiplier(detectedCountry);
+
+    // Step 2: Apply PPP multiplier to original price
+    let originalPrice = service.actualPrice * pppMultiplier;
+
+    // Step 3: For Marriage Compatibility service, apply additional 1.5x multiplier
+    if (service.id === '3') {
+      originalPrice = originalPrice * 1.5;
+    }
+
+    return Math.round(originalPrice);
+  };
+
+  // Calculate discounted price based on service and detected country with PPP
+  const calculateServicePrice = (service) => {
+    if (loadingCountry) return service.discountedPrice;
+
+    // Step 1: Calculate base discounted price
+    const basePrice = service.actualPrice * (1 - service.discountPercent / 100);
+
+    // Step 2: Get PPP multiplier for the country
+    const pppMultiplier = getPPPMultiplier(detectedCountry);
+
+    // Step 3: Apply PPP multiplier
+    let finalPrice = basePrice * pppMultiplier;
+
+    // Step 4: For Marriage Compatibility service, apply additional 1.5x multiplier
+    if (service.id === '3') {
+      finalPrice = finalPrice * 1.5;
+    }
+
+    return Math.round(finalPrice);
+  };
 
   // Helper function to get translated service data
   const getServiceTranslation = (service) => {
@@ -73,6 +190,8 @@ const Services = () => {
           </div>
         </div>
       </section>
+
+
 
       {/* Services Grid */}
       <section className="py-16">
@@ -132,13 +251,13 @@ const Services = () => {
                           <div className="flex items-center gap-1">
                             <IndianRupee className="w-5 h-5 text-purple-900" />
                             <span className="text-2xl font-bold text-purple-900">
-                              {Math.round(service.actualPrice * (1 - service.discountPercent / 100))}
+                              {calculateServicePrice(service)}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <IndianRupee className="w-3 h-3 text-gray-400" />
                             <span className="text-sm text-gray-500 line-through">
-                              {service.actualPrice}
+                              {calculateOriginalPrice(service)}
                             </span>
                           </div>
                         </div>
@@ -149,7 +268,7 @@ const Services = () => {
                     </div>
 
                     <Link
-                      to={`/booking?serviceId=${service.id}&serviceName=${encodeURIComponent(translatedService.title)}&duration=${encodeURIComponent(service.duration)}&price=${service.actualPrice}&discountPercent=${service.discountPercent}`}
+                      to={`/booking?serviceId=${service.id}&serviceName=${encodeURIComponent(translatedService.title)}&duration=${encodeURIComponent(service.duration)}&price=${service.actualPrice}&discountPercent=${service.discountPercent}&country=${encodeURIComponent(detectedCountry)}`}
                       className="block"
                     >
                       <Button
