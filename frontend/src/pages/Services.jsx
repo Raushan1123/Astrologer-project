@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -186,6 +186,17 @@ const Services = () => {
     return { title: service.title, description: service.description };
   };
 
+  // Memoize services with calculated prices - recalculates when country or loading state changes
+  const servicesWithPrices = useMemo(() => {
+    console.log('🔄 Recalculating all service prices for country:', detectedCountry, 'loading:', loadingCountry);
+    return mockServices.map(service => ({
+      ...service,
+      currentPrice: calculateServicePrice(service),
+      originalPrice: calculateOriginalPrice(service)
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detectedCountry, loadingCountry]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
       {/* Hero Section */}
@@ -212,14 +223,7 @@ const Services = () => {
               {t('servicesPage.description')}
             </p>
 
-            {/* Country Pricing Indicator */}
-            {!loadingCountry && detectedCountry !== 'India' && (
-              <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 border border-blue-200">
-                <span className="text-sm font-medium text-blue-700">
-                  🌍 Showing prices for: {detectedCountry}
-                </span>
-              </div>
-            )}
+
           </div>
         </div>
       </section>
@@ -230,15 +234,13 @@ const Services = () => {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockServices.map((service, index) => {
+            {servicesWithPrices.map((service, index) => {
               const IconComponent = iconMap[service.icon] || Star;
               const translatedService = getServiceTranslation(service);
-              const currentPrice = calculateServicePrice(service);
-              const originalPrice = calculateOriginalPrice(service);
 
               return (
                 <Card
-                  key={`${service.id}-${detectedCountry}`}
+                  key={`${service.id}-${detectedCountry}-${loadingCountry}`}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group"
                 >
                   {/* Service Image */}
@@ -286,13 +288,13 @@ const Services = () => {
                           <div className="flex items-center gap-1">
                             <IndianRupee className="w-5 h-5 text-purple-900" />
                             <span className="text-2xl font-bold text-purple-900">
-                              {currentPrice}
+                              {service.currentPrice}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <IndianRupee className="w-3 h-3 text-gray-400" />
                             <span className="text-sm text-gray-500 line-through">
-                              {originalPrice}
+                              {service.originalPrice}
                             </span>
                           </div>
                         </div>
