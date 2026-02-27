@@ -52,6 +52,10 @@ const Booking = () => {
   const [detectedCountry, setDetectedCountry] = useState('India');
   const [loadingCountry, setLoadingCountry] = useState(true);
 
+  // State for slot reservation (prevent double bookings)
+  const [reservedSlot, setReservedSlot] = useState(null);
+  const [reservationTimer, setReservationTimer] = useState(null);
+
   // Detect country from IP on component mount
   useEffect(() => {
     let isMounted = true;
@@ -363,6 +367,78 @@ const Booking = () => {
       setLoadingSlots(false);
     }
   }, []); // Empty dependency array since it doesn't depend on any props or state
+
+  // Reserve a slot temporarily (5 minutes) to prevent double bookings
+  const reserveSlot = useCallback(async (astrologer, date, startTime, service) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await axios.post(
+        `${API}/reserve-slot`,
+        null,
+        {
+          params: { astrologer, date, start_time: startTime },
+          headers: { Authorization: `Bearer ${token}` },
+          timeout: 5000
+        }
+      );
+
+      if (response.data.success) {
+        setReservedSlot({ astrologer, date, startTime });
+
+        // Set timer to refresh slots when reservation expires (5 minutes)
+        if (reservationTimer) clearTimeout(reservationTimer);
+        const timer = setTimeout(() => {
+          fetchAvailableSlots(astrologer, date, service);
+          setReservedSlot(null);
+        }, 5 * 60 * 1000); // 5 minutes
+
+        setReservationTimer(timer);
+      } else {
+        toast.error(response.data.message || 'Slot no longer available');
+        // Refresh slots to show updated availability
+        fetchAvailableSlots(astrologer, date, service);
+      }
+    } catch (error) {
+      console.error('Error reserving slot:', error.message);
+      // Don't show error to user - slot might already be taken
+    }
+  }, [reservationTimer, fetchAvailableSlots]);
+
+  // Release slot reservation
+  const releaseSlot = useCallback(async (astrologer, date, startTime) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      await axios.delete(`${API}/release-slot`, {
+        params: { astrologer, date, start_time: startTime },
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 5000
+      });
+
+      setReservedSlot(null);
+      if (reservationTimer) {
+        clearTimeout(reservationTimer);
+        setReservationTimer(null);
+      }
+    } catch (error) {
+      console.error('Error releasing slot:', error.message);
+    }
+  }, [reservationTimer]);
+
+  // Cleanup: Release slot reservation when component unmounts or user navigates away
+  useEffect(() => {
+    return () => {
+      if (reservedSlot) {
+        releaseSlot(reservedSlot.astrologer, reservedSlot.date, reservedSlot.startTime);
+      }
+      if (reservationTimer) {
+        clearTimeout(reservationTimer);
+      }
+    };
+  }, [reservedSlot, reservationTimer, releaseSlot]);
 
   // Calculate price based on service, duration, and detected country with PPP
   useEffect(() => {
@@ -1014,7 +1090,20 @@ const Booking = () => {
                       ) : (
                         <Select
                           value={formData.preferredTime}
-                          onValueChange={(value) => setFormData(prev => ({ ...prev, preferredTime: value }))}
+                          onValueChange={(value) => {
+                            // Release previous slot if any
+                            if (reservedSlot) {
+                              releaseSlot(reservedSlot.astrologer, reservedSlot.date, reservedSlot.startTime);
+                            }
+
+                            // Update form data
+                            setFormData(prev => ({ ...prev, preferredTime: value }));
+
+                            // Reserve the new slot
+                            if (formData.astrologer && formData.preferredDate) {
+                              reserveSlot(formData.astrologer, formData.preferredDate, value, formData.service);
+                            }
+                          }}
                           required
                         >
                           <SelectTrigger className="border-purple-200">

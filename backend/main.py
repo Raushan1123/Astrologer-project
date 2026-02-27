@@ -939,6 +939,130 @@ async def trigger_cancel_expired_bookings():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# Temporary slot reservation endpoints (for preventing double bookings)
+@api_router.post("/reserve-slot")
+async def reserve_slot_temporarily(
+    astrologer: str,
+    date: str,
+    start_time: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Temporarily reserve a slot for 5 minutes while user completes booking.
+    This prevents race conditions where two users try to book the same slot.
+    """
+    try:
+        # Check if slot is already permanently booked
+        existing_booking = await db.bookings.find_one({
+            "astrologer": astrologer,
+            "preferred_date": date,
+            "preferred_time": start_time,
+            "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]}
+        })
+
+        if existing_booking:
+            return {
+                "success": False,
+                "message": "Slot already booked"
+            }
+
+        # Check if slot is temporarily reserved by someone else
+        existing_reservation = await db.temp_slot_reservations.find_one({
+            "astrologer": astrologer,
+            "date": date,
+            "start_time": start_time,
+            "user_email": {"$ne": current_user["email"]},
+            "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()}
+        })
+
+        if existing_reservation:
+            return {
+                "success": False,
+                "message": "Slot temporarily reserved by another user"
+            }
+
+        # Create or update temporary reservation (5 minutes)
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=5)
+
+        await db.temp_slot_reservations.update_one(
+            {
+                "astrologer": astrologer,
+                "date": date,
+                "start_time": start_time,
+                "user_email": current_user["email"]
+            },
+            {
+                "$set": {
+                    "expires_at": expires_at.isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                },
+                "$setOnInsert": {
+                    "id": str(uuid.uuid4()),
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                }
+            },
+            upsert=True
+        )
+
+        logger.info(f"✅ Temporarily reserved slot: {date} at {start_time} for user {current_user['email']}")
+
+        return {
+            "success": True,
+            "message": "Slot reserved for 5 minutes",
+            "expires_at": expires_at.isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"Error reserving slot: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.delete("/release-slot")
+async def release_slot_reservation(
+    astrologer: str,
+    date: str,
+    start_time: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Release a temporary slot reservation (e.g., when user navigates away or changes selection)
+    """
+    try:
+        result = await db.temp_slot_reservations.delete_one({
+            "astrologer": astrologer,
+            "date": date,
+            "start_time": start_time,
+            "user_email": current_user["email"]
+        })
+
+        if result.deleted_count > 0:
+            logger.info(f"Released slot reservation: {date} at {start_time} for user {current_user['email']}")
+
+        return {"success": True, "message": "Slot reservation released"}
+
+    except Exception as e:
+        logger.error(f"Error releasing slot: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def cleanup_expired_reservations():
+    """
+    Background task to clean up expired temporary reservations
+    """
+    try:
+        result = await db.temp_slot_reservations.delete_many({
+            "expires_at": {"$lt": datetime.now(timezone.utc).isoformat()}
+        })
+
+        if result.deleted_count > 0:
+            logger.info(f"🧹 Cleaned up {result.deleted_count} expired slot reservation(s)")
+
+        return result.deleted_count
+    except Exception as e:
+        logger.error(f"Error cleaning up reservations: {str(e)}")
+        return 0
+
+
 # Booking endpoints
 @api_router.post("/bookings")
 async def create_booking(
@@ -1020,39 +1144,81 @@ async def create_booking(
             payment_status=payment_status
         )
 
-        # Save to database
-        booking_doc = booking.model_dump()
-        booking_doc['created_at'] = booking_doc['created_at'].isoformat()
-        booking_doc['updated_at'] = booking_doc['updated_at'].isoformat()
-
-        await db.bookings.insert_one(booking_doc)
-
-        # Reserve the time slot if date and time are provided
+        # CRITICAL: Check slot availability BEFORE creating booking (prevent race conditions)
         if booking_data.preferred_date and booking_data.preferred_time:
-            # Check if slot is already booked
+            # Use atomic operation to check and reserve slot in one go
+            # This prevents race conditions where two users book the same slot simultaneously
+
+            # First, check if slot is already booked
             existing_booking = await db.bookings.find_one({
                 "astrologer": booking_data.astrologer,
                 "preferred_date": booking_data.preferred_date,
                 "preferred_time": booking_data.preferred_time,
                 "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]},
-                "id": {"$ne": booking.id}
+                "$or": [
+                    {"payment_status": PaymentStatus.COMPLETED.value},
+                    {"payment_status": PaymentStatus.PENDING.value}
+                ]
             })
 
-            if not existing_booking:
-                # Reserve the slot
-                slot_doc = {
-                    "id": str(uuid.uuid4()),
-                    "astrologer": booking_data.astrologer,
-                    "date": booking_data.preferred_date,
-                    "start_time": booking_data.preferred_time,
-                    "end_time": booking_data.preferred_time,  # Will be calculated based on duration
-                    "is_available": False,
-                    "booking_id": booking.id,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
-                    "updated_at": datetime.now(timezone.utc).isoformat()
-                }
-                await db.time_slots.insert_one(slot_doc)
-                logger.info(f"Reserved time slot: {booking_data.preferred_date} at {booking_data.preferred_time} for booking {booking.id}")
+            if existing_booking:
+                logger.warning(f"Slot already booked: {booking_data.preferred_date} at {booking_data.preferred_time} by booking {existing_booking['id']}")
+                raise HTTPException(
+                    status_code=409,
+                    detail="This time slot has just been booked by another user. Please select a different time slot."
+                )
+
+            # Also check for temporary reservations by OTHER users (not current user)
+            temp_reservation = await db.temp_slot_reservations.find_one({
+                "astrologer": booking_data.astrologer,
+                "date": booking_data.preferred_date,
+                "start_time": booking_data.preferred_time,
+                "user_email": {"$ne": current_user["email"]},  # Exclude current user's reservation
+                "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()}
+            })
+
+            if temp_reservation:
+                logger.warning(f"Slot temporarily reserved by another user: {booking_data.preferred_date} at {booking_data.preferred_time}")
+                raise HTTPException(
+                    status_code=409,
+                    detail="This time slot is currently being booked by another user. Please wait a moment or select a different time slot."
+                )
+
+        # Save to database
+        booking_doc = booking.model_dump()
+        booking_doc['created_at'] = booking_doc['created_at'].isoformat()
+        booking_doc['updated_at'] = booking_doc['updated_at'].isoformat()
+
+        # Use atomic insert with duplicate key check
+        try:
+            await db.bookings.insert_one(booking_doc)
+        except Exception as e:
+            logger.error(f"Failed to insert booking: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to create booking. Please try again.")
+
+        # Reserve the time slot AFTER successful booking creation
+        if booking_data.preferred_date and booking_data.preferred_time:
+            # Create permanent slot reservation
+            slot_doc = {
+                "id": str(uuid.uuid4()),
+                "astrologer": booking_data.astrologer,
+                "date": booking_data.preferred_date,
+                "start_time": booking_data.preferred_time,
+                "end_time": booking_data.preferred_time,  # Will be calculated based on duration
+                "is_available": False,
+                "booking_id": booking.id,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.time_slots.insert_one(slot_doc)
+            logger.info(f"✅ Reserved time slot: {booking_data.preferred_date} at {booking_data.preferred_time} for booking {booking.id}")
+
+            # Remove any temporary reservation for this slot
+            await db.temp_slot_reservations.delete_many({
+                "astrologer": booking_data.astrologer,
+                "date": booking_data.preferred_date,
+                "start_time": booking_data.preferred_time
+            })
 
         # Mark first booking as completed ONLY if user used the free 5-10 mins option
         if booking_data.consultation_duration == "5-10":
@@ -2743,6 +2909,8 @@ async def get_available_slots(astrologer: str, date: str, service: Optional[str]
         # Generate time slots from all availability ranges
         all_slots = []
 
+        logger.info(f"Generating slots for {astrologer} on {date}, found {len(availability_ranges)} availability ranges")
+
         for availability in availability_ranges:
             start_time = availability["start_time"]
             end_time = availability["end_time"]
@@ -2753,6 +2921,8 @@ async def get_available_slots(astrologer: str, date: str, service: Optional[str]
             # Make current_time and end_datetime timezone-aware (IST)
             current_time = ist.localize(current_time)
             end_datetime = ist.localize(end_datetime)
+
+            logger.info(f"Processing availability range: {start_time} - {end_time}")
 
             while current_time < end_datetime:
                 # Calculate slot end time based on service duration
@@ -2782,10 +2952,27 @@ async def get_available_slots(astrologer: str, date: str, service: Optional[str]
                     "is_available": False
                 })
 
-                is_available = existing_booking is None and existing_slot is None
+                # Check if slot is temporarily reserved by another user
+                temp_reservation = await db.temp_slot_reservations.find_one({
+                    "astrologer": astrologer,
+                    "date": date,
+                    "start_time": slot_start_str,
+                    "expires_at": {"$gt": datetime.now(timezone.utc).isoformat()}
+                })
+
+                is_available = existing_booking is None and existing_slot is None and temp_reservation is None
 
                 # Don't show past slots (compare with IST time)
-                if current_time > now_ist and is_available:
+                # For future dates, show all slots. For today, only show future slots.
+                is_future_slot = current_time > now_ist
+
+                # Debug logging
+                if not is_available:
+                    logger.info(f"Slot {slot_start_str} not available: booking={existing_booking is not None}, slot={existing_slot is not None}, temp={temp_reservation is not None}")
+                if not is_future_slot:
+                    logger.info(f"Slot {slot_start_str} is in the past: current_time={current_time}, now_ist={now_ist}")
+
+                if is_available and is_future_slot:
                     # Format time in 12-hour format with AM/PM
                     start_12hr = current_time.strftime("%I:%M %p")
                     end_12hr = slot_end.strftime("%I:%M %p")
@@ -2797,12 +2984,15 @@ async def get_available_slots(astrologer: str, date: str, service: Optional[str]
                         "display": f"{start_12hr} - {end_12hr}",
                         "duration": slot_duration
                     })
+                    logger.info(f"Added available slot: {slot_start_str}")
 
                 # Move to next slot based on service duration
                 current_time = current_time + timedelta(minutes=slot_duration)
 
         # Sort slots by start time
         all_slots.sort(key=lambda x: x["start_time"])
+
+        logger.info(f"Returning {len(all_slots)} available slots for {astrologer} on {date}")
 
         return {"slots": all_slots, "date": date, "astrologer": astrologer}
 
