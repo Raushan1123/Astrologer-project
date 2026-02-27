@@ -135,7 +135,7 @@ const Booking = () => {
         {
           id: "3",
           name: t('team.astrologer3Name') || 'Astrologer 2',
-          experience: "2"
+          experience: "4"
         }
       ];
     } catch (error) {

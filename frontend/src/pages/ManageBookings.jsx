@@ -232,10 +232,10 @@ const ManageBookings = () => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      PENDING: { color: 'bg-yellow-100 text-yellow-800', label: 'Pending' },
-      CONFIRMED: { color: 'bg-green-100 text-green-800', label: 'Confirmed' },
-      COMPLETED: { color: 'bg-blue-100 text-blue-800', label: 'Completed' },
-      CANCELLED: { color: 'bg-red-100 text-red-800', label: 'Cancelled' }
+      PENDING: { color: 'bg-yellow-100 text-yellow-800', label: t('manageBookings.statusPending') },
+      CONFIRMED: { color: 'bg-green-100 text-green-800', label: t('manageBookings.statusConfirmed') },
+      COMPLETED: { color: 'bg-blue-100 text-blue-800', label: t('manageBookings.statusCompleted') },
+      CANCELLED: { color: 'bg-red-100 text-red-800', label: t('manageBookings.statusCancelled') }
     };
     const normalizedStatus = status?.toUpperCase() || 'PENDING';
     const config = statusConfig[normalizedStatus] || statusConfig.PENDING;
@@ -244,9 +244,9 @@ const ManageBookings = () => {
 
   const getPaymentStatusBadge = (paymentStatus) => {
     const statusConfig = {
-      PENDING: { color: 'bg-orange-100 text-orange-800', label: 'Payment Pending' },
-      COMPLETED: { color: 'bg-green-100 text-green-800', label: 'Paid' },
-      FAILED: { color: 'bg-red-100 text-red-800', label: 'Failed' }
+      PENDING: { color: 'bg-orange-100 text-orange-800', label: t('manageBookings.paymentPending') },
+      COMPLETED: { color: 'bg-green-100 text-green-800', label: t('manageBookings.paymentCompleted') },
+      FAILED: { color: 'bg-red-100 text-red-800', label: t('manageBookings.paymentFailed') }
     };
     const normalizedStatus = paymentStatus?.toUpperCase() || 'PENDING';
     const config = statusConfig[normalizedStatus] || statusConfig.PENDING;
@@ -338,8 +338,8 @@ const ManageBookings = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 pt-24 pb-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-purple-900 mb-2">My Bookings</h1>
-          <p className="text-gray-600">Manage your consultation bookings</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-purple-900 mb-2">{t('manageBookings.title')}</h1>
+          <p className="text-gray-600">{t('manageBookings.subtitle')}</p>
         </div>
 
         {/* Filter Buttons */}
@@ -347,7 +347,7 @@ const ManageBookings = () => {
           <Card className="p-4 mb-6">
             <div className="flex items-center gap-2 mb-4">
               <Filter className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-900">Filter Bookings</h3>
+              <h3 className="font-semibold text-gray-900">{t('manageBookings.filterTitle')}</h3>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -355,39 +355,39 @@ const ManageBookings = () => {
                 onClick={() => setActiveFilter('upcoming')}
                 className={activeFilter === 'upcoming' ? 'bg-purple-600 hover:bg-purple-700' : ''}
               >
-                Upcoming
+                {t('manageBookings.upcoming')}
               </Button>
               <Button
                 variant={activeFilter === 'cancelled' ? 'default' : 'outline'}
                 onClick={() => setActiveFilter('cancelled')}
                 className={activeFilter === 'cancelled' ? 'bg-purple-600 hover:bg-purple-700' : ''}
               >
-                Cancelled
+                {t('manageBookings.cancelled')}
               </Button>
               <Button
                 variant={activeFilter === 'last3months' ? 'default' : 'outline'}
                 onClick={() => setActiveFilter('last3months')}
                 className={activeFilter === 'last3months' ? 'bg-purple-600 hover:bg-purple-700' : ''}
               >
-                Last 3 Months
+                {t('manageBookings.last3months')}
               </Button>
               <Button
                 variant={activeFilter === 'last6months' ? 'default' : 'outline'}
                 onClick={() => setActiveFilter('last6months')}
                 className={activeFilter === 'last6months' ? 'bg-purple-600 hover:bg-purple-700' : ''}
               >
-                Last 6 Months
+                {t('manageBookings.last6months')}
               </Button>
               <Button
                 variant={activeFilter === 'all' ? 'default' : 'outline'}
                 onClick={() => setActiveFilter('all')}
                 className={activeFilter === 'all' ? 'bg-purple-600 hover:bg-purple-700' : ''}
               >
-                All Bookings
+                {t('manageBookings.allBookings')}
               </Button>
             </div>
             <div className="mt-3 text-sm text-gray-600">
-              Showing {totalFilteredBookings} booking{totalFilteredBookings !== 1 ? 's' : ''}
+              {t('manageBookings.showing')} {totalFilteredBookings} {totalFilteredBookings !== 1 ? t('manageBookings.bookings') : t('manageBookings.booking')}
             </div>
           </Card>
         )}
@@ -395,19 +395,19 @@ const ManageBookings = () => {
         {bookings.length === 0 ? (
           <Card className="p-12 text-center">
             <Calendar className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No bookings yet</h3>
-            <p className="text-gray-500 mb-6">You haven't made any bookings yet.</p>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('manageBookings.noBookingsTitle')}</h3>
+            <p className="text-gray-500 mb-6">{t('manageBookings.noBookingsDesc')}</p>
             <Button onClick={() => navigate('/booking')} className="bg-purple-600 hover:bg-purple-700">
-              Book a Consultation
+              {t('manageBookings.bookConsultation')}
             </Button>
           </Card>
         ) : filteredBookings.length === 0 ? (
           <Card className="p-12 text-center">
             <AlertCircle className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No bookings found</h3>
-            <p className="text-gray-500 mb-6">No bookings match the selected filter.</p>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('manageBookings.noMatchTitle')}</h3>
+            <p className="text-gray-500 mb-6">{t('manageBookings.noMatchDesc')}</p>
             <Button onClick={() => setActiveFilter('all')} variant="outline">
-              View All Bookings
+              {t('manageBookings.viewAllBookings')}
             </Button>
           </Card>
         ) : (
@@ -434,42 +434,42 @@ const ManageBookings = () => {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-gray-700">
                           <User className="w-4 h-4" />
-                          <span className="font-medium">Astrologer:</span>
+                          <span className="font-medium">{t('manageBookings.astrologer')}:</span>
                           <span>{booking.astrologer}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
                           <Calendar className="w-4 h-4" />
-                          <span className="font-medium">Date:</span>
-                          <span>{booking.preferred_date || 'To be scheduled'}</span>
+                          <span className="font-medium">{t('manageBookings.date')}:</span>
+                          <span>{booking.preferred_date || t('manageBookings.toBeScheduled')}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
                           <Clock className="w-4 h-4" />
-                          <span className="font-medium">Time:</span>
-                          <span>{booking.preferred_time || 'To be scheduled'}</span>
+                          <span className="font-medium">{t('manageBookings.time')}:</span>
+                          <span>{booking.preferred_time || t('manageBookings.toBeScheduled')}</span>
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-gray-700">
                           <CreditCard className="w-4 h-4" />
-                          <span className="font-medium">Amount:</span>
+                          <span className="font-medium">{t('manageBookings.amount')}:</span>
                           <span className="font-bold text-purple-600">
-                            {booking.amount === 0 ? 'Free' : `₹${booking.amount / 100}`}
+                            {booking.amount === 0 ? t('manageBookings.free') : `₹${booking.amount / 100}`}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
-                          <span className="font-medium">Duration:</span>
-                          <span>{booking.consultation_duration} minutes</span>
+                          <span className="font-medium">{t('manageBookings.duration')}:</span>
+                          <span>{booking.consultation_duration} {t('manageBookings.minutes')}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
-                          <span className="font-medium">Type:</span>
+                          <span className="font-medium">{t('manageBookings.type')}:</span>
                           <span className="capitalize">{booking.consultation_type}</span>
                         </div>
                       </div>
                     </div>
 
                     <div className="text-sm text-gray-500">
-                      <span className="font-medium">Booking ID:</span> {booking.id}
+                      <span className="font-medium">{t('manageBookings.bookingId')}:</span> {booking.id}
                     </div>
 
                     {/* Refund Status Display */}
@@ -478,9 +478,9 @@ const ManageBookings = () => {
                         <div className="flex items-start gap-2">
                           <RefreshCw className="w-4 h-4 text-blue-600 mt-0.5" />
                           <div className="text-sm">
-                            <p className="font-semibold text-blue-900 mb-1">Refund Status</p>
+                            <p className="font-semibold text-blue-900 mb-1">{t('manageBookings.refundStatus')}</p>
                             <p className="text-gray-700">
-                              <span className="font-medium">Status:</span>{' '}
+                              <span className="font-medium">{t('manageBookings.status')}:</span>{' '}
                               <span className={`capitalize ${
                                 booking.refund_status === 'processed' ? 'text-green-600 font-semibold' :
                                 booking.refund_status === 'pending' ? 'text-yellow-600' :
@@ -491,17 +491,17 @@ const ManageBookings = () => {
                             </p>
                             {booking.refund_amount && (
                               <p className="text-gray-700">
-                                <span className="font-medium">Amount:</span> ₹{booking.refund_amount / 100}
+                                <span className="font-medium">{t('manageBookings.refundAmount')}:</span> ₹{booking.refund_amount / 100}
                               </p>
                             )}
                             {booking.refund_status === 'processed' && (
                               <p className="text-xs text-green-600 mt-1">
-                                ✓ Refund completed. Amount will be credited within 5-7 business days.
+                                ✓ {t('manageBookings.refundCompleted')}
                               </p>
                             )}
                             {booking.refund_status === 'pending' && (
                               <p className="text-xs text-gray-600 mt-1">
-                                Refund is being processed. You'll receive an email once completed.
+                                {t('manageBookings.refundPending')}
                               </p>
                             )}
                           </div>
@@ -524,7 +524,7 @@ const ManageBookings = () => {
                       if (status === 'CANCELLED') {
                         return (
                           <div className="text-sm text-red-600 font-medium text-center">
-                            This booking was cancelled
+                            {t('manageBookings.cancelled')}
                           </div>
                         );
                       }
@@ -534,7 +534,7 @@ const ManageBookings = () => {
                         return (
                           <div className="text-sm text-blue-600 font-medium text-center flex items-center justify-center gap-2">
                             <CheckCircle className="w-4 h-4" />
-                            Completed
+                            {t('manageBookings.completed')}
                           </div>
                         );
                       }
@@ -544,7 +544,7 @@ const ManageBookings = () => {
                         return (
                           <div className="text-sm text-green-600 font-medium text-center flex items-center justify-center gap-2">
                             <CheckCircle className="w-4 h-4" />
-                            Confirmed
+                            {t('manageBookings.confirmed')}
                           </div>
                         );
                       }
@@ -567,12 +567,12 @@ const ManageBookings = () => {
                                 {processingPaymentId === booking.id ? (
                                   <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Processing Payment...
+                                    {t('manageBookings.processingPayment')}
                                   </>
                                 ) : (
                                   <>
                                     <CreditCard className="w-4 h-4 mr-2" />
-                                    Complete Payment
+                                    {t('manageBookings.completePayment')}
                                   </>
                                 )}
                               </Button>
@@ -581,7 +581,7 @@ const ManageBookings = () => {
                             {/* Show "Payment Expired" message for past bookings with pending payment */}
                             {paymentStatus === 'PENDING' && booking.amount > 0 && isPastBooking && (
                               <div className="text-sm text-orange-600 font-medium text-center">
-                                Payment window expired
+                                {t('manageBookings.paymentExpired')}
                               </div>
                             )}
 
@@ -596,12 +596,12 @@ const ManageBookings = () => {
                                 {processingCancelId === booking.id ? (
                                   <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Cancelling...
+                                    {t('manageBookings.cancelling')}
                                   </>
                                 ) : (
                                   <>
                                     <X className="w-4 h-4 mr-2" />
-                                    Cancel Booking
+                                    {t('manageBookings.cancelBooking')}
                                   </>
                                 )}
                               </Button>
@@ -610,7 +610,7 @@ const ManageBookings = () => {
                             {/* Show "Expired" message for past pending bookings with no payment */}
                             {isPastBooking && paymentStatus === 'COMPLETED' && (
                               <div className="text-sm text-gray-600 font-medium text-center">
-                                Booking expired
+                                {t('manageBookings.bookingExpired')}
                               </div>
                             )}
                           </>
@@ -622,7 +622,7 @@ const ManageBookings = () => {
                         return (
                           <div className="text-sm text-blue-600 font-medium text-center flex items-center justify-center gap-2">
                             <CheckCircle className="w-4 h-4" />
-                            Completed
+                            {t('manageBookings.completed')}
                           </div>
                         );
                       }
@@ -641,7 +641,7 @@ const ManageBookings = () => {
               <Card className="p-4 mt-6">
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-600">
-                    Page {currentPage} of {totalPages}
+                    {t('manageBookings.page')} {currentPage} {t('manageBookings.of')} {totalPages}
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -651,7 +651,7 @@ const ManageBookings = () => {
                       className="flex items-center gap-1"
                     >
                       <ChevronLeft className="w-4 h-4" />
-                      Previous
+                      {t('manageBookings.previous')}
                     </Button>
                     <Button
                       variant="outline"
@@ -659,7 +659,7 @@ const ManageBookings = () => {
                       disabled={currentPage === totalPages}
                       className="flex items-center gap-1"
                     >
-                      Next
+                      {t('manageBookings.next')}
                       <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
