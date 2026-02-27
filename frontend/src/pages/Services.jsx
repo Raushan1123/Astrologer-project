@@ -7,7 +7,8 @@ import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hand, Sparkles, Che
 import { useLanguage } from '../contexts/LanguageContext';
 import axios from 'axios';
 
-const API = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const iconMap = {
   Star,
