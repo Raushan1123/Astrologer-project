@@ -25,13 +25,14 @@ const Services = () => {
   const { t } = useLanguage();
   const [detectedCountry, setDetectedCountry] = useState('India');
   const [loadingCountry, setLoadingCountry] = useState(true);
+  const [forceUpdate, setForceUpdate] = useState(0); // Force re-render counter
 
   // Detect country from IP on component mount
   useEffect(() => {
+    let isMounted = true; // Prevent state updates if component unmounts
+
     const detectCountry = async () => {
       try {
-        console.log('🌍 Services Page: Starting country detection...');
-        console.log('📡 API URL:', API);
         setLoadingCountry(true);
 
         // Check if there's a test_country parameter in URL for testing
@@ -41,35 +42,40 @@ const Services = () => {
         let url = `${API}/detect-country`;
         if (testCountry) {
           url += `?test_country=${encodeURIComponent(testCountry)}`;
-          console.log('🧪 Testing mode: Using test country:', testCountry);
         }
 
-        console.log('📡 Making API call to:', url);
-        const response = await axios.get(url);
-        console.log('✅ API Response:', response.data);
+        const response = await axios.get(url, {
+          timeout: 5000 // 5 second timeout
+        });
 
         const country = response.data.country || 'India';
-        console.log('✅ Detected country for Services page:', country, '(source:', response.data.source + ')');
-        console.log('🌍 Setting country state to:', country);
-        setDetectedCountry(country);
-        setLoadingCountry(false);
-        console.log('✅ Country detection complete');
+
+        // Only update state if component is still mounted
+        if (isMounted) {
+          setDetectedCountry(country);
+          setLoadingCountry(false);
+          setForceUpdate(prev => prev + 1);
+        }
+
       } catch (error) {
-        console.error('❌ Error detecting country:', error);
-        console.error('❌ Error details:', error.response?.data || error.message);
-        setDetectedCountry('India'); // Fallback to India
-        setLoadingCountry(false);
+        console.error('Error detecting country:', error.message);
+        // Fallback to India on error
+        if (isMounted) {
+          setDetectedCountry('India');
+          setLoadingCountry(false);
+        }
       }
     };
 
     detectCountry();
-  }, []);
 
-  // Log when country changes
-  useEffect(() => {
-    console.log('🔄 Country state changed to:', detectedCountry);
-    console.log('⏳ Loading country:', loadingCountry);
-  }, [detectedCountry, loadingCountry]);
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array - only run once on mount
+
+
 
   // PPP (Purchasing Power Parity) multipliers for different countries/regions
   const getPPPMultiplier = (country) => {
@@ -137,7 +143,6 @@ const Services = () => {
     const basePrice = service.actualPrice * (1 - service.discountPercent / 100);
 
     if (loadingCountry) {
-      console.log('⏳ Still loading country, using India base price:', Math.round(basePrice));
       return Math.round(basePrice);
     }
 
@@ -151,13 +156,6 @@ const Services = () => {
     if (service.id === '3') {
       finalPrice = finalPrice * 1.5;
     }
-
-    console.log(`💰 Service ${service.id} price calculation:`, {
-      country: detectedCountry,
-      pppMultiplier,
-      basePrice,
-      finalPrice: Math.round(finalPrice)
-    });
 
     return Math.round(finalPrice);
   };
@@ -188,14 +186,13 @@ const Services = () => {
 
   // Memoize services with calculated prices - recalculates when country or loading state changes
   const servicesWithPrices = useMemo(() => {
-    console.log('🔄 Recalculating all service prices for country:', detectedCountry, 'loading:', loadingCountry);
     return mockServices.map(service => ({
       ...service,
       currentPrice: calculateServicePrice(service),
       originalPrice: calculateOriginalPrice(service)
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detectedCountry, loadingCountry]);
+  }, [detectedCountry, loadingCountry, forceUpdate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
@@ -240,7 +237,7 @@ const Services = () => {
 
               return (
                 <Card
-                  key={`${service.id}-${detectedCountry}-${loadingCountry}`}
+                  key={`${service.id}-${detectedCountry}-${loadingCountry}-${forceUpdate}`}
                   className="overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group"
                 >
                   {/* Service Image */}

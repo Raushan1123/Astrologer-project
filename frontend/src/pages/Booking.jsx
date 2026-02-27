@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -54,12 +54,10 @@ const Booking = () => {
 
   // Detect country from IP on component mount
   useEffect(() => {
+    let isMounted = true;
+
     const detectCountry = async () => {
       try {
-        console.log('🔍 Starting country detection...');
-        console.log('📍 Current URL:', window.location.href);
-        console.log('🔧 API URL:', API);
-
         setLoadingCountry(true);
 
         // Check if there's a country parameter passed from Services page
@@ -67,16 +65,12 @@ const Booking = () => {
         const countryFromUrl = urlParams.get('country');
         const testCountry = urlParams.get('test_country');
 
-        console.log('🔍 URL Parameters:', Object.fromEntries(urlParams));
-        console.log('🌍 Country from URL:', countryFromUrl);
-        console.log('🧪 Test country parameter:', testCountry);
-
         // Priority: country from URL > test_country > detect from IP
         if (countryFromUrl) {
-          // Use country passed from Services page
-          setDetectedCountry(countryFromUrl);
-          console.log('✅ Using country from Services page:', countryFromUrl);
-          setLoadingCountry(false);
+          if (isMounted) {
+            setDetectedCountry(countryFromUrl);
+            setLoadingCountry(false);
+          }
           return;
         }
 
@@ -84,77 +78,92 @@ const Booking = () => {
         let url = `${API}/detect-country`;
         if (testCountry) {
           url += `?test_country=${encodeURIComponent(testCountry)}`;
-          console.log('🧪 Testing mode: Using test country:', testCountry);
-          console.log('📡 API call URL:', url);
-        } else {
-          console.log('📡 API call URL (no test):', url);
         }
 
-        console.log('📡 Making API call to:', url);
-        const response = await axios.get(url);
-        console.log('✅ API Response:', response.data);
+        const response = await axios.get(url, {
+          timeout: 5000 // 5 second timeout
+        });
 
         const country = response.data.country || 'India';
-        setDetectedCountry(country);
-        console.log('✅ Detected country:', country, '(source:', response.data.source + ')');
+        if (isMounted) {
+          setDetectedCountry(country);
+          setLoadingCountry(false);
+        }
       } catch (error) {
-        console.error('❌ Error detecting country:', error);
-        console.error('❌ Error details:', error.response?.data || error.message);
-        setDetectedCountry('India'); // Fallback to India
-      } finally {
-        setLoadingCountry(false);
-        console.log('✅ Country detection complete');
+        console.error('Error detecting country:', error.message);
+        if (isMounted) {
+          setDetectedCountry('India');
+          setLoadingCountry(false);
+        }
       }
     };
 
     detectCountry();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Auto-populate user data from logged-in user
   useEffect(() => {
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        name: user.name || prev.name,
-        email: user.email || prev.email,
-        phone: user.phone || prev.phone
-      }));
+    if (user && typeof user === 'object') {
+      try {
+        setFormData(prev => ({
+          ...prev,
+          name: user.name || prev.name || '',
+          email: user.email || prev.email || '',
+          phone: user.phone || prev.phone || ''
+        }));
+      } catch (error) {
+        console.error('Error auto-populating user data:', error);
+      }
     }
   }, [user]);
 
-  // Get translated astrologer data
+  // Get translated astrologer data with error handling
   const getTranslatedAstrologers = () => {
-    return [
-      {
-        id: "1",
-        name: t('team.astrologer1Name'),
-        experience: "20"
-      },
-      {
-        id: "3",
-        name: t('team.astrologer3Name'),
-        experience: "2"
-      }
-    ];
+    try {
+      return [
+        {
+          id: "1",
+          name: t('team.astrologer1Name') || 'Astrologer 1',
+          experience: "20"
+        },
+        {
+          id: "3",
+          name: t('team.astrologer3Name') || 'Astrologer 2',
+          experience: "2"
+        }
+      ];
+    } catch (error) {
+      console.error('Error getting translated astrologers:', error);
+      return [];
+    }
   };
 
-  // Get translated services
+  // Get translated services with error handling
   const getTranslatedServices = () => {
-    return [
-      { id: "1", title: t('services.birthChart') },
-      { id: "2", title: t('services.career') },
-      { id: "3", title: t('services.marriage') },
-      { id: "4", title: t('services.health') },
-      { id: "5", title: t('services.vastu') },
-      { id: "6", title: t('services.palmistry') },
-      { id: "7", title: t('services.gemstone') },
-      { id: "8", title: t('services.childbirth') },
-      { id: "9", title: t('services.namingCeremony') }
-    ];
+    try {
+      return [
+        { id: "1", title: t('services.birthChart') || 'Birth Chart Analysis' },
+        { id: "2", title: t('services.career') || 'Career Guidance' },
+        { id: "3", title: t('services.marriage') || 'Marriage Compatibility' },
+        { id: "4", title: t('services.health') || 'Health Insights' },
+        { id: "5", title: t('services.vastu') || 'Vastu Consultation' },
+        { id: "6", title: t('services.palmistry') || 'Palmistry' },
+        { id: "7", title: t('services.gemstone') || 'Gemstone Remedies' },
+        { id: "8", title: t('services.childbirth') || 'Childbirth Timing' },
+        { id: "9", title: t('services.namingCeremony') || 'Naming Ceremony' }
+      ];
+    } catch (error) {
+      console.error('Error getting translated services:', error);
+      return [];
+    }
   };
 
-  const translatedAstrologers = getTranslatedAstrologers();
-  const translatedServices = getTranslatedServices();
+  const translatedAstrologers = getTranslatedAstrologers() || [];
+  const translatedServices = getTranslatedServices() || [];
 
   // Handle disclaimer acceptance
   const handleDisclaimerAccept = () => {
@@ -171,51 +180,73 @@ const Booking = () => {
 
   // Handle URL parameters for pre-selected service
   useEffect(() => {
-    const serviceId = searchParams.get('serviceId');
-    const serviceName = searchParams.get('serviceName');
-    const duration = searchParams.get('duration');
-    const price = searchParams.get('price');
-    const discountPercent = searchParams.get('discountPercent');
+    try {
+      const serviceId = searchParams.get('serviceId');
+      const serviceName = searchParams.get('serviceName');
+      const duration = searchParams.get('duration');
+      const price = searchParams.get('price');
+      const discountPercent = searchParams.get('discountPercent');
 
-    if (serviceId && serviceName) {
-      setPreSelectedService({
-        id: serviceId,
-        name: serviceName,
-        duration: duration,
-        price: parseFloat(price),
-        discountPercent: parseFloat(discountPercent)
-      });
+      if (serviceId && serviceName) {
+        const parsedPrice = price ? parseFloat(price) : 0;
+        const parsedDiscount = discountPercent ? parseFloat(discountPercent) : 0;
 
-      // Auto-populate the service field
-      setFormData(prev => ({ ...prev, service: serviceId }));
+        // Validate parsed values
+        if (!isNaN(parsedPrice) && !isNaN(parsedDiscount)) {
+          setPreSelectedService({
+            id: serviceId,
+            name: serviceName,
+            duration: duration || '',
+            price: parsedPrice,
+            discountPercent: parsedDiscount
+          });
+
+          // Auto-populate the service field
+          setFormData(prev => ({ ...prev, service: serviceId }));
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing URL parameters:', error);
     }
   }, [searchParams]);
 
   // Check if user can book first-time consultation
   useEffect(() => {
+    let isMounted = true;
+
     const checkFirstBookingStatus = async () => {
       try {
         const token = localStorage.getItem('authToken');
         if (!token) {
-          setCheckingFirstBooking(false);
+          if (isMounted) setCheckingFirstBooking(false);
           return;
         }
 
         const response = await axios.get(`${API}/auth/first-booking-status`, {
           headers: {
             'Authorization': `Bearer ${token}`
-          }
+          },
+          timeout: 5000
         });
 
-        setCanBookFirstTime(response.data.can_book_first_time);
-        setCheckingFirstBooking(false);
+        if (isMounted) {
+          setCanBookFirstTime(response.data?.can_book_first_time || false);
+          setCheckingFirstBooking(false);
+        }
       } catch (error) {
-        console.error('Error checking first booking status:', error);
-        setCheckingFirstBooking(false);
+        console.error('Error checking first booking status:', error.message);
+        if (isMounted) {
+          setCanBookFirstTime(false);
+          setCheckingFirstBooking(false);
+        }
       }
     };
 
     checkFirstBookingStatus();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // PPP (Purchasing Power Parity) multipliers for different countries/regions
@@ -304,55 +335,70 @@ const Booking = () => {
     }
   };
 
+  // Fetch available time slots when astrologer and date are selected
+  const fetchAvailableSlots = useCallback(async (astrologer, date, service) => {
+    if (!astrologer || !date) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    setLoadingSlots(true);
+    try {
+      // Build params - only include service if it's selected
+      const params = { astrologer, date };
+      if (service) {
+        params.service = service;
+      }
+
+      const response = await axios.get(`${API}/available-slots`, {
+        params: params,
+        timeout: 10000 // 10 second timeout
+      });
+      setAvailableSlots(response.data.slots || []);
+    } catch (error) {
+      console.error('Error fetching slots:', error.message);
+      toast.error('Failed to load available time slots');
+      setAvailableSlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  }, []); // Empty dependency array since it doesn't depend on any props or state
+
   // Calculate price based on service, duration, and detected country with PPP
   useEffect(() => {
     if (formData.service && formData.consultationDuration && !loadingCountry) {
-      console.log('💰 Calculating price:', {
-        service: formData.service,
-        duration: formData.consultationDuration,
-        country: detectedCountry
-      });
-
       // If duration is 5-10 mins, it's free
       if (formData.consultationDuration === '5-10') {
         setCalculatedPrice(0);
-        console.log('✅ Free consultation (5-10 mins)');
       } else if (formData.consultationDuration === '10+') {
         // Find the selected service from mockServices
-        const selectedService = mockServices.find(s => s.id === formData.service);
-        if (selectedService) {
-          console.log('📋 Selected service:', selectedService.title, 'Actual Price:', selectedService.actualPrice);
+        const selectedService = mockServices?.find(s => s.id === formData.service);
 
+        if (selectedService && selectedService.actualPrice && selectedService.discountPercent !== undefined) {
           // Step 1: Calculate base discounted price
           const basePrice = selectedService.actualPrice * (1 - selectedService.discountPercent / 100);
-          console.log('💵 Base price after discount:', basePrice);
 
           // Step 2: Get PPP multiplier for the country
           const pppMultiplier = getPPPMultiplier(detectedCountry);
-          console.log('🌍 Country:', detectedCountry, '| PPP Multiplier:', pppMultiplier);
 
           // Step 3: Apply PPP multiplier
           let finalPrice = basePrice * pppMultiplier;
-          console.log('💵 Price after PPP adjustment:', finalPrice);
 
-          // Step 4: For Marriage Compatibility service, apply additional 1.5x multiplier for all countries
+          // Step 4: For Marriage Compatibility service, apply additional 1.5x multiplier
           if (formData.service === '3') {
             finalPrice = finalPrice * 1.5;
-            console.log('💰 Marriage Compatibility - Applied 1.5x multiplier:', finalPrice);
           }
 
           const roundedPrice = Math.round(finalPrice);
-          console.log('✅ Final calculated price:', roundedPrice);
           setCalculatedPrice(roundedPrice);
+        } else {
+          // Service not found or missing price data
+          console.error('Service not found or missing price data:', formData.service);
+          setCalculatedPrice(0);
         }
       }
     } else {
       setCalculatedPrice(0);
-      console.log('⏳ Waiting for:', {
-        hasService: !!formData.service,
-        hasDuration: !!formData.consultationDuration,
-        loadingCountry
-      });
     }
   }, [formData.service, formData.consultationDuration, detectedCountry, loadingCountry]);
 
@@ -364,7 +410,7 @@ const Booking = () => {
     } else {
       setAvailableSlots([]);
     }
-  }, [formData.astrologer, formData.preferredDate, formData.service]);
+  }, [formData.astrologer, formData.preferredDate, formData.service, fetchAvailableSlots]);
 
   // Load Razorpay script
   const loadRazorpay = () => {
@@ -441,36 +487,6 @@ const Booking = () => {
       } else {
         toast.error('Payment initialization failed. Please try again.');
       }
-    }
-  };
-
-  // Fetch available time slots when astrologer and date are selected
-  const fetchAvailableSlots = async (astrologer, date, service) => {
-    if (!astrologer || !date) {
-      setAvailableSlots([]);
-      return;
-    }
-
-    setLoadingSlots(true);
-    try {
-      // Build params - only include service if it's selected
-      const params = { astrologer, date };
-      if (service) {
-        params.service = service;
-      }
-
-      const response = await axios.get(`${API}/available-slots`, {
-        params: params
-      });
-      console.log('Available slots response:', response.data);
-      console.log('Number of slots:', response.data.slots?.length);
-      setAvailableSlots(response.data.slots || []);
-    } catch (error) {
-      console.error('Error fetching slots:', error);
-      toast.error('Failed to load available time slots');
-      setAvailableSlots([]);
-    } finally {
-      setLoadingSlots(false);
     }
   };
 
@@ -854,11 +870,15 @@ const Booking = () => {
                           <SelectValue placeholder={t('booking.selectAstrologer')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {translatedAstrologers.map((astro) => (
-                            <SelectItem key={astro.id} value={astro.name}>
-                              {astro.name} ({astro.experience}+ {t('team.years')})
-                            </SelectItem>
-                          ))}
+                          {Array.isArray(translatedAstrologers) && translatedAstrologers.length > 0 ? (
+                            translatedAstrologers.map((astro) => (
+                              <SelectItem key={astro.id} value={astro.name}>
+                                {astro.name} ({astro.experience}+ {t('team.years')})
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="loading" disabled>Loading astrologers...</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -877,11 +897,15 @@ const Booking = () => {
                           <SelectValue placeholder={preSelectedService ? preSelectedService.name : t('booking.selectService')} />
                         </SelectTrigger>
                         <SelectContent>
-                          {translatedServices.map((service) => (
-                            <SelectItem key={service.id} value={service.id}>
-                              {service.title}
-                            </SelectItem>
-                          ))}
+                          {Array.isArray(translatedServices) && translatedServices.length > 0 ? (
+                            translatedServices.map((service) => (
+                              <SelectItem key={service.id} value={service.id}>
+                                {service.title}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="loading" disabled>Loading services...</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                       {preSelectedService && (
@@ -997,11 +1021,15 @@ const Booking = () => {
                             <SelectValue placeholder={t('booking.selectTime')} />
                           </SelectTrigger>
                           <SelectContent>
-                            {availableSlots.map((slot, index) => (
-                              <SelectItem key={index} value={slot.start_time}>
-                                {slot.display}
-                              </SelectItem>
-                            ))}
+                            {Array.isArray(availableSlots) && availableSlots.length > 0 ? (
+                              availableSlots.map((slot, index) => (
+                                <SelectItem key={index} value={slot.start_time}>
+                                  {slot.display}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="no-slots" disabled>No slots available</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       )}

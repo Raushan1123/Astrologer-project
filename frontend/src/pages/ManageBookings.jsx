@@ -45,14 +45,32 @@ const ManageBookings = () => {
     try {
       setLoading(true);
       const token = getToken();
+
+      if (!token) {
+        toast.error('Please login to view your bookings');
+        navigate('/login');
+        return;
+      }
+
       const response = await axios.get(`${API}/user/bookings`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000
       });
-      console.log('Fetched bookings:', response.data.bookings);
-      setBookings(response.data.bookings);
+
+      // Safely handle response
+      const fetchedBookings = response.data?.bookings || [];
+      setBookings(Array.isArray(fetchedBookings) ? fetchedBookings : []);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
-      toast.error('Failed to load bookings');
+      console.error('Error fetching bookings:', error.message);
+
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please login again');
+        navigate('/login');
+      } else {
+        toast.error('Failed to load bookings');
+      }
+
+      setBookings([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

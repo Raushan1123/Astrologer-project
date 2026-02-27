@@ -14,26 +14,47 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is logged in on mount
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuth = async () => {
       const token = localStorage.getItem('authToken');
       if (token) {
         try {
           const response = await axios.get(`${API}/auth/verify`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
+            timeout: 5000 // 5 second timeout
           });
-          setUser(response.data.user);
-          setIsAuthenticated(true);
+
+          if (isMounted) {
+            setUser(response.data.user);
+            setIsAuthenticated(true);
+          }
         } catch (error) {
-          console.error('Token verification failed:', error);
-          localStorage.removeItem('authToken');
-          setUser(null);
-          setIsAuthenticated(false);
+          // Only logout if it's a 401 (unauthorized), not on network errors
+          if (error.response?.status === 401) {
+            console.error('Token expired or invalid');
+            localStorage.removeItem('authToken');
+            if (isMounted) {
+              setUser(null);
+              setIsAuthenticated(false);
+            }
+          } else {
+            // Network error - keep user logged in
+            console.error('Auth verification network error:', error.message);
+          }
         }
       }
-      setLoading(false);
+
+      if (isMounted) {
+        setLoading(false);
+      }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Login function
