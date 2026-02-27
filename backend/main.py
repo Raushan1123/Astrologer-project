@@ -132,6 +132,8 @@ async def startup_event():
             await db.bookings.create_index("payment_status")
             await db.bookings.create_index([("created_at", -1)])  # Descending for sorting
             await db.bookings.create_index([("astrologer", 1), ("preferred_date", 1)])
+            # Compound index for slot availability queries (critical for performance)
+            await db.bookings.create_index([("astrologer", 1), ("preferred_date", 1), ("status", 1)])
 
             # Availability collection indexes
             await db.astrologer_availability.create_index([("astrologer", 1), ("day_of_week", 1)])
@@ -2740,6 +2742,30 @@ async def get_available_slots(astrologer: str, date: str, service: Optional[str]
         if service and service in SERVICE_DURATION:
             slot_duration = SERVICE_DURATION[service]
 
+        # OPTIMIZATION: Fetch all booked slots for this astrologer and date at once
+        # This reduces database queries from N (number of slots) to just 2 queries total
+        booked_times = set()
+        existing_bookings = await db.bookings.find({
+            "astrologer": astrologer,
+            "preferred_date": date,
+            "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]}
+        }, {"preferred_time": 1}).to_list(100)
+
+        for booking in existing_bookings:
+            booked_times.add(booking.get("preferred_time"))
+
+        # Fetch all blocked slots from time_slots collection
+        blocked_slots = await db.time_slots.find({
+            "astrologer": astrologer,
+            "date": date,
+            "is_available": False
+        }, {"start_time": 1}).to_list(100)
+
+        for slot in blocked_slots:
+            booked_times.add(slot.get("start_time"))
+
+        logger.info(f"📅 Fetching slots for {astrologer} on {date} - {len(booked_times)} slots already booked")
+
         # Generate time slots from all availability ranges
         all_slots = []
 
@@ -2765,24 +2791,8 @@ async def get_available_slots(astrologer: str, date: str, service: Optional[str]
                 slot_start_str = current_time.strftime("%H:%M")
                 slot_end_str = slot_end.strftime("%H:%M")
 
-                # Check if this slot is already booked
-                # We need to check if ANY booking overlaps with this time
-                existing_booking = await db.bookings.find_one({
-                    "astrologer": astrologer,
-                    "preferred_date": date,
-                    "preferred_time": slot_start_str,
-                    "status": {"$in": [BookingStatus.PENDING.value, BookingStatus.CONFIRMED.value]}
-                })
-
-                # Check if slot exists in time_slots collection
-                existing_slot = await db.time_slots.find_one({
-                    "astrologer": astrologer,
-                    "date": date,
-                    "start_time": slot_start_str,
-                    "is_available": False
-                })
-
-                is_available = existing_booking is None and existing_slot is None
+                # Check if this slot is already booked (using pre-fetched set - O(1) lookup)
+                is_available = slot_start_str not in booked_times
 
                 # Don't show past slots (compare with IST time)
                 if current_time > now_ist and is_available:
