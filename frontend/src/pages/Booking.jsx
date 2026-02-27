@@ -85,6 +85,7 @@ const Booking = () => {
         });
 
         const country = response.data.country || 'India';
+        console.log('🌍 Country detected:', country);
         if (isMounted) {
           setDetectedCountry(country);
           setLoadingCountry(false);
@@ -92,6 +93,7 @@ const Booking = () => {
       } catch (error) {
         console.error('Error detecting country:', error.message);
         if (isMounted) {
+          console.log('🌍 Country detection failed, defaulting to India');
           setDetectedCountry('India');
           setLoadingCountry(false);
         }
@@ -366,9 +368,17 @@ const Booking = () => {
 
   // Calculate price based on service, duration, and detected country with PPP
   useEffect(() => {
-    if (formData.service && formData.consultationDuration && !loadingCountry) {
+    console.log('💰 Price Calculation Triggered:', {
+      service: formData.service,
+      duration: formData.consultationDuration,
+      country: detectedCountry,
+      loadingCountry: loadingCountry
+    });
+
+    if (formData.service && formData.consultationDuration) {
       // If duration is 5-10 mins, it's free
       if (formData.consultationDuration === '5-10') {
+        console.log('✅ Free consultation (5-10 mins)');
         setCalculatedPrice(0);
       } else if (formData.consultationDuration === '10+') {
         // Find the selected service from mockServices
@@ -378,8 +388,9 @@ const Booking = () => {
           // Step 1: Calculate base discounted price
           const basePrice = selectedService.actualPrice * (1 - selectedService.discountPercent / 100);
 
-          // Step 2: Get PPP multiplier for the country
-          const pppMultiplier = getPPPMultiplier(detectedCountry);
+          // Step 2: Get PPP multiplier for the country (use detected or default to India)
+          const countryToUse = detectedCountry || 'India';
+          const pppMultiplier = getPPPMultiplier(countryToUse);
 
           // Step 3: Apply PPP multiplier
           let finalPrice = basePrice * pppMultiplier;
@@ -390,6 +401,18 @@ const Booking = () => {
           }
 
           const roundedPrice = Math.round(finalPrice);
+
+          console.log('💰 Price Calculation Details:', {
+            service: selectedService.title,
+            actualPrice: selectedService.actualPrice,
+            discountPercent: selectedService.discountPercent,
+            basePrice: basePrice,
+            country: countryToUse,
+            pppMultiplier: pppMultiplier,
+            finalPrice: finalPrice,
+            roundedPrice: roundedPrice
+          });
+
           setCalculatedPrice(roundedPrice);
         } else {
           // Service not found or missing price data
@@ -398,9 +421,10 @@ const Booking = () => {
         }
       }
     } else {
+      console.log('⏳ Waiting for service or duration selection...');
       setCalculatedPrice(0);
     }
-  }, [formData.service, formData.consultationDuration, detectedCountry, loadingCountry]);
+  }, [formData.service, formData.consultationDuration, detectedCountry]);
 
   // Fetch slots when astrologer, date, or service changes
   useEffect(() => {

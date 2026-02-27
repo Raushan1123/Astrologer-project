@@ -49,6 +49,7 @@ const Services = () => {
         });
 
         const country = response.data.country || 'India';
+        console.log('🌍 Services Page - Country detected:', country);
 
         // Only update state if component is still mounted
         if (isMounted) {
@@ -61,6 +62,7 @@ const Services = () => {
         console.error('Error detecting country:', error.message);
         // Fallback to India on error
         if (isMounted) {
+          console.log('🌍 Services Page - Country detection failed, defaulting to India');
           setDetectedCountry('India');
           setLoadingCountry(false);
         }
@@ -121,10 +123,11 @@ const Services = () => {
 
   // Calculate original price (before discount) for the country
   const calculateOriginalPrice = (service) => {
-    if (loadingCountry) return service.actualPrice;
+    // Don't wait for country loading - use detected country or default to India
+    const countryToUse = detectedCountry || 'India';
 
     // Step 1: Get PPP multiplier for the country
-    const pppMultiplier = getPPPMultiplier(detectedCountry);
+    const pppMultiplier = getPPPMultiplier(countryToUse);
 
     // Step 2: Apply PPP multiplier to original price
     let originalPrice = service.actualPrice * pppMultiplier;
@@ -142,12 +145,11 @@ const Services = () => {
     // Step 1: Calculate base discounted price (India price with discount)
     const basePrice = service.actualPrice * (1 - service.discountPercent / 100);
 
-    if (loadingCountry) {
-      return Math.round(basePrice);
-    }
+    // Don't wait for country loading - use detected country or default to India
+    const countryToUse = detectedCountry || 'India';
 
     // Step 2: Get PPP multiplier for the country
-    const pppMultiplier = getPPPMultiplier(detectedCountry);
+    const pppMultiplier = getPPPMultiplier(countryToUse);
 
     // Step 3: Apply PPP multiplier
     let finalPrice = basePrice * pppMultiplier;
@@ -186,11 +188,29 @@ const Services = () => {
 
   // Memoize services with calculated prices - recalculates when country or loading state changes
   const servicesWithPrices = useMemo(() => {
-    return mockServices.map(service => ({
-      ...service,
-      currentPrice: calculateServicePrice(service),
-      originalPrice: calculateOriginalPrice(service)
-    }));
+    console.log('💰 Services Page - Calculating prices for country:', detectedCountry, 'loadingCountry:', loadingCountry);
+
+    const services = mockServices.map(service => {
+      const currentPrice = calculateServicePrice(service);
+      const originalPrice = calculateOriginalPrice(service);
+
+      console.log(`💰 Service "${service.title}":`, {
+        actualPrice: service.actualPrice,
+        discountPercent: service.discountPercent,
+        country: detectedCountry,
+        pppMultiplier: getPPPMultiplier(detectedCountry),
+        currentPrice: currentPrice,
+        originalPrice: originalPrice
+      });
+
+      return {
+        ...service,
+        currentPrice: currentPrice,
+        originalPrice: originalPrice
+      };
+    });
+
+    return services;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detectedCountry, loadingCountry, forceUpdate]);
 
