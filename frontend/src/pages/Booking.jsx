@@ -371,8 +371,7 @@ const Booking = () => {
     console.log('💰 Price Calculation Triggered:', {
       service: formData.service,
       duration: formData.consultationDuration,
-      country: detectedCountry,
-      loadingCountry: loadingCountry
+      country: detectedCountry
     });
 
     if (formData.service && formData.consultationDuration) {
