@@ -69,8 +69,8 @@ const PlanetaryAnimation = () => {
       <div className="zodiac-symbol zodiac-11">♒</div>
       <div className="zodiac-symbol zodiac-12">♓</div>
 
-      {/* Stars */}
-      {[...Array(50)].map((_, i) => (
+      {/* Stars - Reduced from 50 to 20 for better performance */}
+      {[...Array(20)].map((_, i) => (
         <div
           key={i}
           className="star"

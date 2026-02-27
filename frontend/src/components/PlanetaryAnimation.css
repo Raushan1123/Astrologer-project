@@ -57,9 +57,11 @@
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0); /* GPU acceleration */
   border-radius: 50%;
   animation: planetPulse 2s ease-in-out infinite;
+  will-change: transform; /* Optimize for animations */
+  backface-visibility: hidden; /* Prevent flickering */
 }
 
 .mercury {

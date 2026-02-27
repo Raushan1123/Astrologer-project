@@ -76,12 +76,13 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        {/* Background Image with Overlay */}
+        {/* Background Image with Overlay - Optimized */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1766473625788-a22578b1e6e2"
+            src="https://images.unsplash.com/photo-1766473625788-a22578b1e6e2?w=1920&q=75&fm=webp&fit=crop&auto=format"
             alt="Astrology Background"
             className="w-full h-full object-cover"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/75 via-purple-800/70 to-amber-900/65" />
         </div>
@@ -473,9 +474,10 @@ const Home = () => {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1650365449083-b3113ff48337"
+            src="https://images.unsplash.com/photo-1650365449083-b3113ff48337?w=1920&q=75&fm=webp&fit=crop&auto=format"
             alt="Cosmic Background"
             className="w-full h-full object-cover"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/95 to-amber-900/95" />
         </div>

@@ -1,0 +1,15 @@
+{
+  "name": "astrologer-project",
+  "version": "1.0.0",
+  "description": "Astrologer consultation platform",
+  "scripts": {
+    "download-images": "node scripts/download-images.js",
+    "upload-images": "bash scripts/upload-to-r2.sh",
+    "update-urls": "node scripts/update-image-urls.js",
+    "setup-r2": "npm run download-images && npm run upload-images && npm run update-urls"
+  },
+  "keywords": ["astrology", "consultation"],
+  "author": "",
+  "license": "ISC"
+}
+
