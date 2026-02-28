@@ -69,16 +69,14 @@ const PlanetaryAnimation = () => {
       <div className="zodiac-symbol zodiac-11">♒</div>
       <div className="zodiac-symbol zodiac-12">♓</div>
 
-      {/* Stars - Reduced from 50 to 20 for better performance */}
-      {[...Array(20)].map((_, i) => (
+      {/* Stars - Reduced to 10 for better performance */}
+      {[...Array(10)].map((_, i) => (
         <div
           key={i}
           className="star"
           style={{
             left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animationDelay: `${Math.random() * 3}s`,
-            animationDuration: `${2 + Math.random() * 3}s`
+            top: `${Math.random() * 100}%`
           }}
         ></div>
       ))}
