@@ -6,7 +6,11 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  opacity: 0.9;
+  opacity: 0.7;
+  /* Performance optimizations */
+  will-change: auto;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Sun */
@@ -16,13 +20,10 @@
   height: 100px;
   background: radial-gradient(circle, #fff, #ffd700, #ff8c00);
   border-radius: 50%;
-  box-shadow:
-    0 0 40px #ffd700,
-    0 0 80px #ff8c00,
-    0 0 120px #ff6b00,
-    0 0 160px rgba(255, 140, 0, 0.5);
-  animation: pulse 4s ease-in-out infinite;
+  box-shadow: 0 0 60px #ffd700, 0 0 100px rgba(255, 140, 0, 0.5);
+  animation: pulse 6s ease-in-out infinite;
   z-index: 10;
+  will-change: transform;
 }
 
 .sun-glow {
@@ -31,26 +32,27 @@
   height: 200%;
   top: -50%;
   left: -50%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.6), rgba(255, 140, 0, 0.3), transparent);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4), transparent);
   border-radius: 50%;
-  animation: glow 3s ease-in-out infinite;
+  /* Removed animation for better performance */
 }
 
 /* Orbits */
 .orbit {
   position: absolute;
-  border: 2px solid rgba(255, 215, 0, 0.3);
+  border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 50%;
   animation: rotate linear infinite;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
-.orbit-1 { width: 150px; height: 150px; animation-duration: 8s; }
-.orbit-2 { width: 220px; height: 220px; animation-duration: 12s; }
-.orbit-3 { width: 300px; height: 300px; animation-duration: 16s; }
-.orbit-4 { width: 380px; height: 380px; animation-duration: 20s; }
-.orbit-5 { width: 480px; height: 480px; animation-duration: 28s; }
-.orbit-6 { width: 580px; height: 580px; animation-duration: 36s; }
+.orbit-1 { width: 150px; height: 150px; animation-duration: 12s; }
+.orbit-2 { width: 220px; height: 220px; animation-duration: 18s; }
+.orbit-3 { width: 300px; height: 300px; animation-duration: 24s; }
+.orbit-4 { width: 380px; height: 380px; animation-duration: 30s; }
+.orbit-5 { width: 480px; height: 480px; animation-duration: 40s; }
+.orbit-6 { width: 580px; height: 580px; animation-duration: 50s; }
 
 /* Planets */
 .planet {
@@ -59,8 +61,8 @@
   left: 50%;
   transform: translateX(-50%) translateZ(0); /* GPU acceleration */
   border-radius: 50%;
-  animation: planetPulse 2s ease-in-out infinite;
-  will-change: transform; /* Optimize for animations */
+  /* Removed pulse animation for better performance */
+  will-change: auto;
   backface-visibility: hidden; /* Prevent flickering */
 }
 
@@ -155,7 +157,7 @@
     0 0 15px rgba(224, 224, 224, 0.8);
 }
 
-/* Planet Glows */
+/* Planet Glows - Simplified for performance */
 .planet-glow {
   position: absolute;
   width: 200%;
@@ -163,29 +165,27 @@
   top: -50%;
   left: -50%;
   border-radius: 50%;
-  opacity: 0.8;
-  animation: glow 2s ease-in-out infinite;
+  opacity: 0.5;
+  /* Removed glow animation for better performance */
 }
 
-.mercury-glow { background: radial-gradient(circle, rgba(224, 224, 224, 0.6), transparent); }
-.venus-glow { background: radial-gradient(circle, rgba(255, 216, 155, 0.6), transparent); }
-.earth-glow { background: radial-gradient(circle, rgba(74, 144, 226, 0.6), transparent); }
-.mars-glow { background: radial-gradient(circle, rgba(255, 107, 107, 0.6), transparent); }
-.jupiter-glow { background: radial-gradient(circle, rgba(244, 164, 96, 0.6), transparent); }
-.saturn-glow { background: radial-gradient(circle, rgba(212, 175, 55, 0.6), transparent); }
+.mercury-glow { background: radial-gradient(circle, rgba(224, 224, 224, 0.4), transparent); }
+.venus-glow { background: radial-gradient(circle, rgba(255, 216, 155, 0.4), transparent); }
+.earth-glow { background: radial-gradient(circle, rgba(74, 144, 226, 0.4), transparent); }
+.mars-glow { background: radial-gradient(circle, rgba(255, 107, 107, 0.4), transparent); }
+.jupiter-glow { background: radial-gradient(circle, rgba(244, 164, 96, 0.4), transparent); }
+.saturn-glow { background: radial-gradient(circle, rgba(212, 175, 55, 0.4), transparent); }
 
-/* Zodiac Symbols */
+/* Zodiac Symbols - Simplified for performance */
 .zodiac-symbol {
   position: absolute;
   font-size: 32px;
   font-weight: bold;
-  color: rgba(255, 215, 0, 0.9);
-  text-shadow:
-    0 0 10px rgba(255, 215, 0, 1),
-    0 0 20px rgba(255, 215, 0, 0.8),
-    0 0 30px rgba(255, 140, 0, 0.6);
-  animation: float 6s ease-in-out infinite;
+  color: rgba(255, 215, 0, 0.6);
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  /* Removed float animation for better performance */
   pointer-events: none;
+  opacity: 0.7;
 }
 
 .zodiac-1 { top: 10%; left: 15%; animation-delay: 0s; }
@@ -201,17 +201,16 @@
 .zodiac-11 { bottom: 8%; left: 25%; animation-delay: 5s; }
 .zodiac-12 { bottom: 12%; right: 28%; animation-delay: 5.5s; }
 
-/* Stars */
+/* Stars - Simplified for performance */
 .star {
   position: absolute;
-  width: 3px;
-  height: 3px;
+  width: 2px;
+  height: 2px;
   background: white;
   border-radius: 50%;
-  box-shadow:
-    0 0 5px white,
-    0 0 10px rgba(255, 255, 255, 0.8);
-  animation: twinkle 3s ease-in-out infinite;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.6);
+  opacity: 0.6;
+  /* Removed twinkle animation for better performance */
 }
 
 /* Animations */
@@ -248,12 +247,17 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .planetary-system {
-    opacity: 0.7;
+    opacity: 0.5;
   }
 
   .sun {
     width: 60px;
     height: 60px;
+    animation: none; /* Disable animations on mobile for better performance */
+  }
+
+  .orbit {
+    animation-duration: 60s !important; /* Much slower on mobile to reduce CPU usage */
   }
 
   .orbit-1 { width: 100px; height: 100px; }
@@ -264,7 +268,8 @@
   .orbit-6 { width: 380px; height: 380px; }
 
   .zodiac-symbol {
-    font-size: 24px;
+    font-size: 20px;
+    opacity: 0.5;
   }
 
   .mercury { width: 12px; height: 12px; }
@@ -273,5 +278,10 @@
   .mars { width: 14px; height: 14px; }
   .jupiter { width: 28px; height: 28px; }
   .saturn { width: 24px; height: 24px; }
+
+  /* Hide stars on mobile */
+  .star {
+    display: none;
+  }
 }
 
