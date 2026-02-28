@@ -74,11 +74,17 @@ code {
 }
 
 @layer base {
-    * {
-        @apply border-border;
-    }
     body {
         @apply bg-background text-foreground;
+    }
+
+    html {
+        overflow-x: hidden;
+    }
+
+    body {
+        overflow-x: hidden;
+        width: 100%;
     }
 }
 
