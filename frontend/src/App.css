@@ -7,8 +7,12 @@
 
 html {
   overflow-x: hidden;
-  scroll-behavior: smooth;
   width: 100%;
+}
+
+/* Only apply smooth scroll to anchor links, not programmatic scrolls */
+html:focus-within {
+  scroll-behavior: smooth;
 }
 
 body {
