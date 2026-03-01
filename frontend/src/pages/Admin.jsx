@@ -14,6 +14,7 @@ import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw, Star, CheckCirc
 import { toast } from 'sonner';
 import axios from 'axios';
 import { getServiceName } from '../utils/serviceMapping';
+import { mockServices } from '../mockData';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -80,6 +81,24 @@ const Admin = () => {
       }
     }
   }, [isAuthenticated, activeTab]);
+
+  // Helper function to get formatted duration
+  const getFormattedDuration = (booking) => {
+    if (booking.consultation_duration === '5-10') {
+      return 'Up to 10 mins';
+    }
+
+    // For "10+" duration, get the actual service duration
+    if (booking.consultation_duration === '10+') {
+      const service = mockServices.find(s => s.id === booking.service);
+      if (service && service.duration) {
+        return `Up to ${service.duration}`;
+      }
+      return '10+ mins';
+    }
+
+    return `${booking.consultation_duration} mins`;
+  };
 
   const updateBookingStatus = async (bookingId, newStatus) => {
     try {
@@ -302,7 +321,7 @@ const Admin = () => {
                       </div>
                       <div>
                         <p className="text-gray-500">Duration</p>
-                        <p className="font-medium text-gray-900">{booking.consultation_duration} mins</p>
+                        <p className="font-medium text-gray-900">{getFormattedDuration(booking)}</p>
                       </div>
                       <div>
                         <p className="text-gray-500">Amount</p>

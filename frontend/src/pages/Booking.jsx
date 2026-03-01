@@ -41,7 +41,7 @@ const Booking = () => {
     placeOfBirth: '',
     astrologer: '',
     service: '',
-    consultationType: '',
+    consultationType: 'online', // Default to online as in-person is not available yet
     consultationDuration: '',
     preferredDate: null,
     preferredTime: '',
@@ -424,6 +424,13 @@ const Booking = () => {
       setCalculatedPrice(0);
     }
   }, [formData.service, formData.consultationDuration, detectedCountry]);
+
+  // Auto-set duration to "10+" for second-time users when service is selected
+  useEffect(() => {
+    if (!canBookFirstTime && formData.service && !formData.consultationDuration) {
+      setFormData(prev => ({ ...prev, consultationDuration: '10+' }));
+    }
+  }, [canBookFirstTime, formData.service, formData.consultationDuration]);
 
   // Fetch slots when astrologer, date, or service changes
   useEffect(() => {
@@ -942,32 +949,57 @@ const Booking = () => {
                       <Label htmlFor="consultationDuration" className="text-gray-700 font-medium mb-2">
                         {t('booking.duration')} <span className="text-red-500">*</span>
                       </Label>
-                      <Select
-                        value={formData.consultationDuration}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, consultationDuration: value }))}
-                        required
-                        disabled={checkingFirstBooking}
-                      >
-                        <SelectTrigger className="border-purple-200">
-                          <SelectValue placeholder={checkingFirstBooking ? "Loading..." : t('booking.duration')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {canBookFirstTime && (
+
+                      {/* First-time users: Show dropdown with free option */}
+                      {canBookFirstTime ? (
+                        <Select
+                          value={formData.consultationDuration}
+                          onValueChange={(value) => setFormData(prev => ({ ...prev, consultationDuration: value }))}
+                          required
+                          disabled={checkingFirstBooking}
+                        >
+                          <SelectTrigger className="border-purple-200">
+                            <SelectValue placeholder={checkingFirstBooking ? "Loading..." : t('booking.duration')} />
+                          </SelectTrigger>
+                          <SelectContent>
                             <SelectItem value="5-10">
-                              5-10 mins (Free for first-time users)
+                              Up to 10 mins
                             </SelectItem>
+                            <SelectItem value="10+">
+                              10+ mins
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        /* Second-time users: Show greyed out field with service-specific duration */
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={formData.service ? `Up to ${mockServices.find(s => s.id === formData.service)?.duration || '30 mins'}` : 'Please select a service first'}
+                            disabled
+                            className="w-full px-3 py-2 border border-purple-200 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+                          />
+                          {!formData.service && (
+                            <p className="text-sm text-amber-600 mt-2">
+                              ℹ️ Please select a service to see the consultation duration.
+                            </p>
                           )}
-                          <SelectItem value="10+">
-                            10+ mins {formData.service && calculatedPrice > 0 ? `(₹${calculatedPrice})` : ''}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {!canBookFirstTime && !checkingFirstBooking && (
-                        <p className="text-sm text-amber-600 mt-2">
-                          ℹ️ First-time free consultation (5-10 mins) is only available for your first booking.
-                        </p>
+                        </div>
                       )}
-                      {calculatedPrice > 0 && formData.consultationDuration === '10+' && (
+
+                      {/* Show fee information based on selection */}
+                      {formData.consultationDuration === '5-10' && canBookFirstTime && (
+                        <div className="mt-3 p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                          <p className="text-sm font-semibold text-green-900">
+                            💰 Consultation Fee: <span className="text-xl">₹0</span>
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            🎉 First-time free offer (Worth ₹1999)!
+                          </p>
+                        </div>
+                      )}
+
+                      {calculatedPrice > 0 && (formData.consultationDuration === '10+' || !canBookFirstTime) && formData.service && (
                         <div className="mt-3 p-3 bg-gradient-to-br from-purple-50 to-amber-50 rounded-lg border border-purple-200">
                           <p className="text-sm font-semibold text-purple-900">
                             💰 Consultation Fee: <span className="text-xl">₹{calculatedPrice}</span>
@@ -975,7 +1007,6 @@ const Booking = () => {
                           <p className="text-xs text-gray-600 mt-1">
                             🎉 Holi Offer: 25% discount already applied!
                           </p>
-
                         </div>
                       )}
                     </div>
@@ -985,7 +1016,7 @@ const Booking = () => {
                         {t('booking.consultationType')} <span className="text-red-500">*</span>
                       </Label>
                       <Select
-                        value={formData.consultationType}
+                        value={formData.consultationType || 'online'}
                         onValueChange={(value) => setFormData(prev => ({ ...prev, consultationType: value }))}
                         required
                       >
@@ -993,10 +1024,23 @@ const Booking = () => {
                           <SelectValue placeholder={t('booking.consultationType')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="online">{t('booking.online')}</SelectItem>
-                          <SelectItem value="inperson">{t('booking.inPerson')}</SelectItem>
+                          <SelectItem value="online">
+                            <div className="flex items-center gap-2">
+                              <span>{t('booking.online')}</span>
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Available</span>
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="inperson" disabled>
+                            <div className="flex items-center gap-2 opacity-60">
+                              <span>{t('booking.inPerson')}</span>
+                              <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Coming Soon</span>
+                            </div>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        💡 In-person consultations will be available soon!
+                      </p>
                     </div>
 
                     <div>

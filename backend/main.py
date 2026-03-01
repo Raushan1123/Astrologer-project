@@ -562,7 +562,7 @@ async def signup(user_data: UserCreate):
         # Check if user already exists
         existing_user = await db.users.find_one({"email": user_data.email})
         if existing_user:
-            raise HTTPException(status_code=400, detail="Email already registered")
+            raise HTTPException(status_code=400, detail="Email already registered. Please login instead.")
 
         # Hash password
         hashed_password = hash_password(user_data.password)
@@ -611,11 +611,11 @@ async def login(credentials: UserLogin):
         # Find user
         user = await db.users.find_one({"email": credentials.email})
         if not user:
-            raise HTTPException(status_code=401, detail="Invalid email or password")
+            raise HTTPException(status_code=404, detail="Invalid email or password. Account does not exist. Please create an account first.")
 
         # Verify password
         if not verify_password(credentials.password, user["password"]):
-            raise HTTPException(status_code=401, detail="Invalid email or password")
+            raise HTTPException(status_code=401, detail="Invalid email or password. Please try again.")
 
         # Create access token
         token = create_access_token(user["id"], user["email"])

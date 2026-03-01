@@ -62,15 +62,32 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(`${API}/auth/login`, { email, password });
       const { token, user } = response.data;
-      
+
       localStorage.setItem('authToken', token);
       setUser(user);
       setIsAuthenticated(true);
       toast.success('Login successful!');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed. Please try again.';
-      toast.error(message);
+      console.log('Login error response:', error.response?.data);
+      const message = error.response?.data?.detail || error.response?.data?.message || 'Login failed. Please try again.';
+      console.log('Extracted message:', message);
+
+      // Show error with appropriate styling
+      if (message.includes('does not exist')) {
+        console.log('Showing toast with Sign Up button');
+        toast.error(message, {
+          duration: 5000,
+          action: {
+            label: 'Sign Up',
+            onClick: () => window.location.href = '/signup'
+          }
+        });
+      } else {
+        console.log('Showing regular toast');
+        toast.error(message);
+      }
+
       return { success: false, error: message };
     }
   };
@@ -80,15 +97,28 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(`${API}/auth/signup`, userData);
       const { token, user } = response.data;
-      
+
       localStorage.setItem('authToken', token);
       setUser(user);
       setIsAuthenticated(true);
       toast.success('Account created successfully!');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Signup failed. Please try again.';
-      toast.error(message);
+      const message = error.response?.data?.detail || error.response?.data?.message || 'Signup failed. Please try again.';
+
+      // Show error with appropriate styling
+      if (message.includes('already registered') || message.includes('already exists')) {
+        toast.error(message, {
+          duration: 5000,
+          action: {
+            label: 'Login',
+            onClick: () => window.location.href = '/login'
+          }
+        });
+      } else {
+        toast.error(message);
+      }
+
       return { success: false, error: message };
     }
   };

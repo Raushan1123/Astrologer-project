@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getServiceName } from '../utils/serviceMapping';
+import { mockServices } from '../mockData';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -74,6 +75,24 @@ const ManageBookings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to get formatted duration
+  const getFormattedDuration = (booking) => {
+    if (booking.consultation_duration === '5-10') {
+      return 'Up to 10 mins';
+    }
+
+    // For "10+" duration, get the actual service duration
+    if (booking.consultation_duration === '10+') {
+      const service = mockServices.find(s => s.id === booking.service);
+      if (service && service.duration) {
+        return `Up to ${service.duration}`;
+      }
+      return '10+ mins';
+    }
+
+    return `${booking.consultation_duration} ${t('manageBookings.minutes')}`;
   };
 
   // Calculate refund eligibility based on time until booking
@@ -459,7 +478,7 @@ const ManageBookings = () => {
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
                           <span className="font-medium">{t('manageBookings.duration')}:</span>
-                          <span>{booking.consultation_duration} {t('manageBookings.minutes')}</span>
+                          <span>{getFormattedDuration(booking)}</span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-700">
                           <span className="font-medium">{t('manageBookings.type')}:</span>

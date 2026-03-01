@@ -254,8 +254,9 @@ export const astrologers = [
 
 export const consultationPricing = [
   {
-    duration: "5-10 Minutes",
+    duration: "Up to 10 Minutes",
     price: "Free",
+    worth: "(Worth ₹1999)",
     description: "Initial consultation for first-time customers",
     features: ["Quick guidance", "Basic questions", "Understanding your concerns"],
     badge: "First Time Only"

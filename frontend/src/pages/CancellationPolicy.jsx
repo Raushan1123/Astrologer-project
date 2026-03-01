@@ -30,7 +30,7 @@ const CancellationPolicy = () => {
           <div className="flex items-start gap-3">
             <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
             <div>
-              <h2 className="text-xl font-bold text-purple-900 mb-3">Free Consultations (5-10 Minutes)</h2>
+              <h2 className="text-xl font-bold text-purple-900 mb-3">Free Consultations (Up to 10 Minutes - Worth ₹1999)</h2>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="text-purple-600 mt-1">•</span>

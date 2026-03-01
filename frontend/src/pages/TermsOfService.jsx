@@ -39,9 +39,8 @@ const TermsOfService = () => {
               <div className="space-y-3">
                 <p><strong>3.1 Consultation Fees:</strong></p>
                 <ul className="list-disc pl-6 space-y-2">
-                  <li>5-10 minutes: Free (first-time consultation)</li>
-                  <li>10-20 minutes: ₹1,500</li>
-                  <li>20+ minutes: ₹2,100</li>
+                  <li>Up to 10 minutes: Free (worth ₹1999 - first-time consultation only)</li>
+                  <li>10+ minutes: Varies by service (starting from ₹1,500)</li>
                 </ul>
                 <p><strong>3.2 Payment:</strong> All payments are processed securely through Razorpay. We accept credit/debit cards, UPI, net banking, and digital wallets.</p>
                 <p><strong>3.3 Booking Confirmation:</strong> You will receive a confirmation email upon successful booking and payment.</p>

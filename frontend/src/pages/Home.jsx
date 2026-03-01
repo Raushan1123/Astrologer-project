@@ -210,6 +210,7 @@ const Home = () => {
                           <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-green-600">{t('home.freeConsultation.free')}</span>
                           <div className="text-left">
                             <p className="text-xs sm:text-sm text-gray-600 font-semibold">{t('home.freeConsultation.duration')}</p>
+                            <p className="text-xs text-purple-600 font-bold">{t('home.freeConsultation.worth')}</p>
                             <p className="text-xs text-gray-500">{t('home.freeConsultation.expertGuidance')}</p>
                           </div>
                         </div>

@@ -6,6 +6,7 @@ import { CheckCircle, Calendar, User, Phone, Mail, Download, ArrowRight, AlertCi
 import axios from 'axios';
 import { toast } from 'sonner';
 import { getServiceName } from '../utils/serviceMapping';
+import { mockServices } from '../mockData';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -61,6 +62,23 @@ const BookingSuccess = () => {
   const getAmount = () => {
     if (booking.amount === 0) return 'Free (First Time)';
     return `₹${booking.amount / 100}`;
+  };
+
+  const getDuration = () => {
+    if (booking.consultation_duration === '5-10') {
+      return 'Up to 10 mins';
+    }
+
+    // For "10+" duration, get the actual service duration
+    if (booking.consultation_duration === '10+') {
+      const service = mockServices.find(s => s.id === booking.service);
+      if (service && service.duration) {
+        return `Up to ${service.duration}`;
+      }
+      return '10+ minutes';
+    }
+
+    return `${booking.consultation_duration} minutes`;
   };
 
   // Load Razorpay script
@@ -226,7 +244,7 @@ const BookingSuccess = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Duration</p>
-                      <p className="font-medium text-gray-900">{booking.consultation_duration} minutes</p>
+                      <p className="font-medium text-gray-900">{getDuration()}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Type</p>

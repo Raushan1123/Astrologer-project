@@ -419,7 +419,10 @@ const Services = () => {
                       </div>
                       <div className="flex items-center justify-center mb-2">
                         {isFirstTime ? (
-                          <span className="text-4xl font-bold text-green-600">{translatedPrice}</span>
+                          <div className="flex flex-col items-center">
+                            <span className="text-4xl font-bold text-green-600">{translatedPrice}</span>
+                            <span className="text-sm text-purple-600 font-semibold mt-1">{t('pricing.worth1')}</span>
+                          </div>
                         ) : (
                           <span className="text-2xl md:text-3xl font-bold text-purple-900">
                             {translatedPrice}
