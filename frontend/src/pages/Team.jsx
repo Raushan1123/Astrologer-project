@@ -101,30 +101,45 @@ const Team = () => {
                   'from-pink-500 to-purple-600'     // Acharyaa Ankita Pandey
                 ];
 
+                // Define images for each astrologer
+                const images = [
+                  'https://pub-72df99f4eae645178daf37d3b0d2d50e.r2.dev/WhatsApp%20Image%202026-03-04%20at%2011.17.42%20PM.jpg',  // Acharyaa Indira Pandey
+                  'https://pub-72df99f4eae645178daf37d3b0d2d50e.r2.dev/WhatsApp%20Image%202026-03-04%20at%2011.18.19%20PM.jpeg',   // Acharya Ram Nath Tiwari
+                  'https://pub-72df99f4eae645178daf37d3b0d2d50e.r2.dev/WhatsApp%20Image%202026-03-04%20at%2011.18.07%20PM.jpeg'     // Acharyaa Ankita Pandey
+                ];
+
                 return (
                   <Card
                     key={astrologer.id}
                     className="overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-purple-100"
                   >
-                    {/* Header with Gradient Background */}
-                    <div className={`relative bg-gradient-to-br ${gradients[index]} p-8 text-center`}>
-                      {/* Avatar Circle */}
-                      <div className="w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-xl border-4 border-white/30">
-                        <User className="w-12 h-12 text-white" />
-                      </div>
+                    {/* Header with Image Background */}
+                    <div className="relative h-80 overflow-hidden">
+                      {/* Background Image */}
+                      <img
+                        src={images[index]}
+                        alt={astrologer.name}
+                        className={`absolute inset-0 w-full h-full object-cover ${index === 0 ? 'object-top' : 'object-center'}`}
+                      />
 
-                      {/* Experience Badge */}
-                      <div className="absolute top-4 right-4">
-                        <div className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full font-semibold shadow-lg border border-white/30">
-                          {astrologer.experience}+ {t('team.years')}
+                      {/* Gradient Overlay - lighter for better image visibility */}
+                      <div className={`absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent`}></div>
+
+                      {/* Content Overlay */}
+                      <div className="relative h-full flex flex-col justify-end p-8 text-center">
+                        {/* Experience Badge */}
+                        <div className="absolute top-4 right-4">
+                          <div className="bg-black/40 backdrop-blur-md text-white px-4 py-2 rounded-full font-bold shadow-lg border-2 border-white/60">
+                            {astrologer.experience}+ {t('team.years')}
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Name and Role */}
-                      <h3 className="text-2xl font-bold text-white mb-2">
-                        {astrologer.name}
-                      </h3>
-                      <p className="text-white/90 font-medium text-sm">{astrologer.role}</p>
+                        {/* Name and Role */}
+                        <h3 className="text-3xl font-bold text-white mb-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                          {astrologer.name}
+                        </h3>
+                        <p className="text-white font-semibold text-base drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] mb-4">{astrologer.role}</p>
+                      </div>
                     </div>
 
                     {/* Content */}
