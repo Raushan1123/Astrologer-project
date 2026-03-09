@@ -702,28 +702,28 @@ const Booking = () => {
 
 
 
-      {/* Holi Offer Banner */}
+      {/* Flash Sale Banner */}
       <section className="py-8">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-orange-500 p-1 shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 p-1 shadow-2xl">
               <div className="bg-white rounded-xl p-8 text-center">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="flex-1 text-left">
-                    <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 mb-3">
-                      🎉 {t('booking.holiOffer')}! 🎊
+                    <h2 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 mb-3">
+                      ⚡ {t('booking.flashSale')}! 💎
                     </h2>
                     <p className="text-lg md:text-xl text-gray-700 font-semibold mb-2">
-                      {t('booking.holiDescription')}
+                      {t('booking.flashSaleDescription')}
                     </p>
-                    <p className="text-md text-orange-600 font-bold animate-pulse">
-                      ⏰ {t('home.freeConsultation.limitedSlots')}
+                    <p className="text-md text-purple-600 font-bold animate-pulse">
+                      ⏰ {t('booking.offerEndingSoon')}
                     </p>
                   </div>
-                  <div className="bg-gradient-to-br from-orange-400 to-pink-500 text-white px-8 py-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
-                    <p className="text-sm font-semibold mb-1">{t('booking.holiOffer')}</p>
-                    <p className="text-4xl font-bold mb-2">{t('booking.holiDiscount')}</p>
-                    <p className="text-xs opacity-90">{t('booking.holiDescription')}</p>
+                  <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 text-white px-8 py-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform">
+                    <p className="text-sm font-semibold mb-1">{t('booking.flashSale')}</p>
+                    <p className="text-4xl font-bold mb-2">{t('booking.flashSaleDiscount')}</p>
+                    <p className="text-xs opacity-90">{t('booking.flashSaleDescription')}</p>
                   </div>
                 </div>
               </div>
@@ -1000,12 +1000,12 @@ const Booking = () => {
                       )}
 
                       {calculatedPrice > 0 && (formData.consultationDuration === '10+' || !canBookFirstTime) && formData.service && (
-                        <div className="mt-3 p-3 bg-gradient-to-br from-purple-50 to-amber-50 rounded-lg border border-purple-200">
+                        <div className="mt-3 p-3 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-lg border border-purple-300">
                           <p className="text-sm font-semibold text-purple-900">
                             💰 Consultation Fee: <span className="text-xl">₹{calculatedPrice}</span>
                           </p>
-                          <p className="text-xs text-gray-600 mt-1">
-                            🎉 Holi Offer: 25% discount already applied!
+                          <p className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 font-bold mt-1">
+                            ⚡ Flash Sale: 25% discount already applied!
                           </p>
                         </div>
                       )}

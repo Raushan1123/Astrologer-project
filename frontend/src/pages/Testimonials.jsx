@@ -6,6 +6,7 @@ import { mockTestimonials } from '../mockData';
 import { Star, Quote, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import TestimonialForm from '../components/TestimonialForm';
+import AnimatedCounter from '../components/AnimatedCounter';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -86,7 +87,9 @@ const Testimonials = () => {
               { numberKey: 'stat4Number', labelKey: 'stat4Label' }
             ].map((stat, index) => (
               <div key={index} className="text-center">
-                <p className="text-4xl md:text-5xl font-bold text-amber-400 mb-2">{t(`testimonials.${stat.numberKey}`)}</p>
+                <p className="text-4xl md:text-5xl font-bold text-amber-400 mb-2">
+                  <AnimatedCounter end={t(`testimonials.${stat.numberKey}`)} duration={1500} />
+                </p>
                 <p className="text-sm md:text-base text-purple-200">{t(`testimonials.${stat.labelKey}`)}</p>
               </div>
             ))}

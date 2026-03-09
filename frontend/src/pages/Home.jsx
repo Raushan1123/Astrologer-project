@@ -7,6 +7,7 @@ import { mockStats, mockServices, mockTestimonials } from '../mockData';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import PlanetaryAnimation from '../components/PlanetaryAnimation';
+import AnimatedCounter from '../components/AnimatedCounter';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -109,9 +110,10 @@ const Home = () => {
               <span className="text-sm font-medium text-amber-100" style={{ textShadow: '0 2px 8px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)' }}>20+ Years of Trusted Guidance</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100" style={{ textShadow: '0 4px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.7)' }}>
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight animate-in fade-in slide-in-from-bottom duration-700 delay-100" style={{ fontFamily: "'Playfair Display', serif", textShadow: '0 4px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.7)' }}>
               {t('home.hero.title')}
               <span className="block mt-2" style={{
+                fontFamily: "'Playfair Display', serif",
                 background: 'linear-gradient(to right, #ffd700, #ffb700)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -123,11 +125,11 @@ const Home = () => {
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl font-bold mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-200" style={{ textShadow: '0 4px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.7)' }}>
+            <p className="text-xl md:text-2xl font-bold mb-8 leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-200" style={{ fontFamily: "'Playfair Display', serif", textShadow: '0 4px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.7)' }}>
               <span className="text-amber-300">{t('home.hero.astrologerName')}</span> <span className="text-purple-200">-</span> <span className="text-white">{t('header.vedicAstrologer')}</span>
             </p>
 
-            <p className="text-lg text-white font-medium mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-300" style={{ textShadow: '0 3px 10px rgba(0,0,0,1), 0 0 25px rgba(0,0,0,0.9)' }}>
+            <p className="text-lg text-white font-medium mb-10 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom duration-700 delay-300" style={{ fontFamily: "'Playfair Display', serif", textShadow: '0 3px 10px rgba(0,0,0,1), 0 0 25px rgba(0,0,0,0.9)' }}>
               {t('home.hero.description')}
             </p>
 
@@ -163,7 +165,9 @@ const Home = () => {
               ].map((stat, index) => (
                 <Card key={index} className="p-6 bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105">
                   <stat.icon className="w-8 h-8 text-amber-300 mx-auto mb-3" style={{ filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.8))' }} />
-                  <p className="text-3xl font-bold text-white mb-1" style={{ textShadow: '0 3px 10px rgba(0,0,0,1), 0 0 25px rgba(0,0,0,0.9)' }}>{stat.value}</p>
+                  <p className="text-3xl font-bold text-white mb-1" style={{ textShadow: '0 3px 10px rgba(0,0,0,1), 0 0 25px rgba(0,0,0,0.9)' }}>
+                    <AnimatedCounter end={stat.value} duration={1500} />
+                  </p>
                   <p className="text-sm text-purple-200" style={{ textShadow: '0 2px 8px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.8)' }}>{stat.label}</p>
                 </Card>
               ))}
