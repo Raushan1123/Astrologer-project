@@ -2937,6 +2937,56 @@ async def get_razorpay_key():
 # Include the router in the main app
 app.include_router(api_router)
 
+# Jio Network Compatibility Middleware
+@app.middleware("http")
+async def jio_network_compatibility(request: Request, call_next):
+    """
+    Middleware to handle Jio network specific issues:
+    - Add extra CORS headers
+    - Handle preflight requests more aggressively
+    - Add cache control headers
+    """
+    # Handle OPTIONS (preflight) requests immediately
+    if request.method == "OPTIONS":
+        from fastapi.responses import Response
+        response = Response(status_code=200)
+        origin = request.headers.get("origin")
+
+        # Allow all configured origins
+        allowed_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
+        if origin in allowed_origins or '*' in allowed_origins:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+            response.headers["Access-Control-Allow-Headers"] = "*, Authorization, Content-Type, Accept, Origin, User-Agent, DNT, Cache-Control, X-Mx-ReqToken, Keep-Alive, X-Requested-With, If-Modified-Since"
+            response.headers["Access-Control-Max-Age"] = "86400"  # 24 hours
+            response.headers["Access-Control-Expose-Headers"] = "*"
+
+        return response
+
+    # Process the request
+    response = await call_next(request)
+
+    # Add additional headers for Jio compatibility
+    origin = request.headers.get("origin")
+    allowed_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
+
+    if origin in allowed_origins or '*' in allowed_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Expose-Headers"] = "*"
+
+    # Add cache control to reduce requests
+    if request.method == "GET":
+        response.headers["Cache-Control"] = "public, max-age=300"  # 5 minutes
+
+    # Add security headers (Jio sometimes requires these)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+
+    return response
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -2944,7 +2994,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
-    max_age=3600,
+    max_age=86400,  # Cache preflight requests for 24 hours (Jio compatibility)
 )
 
 @app.on_event("shutdown")

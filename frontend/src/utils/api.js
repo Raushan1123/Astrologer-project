@@ -4,12 +4,16 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000'
 
 const api = axios.create({
   baseURL: `${BACKEND_URL}/api`,
-  timeout: 30000,
+  timeout: 45000, // 45 seconds for Jio network
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
   },
   withCredentials: false,
+  maxRedirects: 5,
+  validateStatus: (status) => status < 500,
 });
 
 api.interceptors.request.use(
@@ -45,27 +49,43 @@ api.interceptors.response.use(
       network: navigator.connection?.effectiveType || 'unknown'
     });
 
+    // Handle network errors (common with Jio)
     if (error.message === 'Network Error' || !error.response) {
-      console.warn('⚠️ Network error detected');
-      
+      console.warn('⚠️ Network error detected - possibly Jio network issue');
+
       if (!originalRequest._retry) {
         originalRequest._retry = true;
         originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
 
-        if (originalRequest._retryCount <= 2) {
-          console.log(`🔄 Retrying request (${originalRequest._retryCount}/2)...`);
-          
+        // Retry up to 3 times for Jio network
+        if (originalRequest._retryCount <= 3) {
+          console.log(`🔄 Retrying request (${originalRequest._retryCount}/3)...`);
+
+          // Exponential backoff: 1s, 2s, 3s
           await new Promise(resolve => setTimeout(resolve, 1000 * originalRequest._retryCount));
-          
+
           return api(originalRequest);
         }
       }
 
       return Promise.reject({
-        message: 'Network connection issue. Please check your internet connection or try switching networks.',
+        message: 'Network connection issue. If you\'re on Jio network, this is a known issue. Please try again or switch to WiFi.',
         isNetworkError: true,
         originalError: error
       });
+    }
+
+    // Handle timeout errors specifically
+    if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+      console.warn('⚠️ Request timeout - Jio network may be slow');
+
+      if (!originalRequest._retryTimeout) {
+        originalRequest._retryTimeout = true;
+        console.log('🔄 Retrying due to timeout...');
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return api(originalRequest);
+      }
     }
 
     if (error.response?.status === 401) {
