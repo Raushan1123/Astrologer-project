@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'sonner';
+import api, { BACKEND_URL } from '../utils/api';
 
 const AuthContext = createContext(null);
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 export const AuthProvider = ({ children }) => {
@@ -20,10 +19,7 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('authToken');
       if (token) {
         try {
-          const response = await axios.get(`${API}/auth/verify`, {
-            headers: { Authorization: `Bearer ${token}` },
-            timeout: 5000 // 5 second timeout
-          });
+          const response = await api.get('/auth/verify');
 
           if (isMounted) {
             setUser(response.data.user);
@@ -31,16 +27,18 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (error) {
           // Only logout if it's a 401 (unauthorized), not on network errors
-          if (error.response?.status === 401) {
+          if (error.response?.status === 401 && !error.isNetworkError) {
             console.error('Token expired or invalid');
             localStorage.removeItem('authToken');
             if (isMounted) {
               setUser(null);
               setIsAuthenticated(false);
             }
-          } else {
+          } else if (error.isNetworkError) {
             // Network error - keep user logged in
-            console.error('Auth verification network error:', error.message);
+            console.warn('⚠️ Auth verification failed due to network issue - keeping user logged in');
+          } else {
+            console.error('Auth verification error:', error.message);
           }
         }
       }
@@ -60,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${API}/auth/login`, { email, password });
+      const response = await api.post('/auth/login', { email, password });
       const { token, user } = response.data;
 
       localStorage.setItem('authToken', token);
@@ -70,10 +68,16 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.log('Login error response:', error.response?.data);
+
+      if (error.isNetworkError) {
+        const message = 'Network connection issue. If you\'re on Jio network, try switching to WiFi or another network.';
+        toast.error(message, { duration: 6000 });
+        return { success: false, error: message };
+      }
+
       const message = error.response?.data?.detail || error.response?.data?.message || 'Login failed. Please try again.';
       console.log('Extracted message:', message);
 
-      // Show error with appropriate styling
       if (message.includes('does not exist')) {
         console.log('Showing toast with Sign Up button');
         toast.error(message, {
@@ -92,10 +96,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Signup function
   const signup = async (userData) => {
     try {
-      const response = await axios.post(`${API}/auth/signup`, userData);
+      const response = await api.post('/auth/signup', userData);
       const { token, user } = response.data;
 
       localStorage.setItem('authToken', token);
@@ -104,9 +107,14 @@ export const AuthProvider = ({ children }) => {
       toast.success('Account created successfully!');
       return { success: true };
     } catch (error) {
+      if (error.isNetworkError) {
+        const message = 'Network connection issue. If you\'re on Jio network, try switching to WiFi or another network.';
+        toast.error(message, { duration: 6000 });
+        return { success: false, error: message };
+      }
+
       const message = error.response?.data?.detail || error.response?.data?.message || 'Signup failed. Please try again.';
 
-      // Show error with appropriate styling
       if (message.includes('already registered') || message.includes('already exists')) {
         toast.error(message, {
           duration: 5000,
@@ -123,7 +131,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout function
   const logout = () => {
     localStorage.removeItem('authToken');
     setUser(null);
@@ -131,7 +138,6 @@ export const AuthProvider = ({ children }) => {
     toast.success('Logged out successfully');
   };
 
-  // Get auth token
   const getToken = () => {
     return localStorage.getItem('authToken');
   };
