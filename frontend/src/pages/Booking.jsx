@@ -17,6 +17,21 @@ import axios from 'axios';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Helper function to convert 24-hour time to 12-hour AM/PM format
+const formatTimeTo12Hour = (time24) => {
+  if (!time24) return '';
+
+  try {
+    const [hours, minutes] = time24.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12; // Convert 0 to 12 for midnight
+    return `${hour12.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+  } catch (e) {
+    return time24; // Return original if parsing fails
+  }
+};
+
 const Booking = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -31,6 +46,7 @@ const Booking = () => {
   const [checkingFirstBooking, setCheckingFirstBooking] = useState(true);
   const [preSelectedService, setPreSelectedService] = useState(null);
   const [calculatedPrice, setCalculatedPrice] = useState(0);
+  const [priceBreakdown, setPriceBreakdown] = useState(null); // Price breakdown with base, platform fee, GST
 
   const [formData, setFormData] = useState({
     name: '',
@@ -367,6 +383,7 @@ const Booking = () => {
   }, []); // Empty dependency array since it doesn't depend on any props or state
 
   // Calculate price based on service, duration, and detected country with PPP
+  // Now using API to get accurate breakdown including platform fees
   useEffect(() => {
     console.log('💰 Price Calculation Triggered:', {
       service: formData.service,
@@ -374,55 +391,66 @@ const Booking = () => {
       country: detectedCountry
     });
 
-    if (formData.service && formData.consultationDuration) {
-      // If duration is 5-10 mins, it's free
-      if (formData.consultationDuration === '5-10') {
-        console.log('✅ Free consultation (5-10 mins)');
-        setCalculatedPrice(0);
-      } else if (formData.consultationDuration === '10+') {
-        // Find the selected service from mockServices
-        const selectedService = mockServices?.find(s => s.id === formData.service);
-
-        if (selectedService && selectedService.actualPrice && selectedService.discountPercent !== undefined) {
-          // Step 1: Calculate base discounted price
-          const basePrice = selectedService.actualPrice * (1 - selectedService.discountPercent / 100);
-
-          // Step 2: Get PPP multiplier for the country (use detected or default to India)
-          const countryToUse = detectedCountry || 'India';
-          const pppMultiplier = getPPPMultiplier(countryToUse);
-
-          // Step 3: Apply PPP multiplier
-          let finalPrice = basePrice * pppMultiplier;
-
-          // Step 4: For Marriage Compatibility service, apply additional 1.5x multiplier
-          if (formData.service === '3') {
-            finalPrice = finalPrice * 1.5;
-          }
-
-          const roundedPrice = Math.round(finalPrice);
-
-          console.log('💰 Price Calculation Details:', {
-            service: selectedService.title,
-            actualPrice: selectedService.actualPrice,
-            discountPercent: selectedService.discountPercent,
-            basePrice: basePrice,
-            country: countryToUse,
-            pppMultiplier: pppMultiplier,
-            finalPrice: finalPrice,
-            roundedPrice: roundedPrice
-          });
-
-          setCalculatedPrice(roundedPrice);
-        } else {
-          // Service not found or missing price data
-          console.error('Service not found or missing price data:', formData.service);
+    const fetchPriceBreakdown = async () => {
+      if (formData.service && formData.consultationDuration) {
+        // If duration is 5-10 mins, it's free
+        if (formData.consultationDuration === '5-10') {
+          console.log('✅ Free consultation (5-10 mins)');
           setCalculatedPrice(0);
+          setPriceBreakdown(null);
+          return;
         }
+
+        // For paid consultations, fetch breakdown from API
+        if (formData.consultationDuration === '10+') {
+          try {
+            const countryToUse = detectedCountry || 'India';
+            const response = await axios.get(`${API}/price-breakdown`, {
+              params: {
+                duration: formData.consultationDuration,
+                service: formData.service,
+                country: countryToUse
+              },
+              timeout: 5000
+            });
+
+            const breakdown = response.data;
+            console.log('💰 Price Breakdown from API:', breakdown);
+
+            setCalculatedPrice(Math.round(breakdown.total_amount));
+            setPriceBreakdown({
+              basePrice: breakdown.base_price,
+              platformFee: breakdown.platform_fee,
+              totalAmount: breakdown.total_amount
+            });
+          } catch (error) {
+            console.error('Error fetching price breakdown:', error);
+            // Fallback to local calculation
+            const selectedService = mockServices?.find(s => s.id === formData.service);
+            if (selectedService && selectedService.actualPrice && selectedService.discountPercent !== undefined) {
+              const basePrice = selectedService.actualPrice * (1 - selectedService.discountPercent / 100);
+              const countryToUse = detectedCountry || 'India';
+              const pppMultiplier = getPPPMultiplier(countryToUse);
+              let finalPrice = basePrice * pppMultiplier;
+
+              if (formData.service === '3') {
+                finalPrice = finalPrice * 1.5;
+              }
+
+              const roundedPrice = Math.round(finalPrice);
+              setCalculatedPrice(roundedPrice);
+              setPriceBreakdown(null); // No breakdown if API failed
+            }
+          }
+        }
+      } else {
+        console.log('⏳ Waiting for service or duration selection...');
+        setCalculatedPrice(0);
+        setPriceBreakdown(null);
       }
-    } else {
-      console.log('⏳ Waiting for service or duration selection...');
-      setCalculatedPrice(0);
-    }
+    };
+
+    fetchPriceBreakdown();
   }, [formData.service, formData.consultationDuration, detectedCountry]);
 
   // Auto-set duration to "10+" for second-time users when service is selected
@@ -552,7 +580,7 @@ const Booking = () => {
         email: formData.email,
         phone: formData.phone,
         date_of_birth: formData.dateOfBirth || null,
-        time_of_birth: formData.timeOfBirth || null,
+        time_of_birth: formData.timeOfBirth ? formatTimeTo12Hour(formData.timeOfBirth) : null,
         place_of_birth: formData.placeOfBirth || null,
         astrologer: formData.astrologer,
         service: formData.service,
@@ -1000,13 +1028,47 @@ const Booking = () => {
                       )}
 
                       {calculatedPrice > 0 && (formData.consultationDuration === '10+' || !canBookFirstTime) && formData.service && (
-                        <div className="mt-3 p-3 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-lg border border-purple-300">
-                          <p className="text-sm font-semibold text-purple-900">
-                            💰 Consultation Fee: <span className="text-xl">₹{calculatedPrice}</span>
-                          </p>
-                          <p className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 font-bold mt-1">
+                        <div className="mt-3 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-lg border-2 border-purple-300 shadow-sm">
+                          <p className="text-xs text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 font-bold mb-3">
                             ⚡ Flash Sale: 25% discount already applied!
                           </p>
+
+                          {priceBreakdown ? (
+                            <div className="space-y-2">
+                              {/* Base Consultation Fee */}
+                              <div className="flex justify-between text-sm text-gray-700">
+                                <span className="font-medium">Consultation Fee:</span>
+                                <span className="font-semibold">₹{Math.round(priceBreakdown.basePrice)}</span>
+                              </div>
+
+                              {/* Platform Fee (includes taxes) */}
+                              <div className="flex justify-between text-sm text-gray-600">
+                                <span className="flex items-center gap-1">
+                                  Platform Fee
+                                  <span className="text-xs text-gray-500">(incl. taxes)</span>
+                                </span>
+                                <span>₹{Math.round(priceBreakdown.platformFee)}</span>
+                              </div>
+
+                              {/* Total Amount */}
+                              <div className="border-t-2 border-purple-200 pt-2 mt-2">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-base font-bold text-purple-900">Total Amount:</span>
+                                  <span className="text-2xl font-bold text-purple-900">₹{calculatedPrice}</span>
+                                </div>
+                              </div>
+
+                              <p className="text-xs text-gray-500 italic mt-2 pt-2 border-t border-gray-200">
+                                💡 Platform fee covers payment gateway charges & taxes
+                              </p>
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="text-sm font-semibold text-purple-900">
+                                💰 Consultation Fee: <span className="text-xl">₹{calculatedPrice}</span>
+                              </p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

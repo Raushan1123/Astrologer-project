@@ -18,6 +18,7 @@ from sendgrid.helpers.mail import Mail
 import pytz
 import bcrypt
 import jwt
+import requests
 
 from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
@@ -28,6 +29,23 @@ from models import (
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Helper function to convert 24-hour time to 12-hour AM/PM format
+def format_time_12hr(time_str: str) -> str:
+    """Convert 24-hour format (HH:MM) to 12-hour format with AM/PM"""
+    if not time_str:
+        return ""
+    try:
+        # Parse the time string (handles both HH:MM and HH:MM:SS formats)
+        if len(time_str.split(':')) == 2:
+            time_obj = datetime.strptime(time_str, "%H:%M")
+        else:
+            time_obj = datetime.strptime(time_str, "%H:%M:%S")
+        # Format as 12-hour with AM/PM
+        return time_obj.strftime("%I:%M %p")
+    except:
+        # If parsing fails, return original string
+        return time_str
 
 # MongoDB connection with optimized settings
 mongo_url = os.environ.get('MONGO_URL')
@@ -231,14 +249,16 @@ async def startup_event():
                 astrologer_name = "Acharyaa Indira Pandey"
                 availability_data = []
 
-                # New time slots:
-                # 9:30 AM - 10:30 AM
-                # 1:00 PM - 3:00 PM
-                # 6:30 PM - 10:00 PM
+                # UPDATED: Astrologers are available from 9:30 AM - 11:00 AM
+                # NOT available from 1:00 PM - 2:00 PM (excluded)
+                # Available time slots:
+                # Morning: 9:30 AM - 11:00 AM
+                # Afternoon: 2:00 PM - 6:30 PM
+                # Evening: 6:30 PM - 10:00 PM
                 time_ranges = [
-                    {"start_time": "09:30", "end_time": "10:30"},
-                    {"start_time": "13:00", "end_time": "15:00"},
-                    {"start_time": "18:30", "end_time": "22:00"}
+                    {"start_time": "09:30", "end_time": "11:00"},  # 9:30 AM - 11:00 AM
+                    {"start_time": "14:00", "end_time": "18:30"},  # 2:00 PM - 6:30 PM
+                    {"start_time": "18:30", "end_time": "22:00"}   # 6:30 PM - 10:00 PM
                 ]
 
                 # Add availability for all 7 days (Monday to Sunday)
@@ -391,6 +411,70 @@ async def send_email(to_email: str, subject: str, body: str):
             return False
 
 
+# Helper function to send WhatsApp messages using Twilio
+async def send_whatsapp(to_phone: str, message: str):
+    """
+    Send WhatsApp message using Twilio WhatsApp API
+
+    Required environment variables:
+    - TWILIO_ACCOUNT_SID: Your Twilio Account SID
+    - TWILIO_AUTH_TOKEN: Your Twilio Auth Token
+    - TWILIO_WHATSAPP_FROM: Your Twilio WhatsApp number (format: whatsapp:+14155238886)
+
+    Args:
+        to_phone: Recipient phone number with country code (e.g., +919876543210)
+        message: Message text to send
+
+    Returns:
+        bool: True if message sent successfully, False otherwise
+    """
+    try:
+        twilio_account_sid = os.environ.get('TWILIO_ACCOUNT_SID', '')
+        twilio_auth_token = os.environ.get('TWILIO_AUTH_TOKEN', '')
+        twilio_whatsapp_from = os.environ.get('TWILIO_WHATSAPP_FROM', 'whatsapp:+14155238886')
+
+        # Check if Twilio is configured
+        if not twilio_account_sid or not twilio_auth_token:
+            logger.warning("Twilio WhatsApp not configured - skipping WhatsApp message")
+            return False
+
+        # Format recipient number (ensure it has whatsapp: prefix and country code)
+        if not to_phone.startswith('whatsapp:'):
+            # Ensure phone has + prefix for country code
+            if not to_phone.startswith('+'):
+                to_phone = '+' + to_phone
+            to_phone = f'whatsapp:{to_phone}'
+
+        # Twilio API endpoint
+        url = f'https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Messages.json'
+
+        # Request payload
+        data = {
+            'From': twilio_whatsapp_from,
+            'To': to_phone,
+            'Body': message
+        }
+
+        # Send request with basic auth
+        response = requests.post(
+            url,
+            data=data,
+            auth=(twilio_account_sid, twilio_auth_token),
+            timeout=10
+        )
+
+        if response.status_code in [200, 201]:
+            logger.info(f"✅ WhatsApp message sent to {to_phone} via Twilio")
+            return True
+        else:
+            logger.error(f"❌ Twilio WhatsApp error: {response.status_code} - {response.text}")
+            return False
+
+    except Exception as e:
+        logger.error(f"❌ Failed to send WhatsApp message: {str(e)}")
+        return False
+
+
 # Service ID to Name mapping
 SERVICE_NAMES = {
     "1": "Birth Chart (Kundli) Analysis",
@@ -485,30 +569,34 @@ def get_ppp_multiplier(country: str) -> float:
         return 2.0  # Default for unlisted countries (assume medium-high income)
 
 
-# Calculate consultation price based on duration, service, and country with PPP
-def calculate_price(duration: str, service: str = None, country: str = "India") -> int:
+# Calculate consultation price with platform fees and taxes
+def calculate_price_with_breakdown(duration: str, service: str = None, country: str = "India") -> dict:
     """
-    Calculate consultation price with PPP (Purchasing Power Parity) model:
-    1. Free consultations (5-10 mins) are always free
-    2. Base price = actualPrice * (1 - discountPercent/100)
-    3. Apply PPP multiplier based on country (1.0x for India, up to 4.0x for high-income countries)
-    4. For Marriage Compatibility service: Apply additional 1.5x multiplier
+    Calculate consultation price with detailed breakdown including platform fees and taxes.
 
-    PPP Multipliers:
-    - India: 1.0x (base)
-    - Lower-middle income (Thailand, Vietnam, etc.): 1.1x - 1.3x
-    - Upper-middle income (UAE, Malaysia, etc.): 1.4x - 2.8x
-    - High income (USA, UK, Australia, etc.): 2.0x - 4.0x
+    Breakdown:
+    1. Base service price (after discount)
+    2. PPP adjustment based on country
+    3. Platform fee (3% to cover Razorpay commission ~2% + GST 18% on commission)
+    4. Total amount to charge customer
 
-    Returns: Price in paise (multiply by 100)
+    Note: Platform fee includes GST, so it's not shown separately to keep UI simple.
+
+    Returns: Dictionary with breakdown details and total in paise
     """
     # If duration is 5-10 mins, it's always free
     if duration == "5-10":
-        return 0
+        return {
+            "base_price": 0,
+            "platform_fee": 0,
+            "total_amount": 0,
+            "base_price_paise": 0,
+            "platform_fee_paise": 0,
+            "total_amount_paise": 0
+        }
 
     # For 10+ mins, calculate based on service
     if duration == "10+" and service:
-        # Try to extract service ID from service string
         service_id = service
 
         # If service is in our pricing map, use it
@@ -524,21 +612,97 @@ def calculate_price(duration: str, service: str = None, country: str = "India") 
             logger.info(f"Country: {country} | PPP Multiplier: {ppp_multiplier}x")
 
             # Step 3: Apply PPP multiplier
-            final_price = base_price * ppp_multiplier
-            logger.info(f"Price after PPP adjustment: ₹{final_price}")
+            service_price = base_price * ppp_multiplier
+            logger.info(f"Price after PPP adjustment: ₹{service_price}")
 
             # Step 4: For Marriage Compatibility service, apply additional 1.5x multiplier
             if service_id == "3":  # Service 3 is Marriage Compatibility
-                final_price = final_price * 1.5
-                logger.info(f"Marriage Compatibility - Applied 1.5x multiplier: ₹{final_price}")
+                service_price = service_price * 1.5
+                logger.info(f"Marriage Compatibility - Applied 1.5x multiplier: ₹{service_price}")
 
-            # Round and convert to paise
-            final_price_paise = round(final_price * 100)
-            logger.info(f"Final price: ₹{final_price} ({final_price_paise} paise)")
-            return final_price_paise
+            # Step 5: Calculate platform fee (3% to cover payment gateway costs + GST)
+            # Breakdown: Razorpay charges ~2% + GST (18% on commission) = ~2.36%
+            # We charge 3% to cover costs
+            platform_fee_percent = 3.0
+            platform_fee = service_price * (platform_fee_percent / 100)
+            logger.info(f"Platform fee ({platform_fee_percent}%): ₹{platform_fee}")
+
+            # Step 6: Calculate total amount
+            total_amount = service_price + platform_fee
+            logger.info(f"Total amount: ₹{total_amount}")
+
+            # Round values and convert to paise
+            base_price_paise = round(service_price * 100)
+            platform_fee_paise = round(platform_fee * 100)
+            total_amount_paise = round(total_amount * 100)
+
+            logger.info(f"💰 Price Breakdown: Base=₹{service_price:.2f}, Platform Fee=₹{platform_fee:.2f}, Total=₹{total_amount:.2f}")
+
+            return {
+                "base_price": round(service_price, 2),
+                "platform_fee": round(platform_fee, 2),
+                "total_amount": round(total_amount, 2),
+                "base_price_paise": base_price_paise,
+                "platform_fee_paise": platform_fee_paise,
+                "total_amount_paise": total_amount_paise
+            }
 
     # Default fallback
-    return 0
+    return {
+        "base_price": 0,
+        "platform_fee": 0,
+        "total_amount": 0,
+        "base_price_paise": 0,
+        "platform_fee_paise": 0,
+        "total_amount_paise": 0
+    }
+
+
+# Calculate consultation price based on duration, service, and country with PPP (LEGACY - for backward compatibility)
+def calculate_price(duration: str, service: str = None, country: str = "India") -> int:
+    """
+    LEGACY function - maintained for backward compatibility.
+    Use calculate_price_with_breakdown() for new code.
+
+    Returns: Total price in paise (including platform fees)
+    """
+    breakdown = calculate_price_with_breakdown(duration, service, country)
+    return breakdown["total_amount_paise"]
+
+
+# Get price breakdown endpoint
+@api_router.get("/price-breakdown")
+async def get_price_breakdown(
+    duration: str,
+    service: str,
+    country: str = "India"
+):
+    """
+    Get detailed price breakdown for a service including base price, platform fee, and total.
+    This allows frontend to show price breakdown before creating a booking.
+
+    Args:
+        duration: Consultation duration (e.g., "5-10", "10+")
+        service: Service ID (e.g., "1", "2", "3")
+        country: Country name for PPP adjustment (default: "India")
+
+    Returns:
+        Dictionary with base_price, platform_fee, and total_amount
+    """
+    try:
+        breakdown = calculate_price_with_breakdown(duration, service, country)
+        return {
+            "duration": duration,
+            "service": service,
+            "country": country,
+            "base_price": breakdown["base_price"],
+            "platform_fee": breakdown["platform_fee"],
+            "total_amount": breakdown["total_amount"],
+            "currency": "INR"
+        }
+    except Exception as e:
+        logger.error(f"Error calculating price breakdown: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # Root endpoint
@@ -1043,12 +1207,17 @@ async def create_booking(
         user_bookings_count = await db.bookings.count_documents({"email": current_user["email"]})
         is_first_booking = user_bookings_count == 0
 
-        # Calculate price based on duration, service, and detected country
-        amount = calculate_price(
+        # Calculate price with breakdown (base price + platform fee + taxes)
+        price_breakdown = calculate_price_with_breakdown(
             booking_data.consultation_duration,
             booking_data.service,
             country
         )
+
+        # Total amount to charge (in paise)
+        amount = price_breakdown["total_amount_paise"]
+
+        logger.info(f"💰 Price Breakdown for booking: Base=₹{price_breakdown['base_price']}, Platform Fee=₹{price_breakdown['platform_fee']}, Total=₹{price_breakdown['total_amount']}")
 
         # Create Razorpay order if amount > 0 and Razorpay is enabled
         razorpay_order_id = None
@@ -1279,7 +1448,7 @@ async def create_booking(
                     <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong>
                     </td><td>{booking.date_of_birth or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong>
-                    </td><td>{booking.time_of_birth or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                    </td><td>{format_time_12hr(booking.time_of_birth) if booking.time_of_birth else '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong>
                     </td><td>{booking.place_of_birth or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                 </table>
@@ -1321,7 +1490,101 @@ async def create_booking(
         except Exception as e:
             logger.error(f"❌ Error sending admin notification: {str(e)}")
 
-        return booking
+        # Prepare WhatsApp-specific variables
+        if payment_status == PaymentStatus.PENDING:
+            booking_status_display = "Payment Pending ⚠️"
+            whatsapp_payment_note = f"⚠️ *Payment Required:* Please complete payment of {amount_display} to confirm your booking."
+            payment_status_emoji = "⚠️"
+        else:
+            booking_status_display = "Confirmed ✅"
+            whatsapp_payment_note = "✅ Your free first-time consultation is confirmed!"
+            payment_status_emoji = "✅"
+
+        # Send WhatsApp notifications
+        # Customer WhatsApp message
+        customer_whatsapp_msg = f"""🌟 *Booking Confirmation - Acharyaa Indira Pandey*
+
+Dear {booking.name},
+
+Thank you for booking a consultation with us!
+
+📋 *Booking Details:*
+• Booking ID: {booking.id}
+• Astrologer: {booking.astrologer}
+• Service: {get_service_name(booking.service)}
+• Type: {consultation_type}
+• Duration: {duration_display}
+• Preferred Date: {booking.preferred_date or 'To be scheduled'}
+• Preferred Time: {booking.preferred_time or 'To be scheduled'}
+• Amount: {amount_display}
+• Status: {booking_status_display}
+
+{whatsapp_payment_note}
+
+We will contact you within 24 hours to confirm your appointment.
+
+Best regards,
+*Acharyaa Indira Pandey Team*
+🙏"""
+
+        try:
+            customer_whatsapp_sent = await send_whatsapp(booking.phone, customer_whatsapp_msg)
+            if customer_whatsapp_sent:
+                logger.info(f"📱 Customer WhatsApp sent to {booking.phone}")
+            else:
+                logger.warning(f"⚠️ Failed to send customer WhatsApp to {booking.phone}")
+        except Exception as e:
+            logger.error(f"❌ Error sending customer WhatsApp: {str(e)}")
+
+        # Admin WhatsApp message
+        admin_phone = os.environ.get('ADMIN_WHATSAPP_NUMBER', '')  # Admin's WhatsApp number
+        if admin_phone:
+            admin_whatsapp_msg = f"""🔔 *New Booking Received*
+
+{payment_status_emoji} *Payment Status:* {booking_status_display}
+
+👤 *Customer Details:*
+• Name: {booking.name}
+• Phone: {booking.phone}
+• Email: {booking.email}
+
+🎯 *Service Details:*
+• Service: {get_service_name(booking.service)}
+• Astrologer: {booking.astrologer}
+• Duration: {duration_display}
+• Amount: {amount_display}
+
+📅 *Preferred Schedule:*
+• Date: {booking.preferred_date or 'To be scheduled'}
+• Time: {booking.preferred_time or 'To be scheduled'}
+
+📍 *Birth Details:*
+• DOB: {booking.date_of_birth or 'To be collected'}
+• Time: {format_time_12hr(booking.time_of_birth) if booking.time_of_birth else 'To be collected'}
+• Place: {booking.place_of_birth or 'To be collected'}
+
+🆔 Booking ID: {booking.id}
+
+⚡ *Action:* {admin_action}"""
+
+            try:
+                admin_whatsapp_sent = await send_whatsapp(admin_phone, admin_whatsapp_msg)
+                if admin_whatsapp_sent:
+                    logger.info(f"📱 Admin WhatsApp sent to {admin_phone}")
+                else:
+                    logger.warning(f"⚠️ Failed to send admin WhatsApp to {admin_phone}")
+            except Exception as e:
+                logger.error(f"❌ Error sending admin WhatsApp: {str(e)}")
+
+        # Convert booking to dict and add price breakdown
+        booking_response = booking.model_dump()
+        booking_response['price_breakdown'] = {
+            'base_price': price_breakdown['base_price'],
+            'platform_fee': price_breakdown['platform_fee'],
+            'total_amount': price_breakdown['total_amount']
+        }
+
+        return booking_response
     except Exception as e:
         logger.error(f"Error creating booking: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -1985,7 +2248,7 @@ async def verify_payment(request: Request):
                 <h3 style="color: #7c3aed; margin-top: 20px;">Birth Details:</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong></td><td>{booking['date_of_birth'] or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
-                    <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong></td><td>{booking['time_of_birth'] or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong></td><td>{format_time_12hr(booking['time_of_birth']) if booking['time_of_birth'] else '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                     <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong></td><td>{booking['place_of_birth'] or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
                 </table>
 
@@ -2007,7 +2270,59 @@ async def verify_payment(request: Request):
         """
         await send_email(admin_email, f"✅ Payment Confirmed - {booking['name']}", admin_email_body)
 
-        logger.info(f"✅ Payment confirmed for booking {booking_id}, emails sent to customer and admin")
+        # Send WhatsApp notifications for payment confirmation
+        customer_payment_whatsapp = f"""✅ *Payment Confirmed!*
+
+Dear {booking['name']},
+
+Your payment of *₹{booking['amount']/100}* has been received successfully!
+
+🎉 *Your consultation is now confirmed!*
+
+📋 *Booking Details:*
+• Booking ID: {booking['id']}
+• Payment ID: {razorpay_payment_id}
+• Service: {get_service_name(booking['service'])}
+• Duration: {duration_display_payment}
+• Status: Confirmed ✅
+
+We will contact you shortly to schedule your consultation.
+
+Best regards,
+*Acharyaa Indira Pandey Team*
+🙏"""
+
+        try:
+            await send_whatsapp(booking['phone'], customer_payment_whatsapp)
+            logger.info(f"📱 Payment confirmation WhatsApp sent to {booking['phone']}")
+        except Exception as e:
+            logger.error(f"❌ Error sending payment WhatsApp: {str(e)}")
+
+        # Admin WhatsApp for payment confirmation
+        admin_phone = os.environ.get('ADMIN_WHATSAPP_NUMBER', '')
+        if admin_phone:
+            admin_payment_whatsapp = f"""💰 *Payment Received!*
+
+✅ *Payment Confirmed*
+
+👤 *Customer:* {booking['name']}
+📞 *Phone:* {booking['phone']}
+💵 *Amount:* ₹{booking['amount']/100}
+🆔 *Payment ID:* {razorpay_payment_id}
+📝 *Booking ID:* {booking['id']}
+
+🎯 *Service:* {get_service_name(booking['service'])}
+⏱️ *Duration:* {duration_display_payment}
+
+⚡ *Action Required:* Contact customer within 24 hours to schedule the appointment."""
+
+            try:
+                await send_whatsapp(admin_phone, admin_payment_whatsapp)
+                logger.info(f"📱 Payment confirmation WhatsApp sent to admin {admin_phone}")
+            except Exception as e:
+                logger.error(f"❌ Error sending admin payment WhatsApp: {str(e)}")
+
+        logger.info(f"✅ Payment confirmed for booking {booking_id}, emails and WhatsApp sent to customer and admin")
 
         return {"status": "success", "message": "Payment verified successfully"}
     except Exception as e:
@@ -2788,11 +3103,12 @@ async def get_available_slots(astrologer: str, date: str, service: Optional[str]
         }).to_list(10)
 
         # If no availability defined, use default time ranges
+        # UPDATED: Available 9:30 AM - 11:00 AM, NOT available 1:00 PM - 2:00 PM, then 2:00 PM onwards
         if not availability_ranges:
             availability_ranges = [
-                {"start_time": "09:30", "end_time": "10:30", "slot_duration_minutes": 30},
-                {"start_time": "13:00", "end_time": "15:00", "slot_duration_minutes": 30},
-                {"start_time": "18:30", "end_time": "22:00", "slot_duration_minutes": 30}
+                {"start_time": "09:30", "end_time": "11:00", "slot_duration_minutes": 30},  # 9:30 AM - 11:00 AM
+                {"start_time": "14:00", "end_time": "18:30", "slot_duration_minutes": 30},  # 2:00 PM - 6:30 PM
+                {"start_time": "18:30", "end_time": "22:00", "slot_duration_minutes": 30}   # 6:30 PM - 10:00 PM
             ]
 
         # Get current time in IST
@@ -2949,14 +3265,14 @@ async def reset_availability():
         })
         logger.info(f"Deleted {delete_result.deleted_count} old availability records")
 
-        # New time slots:
-        # 9:30 AM - 10:30 AM
-        # 1:00 PM - 3:00 PM
+        # UPDATED: Available time slots (excluding 1:00 PM - 2:00 PM)
+        # 9:30 AM - 11:00 AM
+        # 2:00 PM - 6:30 PM
         # 6:30 PM - 10:00 PM
         time_ranges = [
-            {"start_time": "09:30", "end_time": "10:30"},
-            {"start_time": "13:00", "end_time": "15:00"},
-            {"start_time": "18:30", "end_time": "22:00"}
+            {"start_time": "09:30", "end_time": "11:00"},  # 9:30 AM - 11:00 AM
+            {"start_time": "14:00", "end_time": "18:30"},  # 2:00 PM - 6:30 PM
+            {"start_time": "18:30", "end_time": "22:00"}   # 6:30 PM - 10:00 PM
         ]
 
         availability_data = []
