@@ -19,6 +19,7 @@ import pytz
 import bcrypt
 import jwt
 import requests
+import re
 
 from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
@@ -2426,11 +2427,13 @@ async def payment_failed(request: Request):
 
 # Razorpay Webhook for Refund Status Updates
 @api_router.post("/razorpay-webhook")
-async def razorpay_webhook(request: Request):
+async def razorpay_webhook(request: Request, background_tasks: BackgroundTasks):
     """
-    Webhook endpoint to receive refund status updates from Razorpay.
+    Webhook endpoint to receive payment and refund updates from Razorpay.
 
     Razorpay sends webhooks for events like:
+    - payment.captured: Payment successfully captured (for payment links)
+    - payment.failed: Payment failed
     - refund.processed: Refund successfully processed
     - refund.failed: Refund failed
     - refund.speed_changed: Refund speed changed
@@ -2465,11 +2468,113 @@ async def razorpay_webhook(request: Request):
         data = json.loads(payload)
         event = data.get('event')
         payload_data = data.get('payload', {})
-        refund_entity = payload_data.get('refund', {}).get('entity', {})
 
         logger.info(f"Received Razorpay webhook: {event}")
 
+        # Handle payment captured event (for payment links)
+        if event == 'payment.captured':
+            payment_entity = payload_data.get('payment', {}).get('entity', {})
+            payment_id = payment_entity.get('id')
+            order_id = payment_entity.get('order_id')
+            amount = payment_entity.get('amount')
+
+            logger.info(f"Payment captured: {payment_id}, Order: {order_id}, Amount: ₹{amount/100}")
+
+            # Find booking by order_id
+            booking = await db.bookings.find_one({"razorpay_order_id": order_id})
+
+            if booking:
+                # Update booking to confirmed
+                await db.bookings.update_one(
+                    {"id": booking['id']},
+                    {
+                        "$set": {
+                            "payment_status": PaymentStatus.COMPLETED.value,
+                            "razorpay_payment_id": payment_id,
+                            "status": BookingStatus.CONFIRMED.value,
+                            "updated_at": datetime.now(timezone.utc).isoformat(),
+                            "payment_confirmed_at": datetime.now(timezone.utc).isoformat()
+                        }
+                    }
+                )
+
+                # Update user's first_booking_completed flag
+                user = await db.users.find_one({"email": booking["email"]})
+                if user and not user.get("first_booking_completed", False):
+                    await db.users.update_one(
+                        {"email": booking["email"]},
+                        {"$set": {"first_booking_completed": True}}
+                    )
+
+                logger.info(f"✅ Payment confirmed for booking {booking['id']} via webhook")
+
+                # Send confirmation email
+                duration_display = f"{booking['consultation_duration']} minutes"
+                customer_email_body = f"""
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #10b981;">✅ Payment Received - Booking Confirmed!</h2>
+                        <p>Dear {booking['name']},</p>
+                        <p>Thank you! Your payment has been received and your consultation is now confirmed.</p>
+
+                        <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                            <strong>✅ Confirmed Booking Details:</strong><br>
+                            <strong>Booking ID:</strong> {booking['id']}<br>
+                            <strong>Service:</strong> {get_service_name(booking['service'])}<br>
+                            <strong>Astrologer:</strong> {booking['astrologer']}<br>
+                            <strong>Duration:</strong> {duration_display}<br>
+                            <strong>Date:</strong> {booking.get('preferred_date', 'To be scheduled')}<br>
+                            <strong>Time:</strong> {booking.get('preferred_time', 'To be scheduled')}<br>
+                            <strong>Amount Paid:</strong> ₹{amount/100}
+                        </div>
+
+                        <p>We will contact you 24 hours before your scheduled appointment.</p>
+                        <p>You can view your booking anytime by logging into your account.</p>
+                        <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
+                    </div>
+                </body>
+                </html>
+                """
+
+                background_tasks.add_task(
+                    send_email,
+                    booking["email"],
+                    "✅ Payment Received - Booking Confirmed",
+                    customer_email_body
+                )
+
+                # Send WhatsApp confirmation
+                if booking.get('phone'):
+                    whatsapp_msg = f"""🌟 *Payment Received - Booking Confirmed!*
+
+Dear {booking['name']},
+
+✅ Your payment has been received and your consultation is now confirmed!
+
+📋 *Booking Details:*
+• Booking ID: {booking['id']}
+• Service: {get_service_name(booking['service'])}
+• Astrologer: {booking['astrologer']}
+• Duration: {duration_display}
+• Date: {booking.get('preferred_date', 'To be scheduled')}
+• Time: {booking.get('preferred_time', 'To be scheduled')}
+• Amount Paid: ₹{amount/100}
+
+We will contact you 24 hours before your appointment.
+
+Best regards,
+*Acharyaa Indira Pandey Team* 🙏"""
+
+                    background_tasks.add_task(send_whatsapp, booking['phone'], whatsapp_msg)
+
+                return {"status": "success", "message": "Payment confirmed and booking updated"}
+            else:
+                logger.warning(f"No booking found for order_id: {order_id}")
+                return {"status": "ignored", "message": "Booking not found"}
+
         # Handle refund events
+        refund_entity = payload_data.get('refund', {}).get('entity', {})
         if event in ['refund.processed', 'refund.failed', 'refund.speed_changed']:
             refund_id = refund_entity.get('id')
             refund_status = refund_entity.get('status')  # processed, failed, pending
@@ -2639,6 +2744,490 @@ async def get_refund_status(
         raise
     except Exception as e:
         logger.error(f"Error getting refund status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== ADMIN-ASSISTED BOOKING APIS ====================
+
+@api_router.get("/admin/customer-lookup")
+async def admin_customer_lookup(identifier: str):
+    """
+    Admin endpoint to lookup customer by email or phone.
+    Returns customer details if found, or indicates new customer.
+
+    Args:
+        identifier: Email address or phone number
+    """
+    try:
+        logger.info(f"Admin customer lookup: {identifier}")
+
+        # Try to find user by email or phone
+        query = {}
+        if '@' in identifier:
+            # Email lookup
+            query = {"email": identifier.lower()}
+        else:
+            # Phone lookup - clean the phone number
+            cleaned_phone = re.sub(r'[\s\-\(\)\+]', '', identifier)
+            query = {"phone": cleaned_phone}
+
+        user = await db.users.find_one(query, {"_id": 0, "password": 0})
+
+        if user:
+            # Get user's booking history
+            bookings = await db.bookings.find(
+                {"email": user["email"]},
+                {
+                    "_id": 0,
+                    "id": 1,
+                    "service": 1,
+                    "astrologer": 1,
+                    "preferred_date": 1,
+                    "status": 1,
+                    "amount": 1,
+                    "consultation_duration": 1,
+                    "payment_status": 1,
+                    "created_at": 1
+                }
+            ).sort("created_at", -1).limit(5).to_list(5)
+
+            # Check if can use free booking
+            first_booking_completed = user.get("first_booking_completed", False)
+            can_use_free_booking = not first_booking_completed and len(bookings) == 0
+
+            return {
+                "found": True,
+                "customer": {
+                    "id": user["id"],
+                    "name": user["name"],
+                    "email": user["email"],
+                    "phone": user.get("phone"),
+                    "created_at": user.get("created_at"),
+                    "first_booking_completed": first_booking_completed,
+                    "can_use_free_booking": can_use_free_booking
+                },
+                "booking_history": bookings,
+                "total_bookings": len(bookings)
+            }
+        else:
+            # User not found - check if there are any bookings with this email/phone
+            # (could be bookings created before user account was created)
+            cleaned_phone = re.sub(r'[\s\-\(\)\+]', '', identifier) if '@' not in identifier else None
+
+            if '@' in identifier:
+                existing_bookings_query = {"email": identifier.lower()}
+            else:
+                existing_bookings_query = {"phone": cleaned_phone}
+
+            existing_bookings = await db.bookings.find(
+                existing_bookings_query,
+                {
+                    "_id": 0,
+                    "id": 1,
+                    "service": 1,
+                    "astrologer": 1,
+                    "preferred_date": 1,
+                    "status": 1,
+                    "amount": 1,
+                    "consultation_duration": 1,
+                    "payment_status": 1,
+                    "created_at": 1
+                }
+            ).sort("created_at", -1).limit(5).to_list(5)
+
+            if len(existing_bookings) > 0:
+                # Found bookings but no user account
+                return {
+                    "found": True,
+                    "customer": None,
+                    "booking_history": existing_bookings,
+                    "total_bookings": len(existing_bookings),
+                    "can_use_free_booking": False,
+                    "message": f"Found {len(existing_bookings)} previous booking(s) for this customer. Not eligible for free consultation."
+                }
+            else:
+                # Truly new customer
+                return {
+                    "found": False,
+                    "can_use_free_booking": True,
+                    "message": "New customer - eligible for free first-time consultation!"
+                }
+
+    except Exception as e:
+        logger.error(f"Error in customer lookup: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/admin/create-booking")
+async def admin_create_booking(booking_data: BookingCreate, background_tasks: BackgroundTasks):
+    """
+    Admin endpoint to create booking on behalf of customer.
+    Creates booking with payment_pending status and returns payment link.
+
+    Flow:
+    1. Create booking with status=PENDING, payment_status=PENDING
+    2. Generate Razorpay payment link
+    3. Admin sends link to customer
+    4. Customer pays -> Webhook confirms -> Booking confirmed
+    """
+    try:
+        logger.info(f"Admin creating booking for: {booking_data.email}")
+
+        # Detect country (default to India for admin bookings)
+        country = "India"
+
+        # Check if user exists, if not create
+        user = await db.users.find_one({"email": booking_data.email.lower()})
+        is_first_booking = False
+        can_use_free_booking = False
+
+        if not user:
+            # New user - check if they have any bookings by email/phone
+            # (in case user was created through admin booking without account)
+            existing_bookings = await db.bookings.find({
+                "$or": [
+                    {"email": booking_data.email.lower()},
+                    {"phone": booking_data.phone}
+                ]
+            }).to_list(100)
+
+            if len(existing_bookings) > 0:
+                # User has bookings but no account - they've already booked before
+                logger.info(f"User {booking_data.email} has {len(existing_bookings)} previous bookings without account")
+                is_first_booking = False
+                can_use_free_booking = False
+            else:
+                # Truly new customer - eligible for free booking
+                is_first_booking = True
+                can_use_free_booking = True
+
+            # Create new user account
+            user_id = str(uuid.uuid4())
+            temp_password = hash_password(str(uuid.uuid4())[:8])  # Temporary password
+
+            new_user = {
+                "id": user_id,
+                "name": booking_data.name,
+                "email": booking_data.email.lower(),
+                "phone": booking_data.phone,
+                "password": temp_password,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "first_booking_completed": not can_use_free_booking  # Set to True if already has bookings
+            }
+            await db.users.insert_one(new_user)
+            logger.info(f"Created new user account for {booking_data.email}")
+        else:
+            # Existing user - check first_booking_completed flag
+            first_booking_completed = user.get("first_booking_completed", False)
+
+            if not first_booking_completed:
+                # Double-check by counting actual bookings
+                user_bookings = await db.bookings.count_documents({"email": booking_data.email.lower()})
+                if user_bookings > 0:
+                    # User has bookings but flag not set - update flag
+                    await db.users.update_one(
+                        {"email": booking_data.email.lower()},
+                        {"$set": {"first_booking_completed": True}}
+                    )
+                    logger.warning(f"User {booking_data.email} had {user_bookings} bookings but flag was False - fixed")
+                    first_booking_completed = True
+
+            is_first_booking = not first_booking_completed
+            can_use_free_booking = not first_booking_completed
+
+        # Validate free booking eligibility
+        if booking_data.consultation_duration.value == "5-10" and not can_use_free_booking:
+            logger.warning(f"User {booking_data.email} attempted to book free session but already used free booking")
+            raise HTTPException(
+                status_code=400,
+                detail="Customer has already used their free first-time consultation. Please select '10+' duration for paid consultation."
+            )
+
+        # Calculate price based on duration and service (duration first!)
+        # For first-time users with 5-10 mins, price should be 0
+        amount = calculate_price(
+            booking_data.consultation_duration.value,
+            booking_data.service,
+            country
+        )
+
+        # Create booking
+        booking_id = str(uuid.uuid4())
+
+        # Create Razorpay order if amount > 0
+        razorpay_order_id = None
+        if amount > 0 and RAZORPAY_ENABLED and razorpay_client:
+            try:
+                razorpay_order = razorpay_client.order.create({
+                    "amount": amount,
+                    "currency": "INR",
+                    "receipt": booking_id,
+                    "notes": {
+                        "booking_id": booking_id,
+                        "customer_email": booking_data.email,
+                        "created_by": "admin"
+                    }
+                })
+                razorpay_order_id = razorpay_order["id"]
+                logger.info(f"Created Razorpay order: {razorpay_order_id}, amount: ₹{amount/100}")
+            except Exception as razorpay_error:
+                logger.error(f"Razorpay order creation failed: {str(razorpay_error)}")
+                # Continue without Razorpay order - admin can handle payment manually
+
+        # For free bookings (5-10 mins or amount=0), auto-confirm
+        if amount == 0:
+            booking_status = BookingStatus.CONFIRMED
+            payment_status = PaymentStatus.COMPLETED
+        else:
+            booking_status = BookingStatus.PENDING
+            payment_status = PaymentStatus.PENDING
+
+        # Create booking
+        booking = Booking(
+            id=booking_id,
+            **booking_data.model_dump(),
+            country=country,
+            amount=amount,
+            razorpay_order_id=razorpay_order_id,
+            status=booking_status,
+            payment_status=payment_status
+        )
+
+        booking_doc = booking.model_dump()
+        booking_doc['created_at'] = booking_doc['created_at'].isoformat()
+        booking_doc['updated_at'] = booking_doc['updated_at'].isoformat()
+        booking_doc['created_by_admin'] = True  # Mark as admin-created
+
+        await db.bookings.insert_one(booking_doc)
+
+        # Mark first booking as completed if using free 5-10 mins option
+        if booking_data.consultation_duration.value == "5-10" and is_first_booking:
+            await db.users.update_one(
+                {"email": booking_data.email.lower()},
+                {"$set": {"first_booking_completed": True}}
+            )
+            logger.info(f"Marked first free booking (5-10 mins) completed for user: {booking_data.email}")
+
+        # Reserve time slot if date and time are provided
+        if booking_data.preferred_date and booking_data.preferred_time:
+            slot_doc = {
+                "id": str(uuid.uuid4()),
+                "astrologer": booking_data.astrologer,
+                "date": booking_data.preferred_date,
+                "start_time": booking_data.preferred_time,
+                "end_time": booking_data.preferred_time,
+                "is_available": False,
+                "booking_id": booking_id,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.time_slots.insert_one(slot_doc)
+            logger.info(f"Reserved slot: {booking_data.preferred_date} at {booking_data.preferred_time}")
+
+        # Generate payment link
+        payment_link = None
+        if amount > 0:
+            # Use Razorpay payment link - customize with booking details
+            payment_link = f"https://razorpay.me/@myastroguru/{amount/100}"
+            logger.info(f"Generated payment link: {payment_link}")
+
+        # Send confirmation email to customer
+        duration_display = f"{booking_data.consultation_duration.value} minutes"
+        amount_display = f"₹{amount/100}" if amount > 0 else "Free"
+
+        customer_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #7c3aed;">Booking Request Created</h2>
+                <p>Dear {booking_data.name},</p>
+                <p>Your consultation booking has been created by our team.</p>
+
+                <div style="margin: 20px 0; padding: 15px; background-color: #f3f4f6; border-radius: 8px;">
+                    <strong>Booking Details:</strong><br>
+                    <strong>Booking ID:</strong> {booking_id}<br>
+                    <strong>Service:</strong> {get_service_name(booking_data.service)}<br>
+                    <strong>Astrologer:</strong> {booking_data.astrologer}<br>
+                    <strong>Duration:</strong> {duration_display}<br>
+                    <strong>Date:</strong> {booking_data.preferred_date or 'To be scheduled'}<br>
+                    <strong>Time:</strong> {booking_data.preferred_time or 'To be scheduled'}<br>
+                    <strong>Amount:</strong> {amount_display}
+                </div>
+
+                {f'''
+                <div style="margin: 20px 0; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">
+                    <strong>⚠️ Payment Required:</strong><br>
+                    Please complete the payment of <strong>₹{amount/100}</strong> to confirm your booking.<br><br>
+                    <strong>Payment Link:</strong> <a href="{payment_link}" style="color: #7c3aed;">{payment_link}</a><br><br>
+                    You can also pay via UPI: myastroguru@paytm
+                </div>
+                ''' if amount > 0 else '<div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;"><strong>✅ No payment required</strong> - This is a complimentary session.</div>'}
+
+                <p>We will contact you shortly to confirm your appointment.</p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
+
+        background_tasks.add_task(
+            send_email,
+            booking_data.email,
+            "Booking Created - Payment Required" if amount > 0 else "Booking Confirmation",
+            customer_email_body
+        )
+
+        logger.info(f"✅ Admin booking created: {booking_id}, Amount: ₹{amount/100}, Payment: {payment_link or 'None'}, Status: {booking_status.value}")
+
+        return {
+            "success": True,
+            "booking_id": booking_id,
+            "amount": amount,
+            "amount_display": amount_display,
+            "payment_link": payment_link,
+            "payment_status": payment_status.value,
+            "booking_status": booking_status.value,
+            "is_first_booking": is_first_booking,
+            "message": "Booking created successfully. Send payment link to customer." if amount > 0 else "✅ Free booking confirmed! No payment required."
+        }
+
+    except Exception as e:
+        logger.error(f"Error creating admin booking: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/admin/confirm-payment/{booking_id}")
+async def admin_confirm_payment(booking_id: str, payment_details: dict, background_tasks: BackgroundTasks):
+    """
+    Admin endpoint to manually confirm payment and complete booking.
+    Use this when customer pays via UPI, bank transfer, or Razorpay link.
+
+    Args:
+        booking_id: The booking ID
+        payment_details: {
+            "payment_method": "upi|razorpay|bank_transfer|cash",
+            "transaction_id": "Optional transaction ID",
+            "notes": "Optional notes"
+        }
+    """
+    try:
+        logger.info(f"Admin confirming payment for booking: {booking_id}")
+
+        # Get booking
+        booking = await db.bookings.find_one({"id": booking_id})
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        # Check if already paid
+        if booking.get("payment_status") == PaymentStatus.COMPLETED.value:
+            return {
+                "success": True,
+                "message": "Payment already confirmed",
+                "booking_status": booking.get("status")
+            }
+
+        # Update booking status
+        update_data = {
+            "payment_status": PaymentStatus.COMPLETED.value,
+            "status": BookingStatus.CONFIRMED.value,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "payment_method": payment_details.get("payment_method", "admin_confirmed"),
+            "payment_transaction_id": payment_details.get("transaction_id"),
+            "payment_notes": payment_details.get("notes"),
+            "payment_confirmed_at": datetime.now(timezone.utc).isoformat()
+        }
+
+        await db.bookings.update_one(
+            {"id": booking_id},
+            {"$set": update_data}
+        )
+
+        # Update user's first_booking_completed flag if this is their first booking
+        user = await db.users.find_one({"email": booking["email"]})
+        if user and not user.get("first_booking_completed", False):
+            await db.users.update_one(
+                {"email": booking["email"]},
+                {"$set": {"first_booking_completed": True}}
+            )
+            logger.info(f"Updated first_booking_completed for user: {booking['email']}")
+
+        # Send confirmation email to customer
+        duration_display = f"{booking['consultation_duration']} minutes"
+        amount_display = f"₹{booking.get('amount', 0)/100}"
+
+        customer_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #10b981;">✅ Booking Confirmed - Payment Received</h2>
+                <p>Dear {booking['name']},</p>
+                <p>Great news! Your payment has been received and your consultation is now confirmed.</p>
+
+                <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Confirmed Booking Details:</strong><br>
+                    <strong>Booking ID:</strong> {booking_id}<br>
+                    <strong>Service:</strong> {get_service_name(booking['service'])}<br>
+                    <strong>Astrologer:</strong> {booking['astrologer']}<br>
+                    <strong>Duration:</strong> {duration_display}<br>
+                    <strong>Date:</strong> {booking.get('preferred_date', 'To be scheduled')}<br>
+                    <strong>Time:</strong> {booking.get('preferred_time', 'To be scheduled')}<br>
+                    <strong>Amount Paid:</strong> {amount_display}
+                </div>
+
+                <p>We will contact you 24 hours before your scheduled appointment with consultation details.</p>
+                <p>You can view your booking anytime by logging into your account at our website.</p>
+                <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
+            </div>
+        </body>
+        </html>
+        """
+
+        background_tasks.add_task(
+            send_email,
+            booking["email"],
+            "✅ Booking Confirmed - Payment Received",
+            customer_email_body
+        )
+
+        # Send WhatsApp confirmation
+        customer_phone = booking.get('phone')
+        if customer_phone:
+            whatsapp_msg = f"""🌟 *Booking Confirmed!*
+
+Dear {booking['name']},
+
+✅ Your payment has been received and your consultation is now confirmed!
+
+📋 *Confirmed Details:*
+• Booking ID: {booking_id}
+• Service: {get_service_name(booking['service'])}
+• Astrologer: {booking['astrologer']}
+• Duration: {duration_display}
+• Date: {booking.get('preferred_date', 'To be scheduled')}
+• Time: {booking.get('preferred_time', 'To be scheduled')}
+• Amount Paid: {amount_display}
+
+We will contact you 24 hours before your appointment.
+
+Best regards,
+*Acharyaa Indira Pandey Team* 🙏"""
+
+            background_tasks.add_task(send_whatsapp, customer_phone, whatsapp_msg)
+
+        logger.info(f"✅ Payment confirmed for booking {booking_id} by admin")
+
+        return {
+            "success": True,
+            "message": "Payment confirmed and booking completed",
+            "booking_id": booking_id,
+            "status": "confirmed",
+            "payment_status": "completed"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error confirming payment: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -10,11 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw, Star, CheckCircle, XCircle } from 'lucide-react';
+import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw, Star, CheckCircle, XCircle, UserPlus, CreditCard, AlertCircle, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { getServiceName } from '../utils/serviceMapping';
 import { mockServices } from '../mockData';
+import AdminAssistedBooking from '../components/AdminAssistedBooking';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -32,7 +33,7 @@ const Admin = () => {
   // Simple authentication (In production, use proper auth)
   const handleLogin = (e) => {
     e.preventDefault();
-    if (password === 'admin123') {  // Change this password!
+    if (password === '8ka%ZJ0p!j%&1%Le$K2W') {  // Strong password
       setIsAuthenticated(true);
       toast.success('Logged in successfully');
     } else {
@@ -198,7 +199,7 @@ const Admin = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-4 mb-8 flex-wrap">
           <Button
             onClick={() => setActiveTab('bookings')}
             variant={activeTab === 'bookings' ? 'default' : 'outline'}
@@ -206,6 +207,14 @@ const Admin = () => {
           >
             <Calendar className="w-4 h-4 mr-2" />
             Bookings
+          </Button>
+          <Button
+            onClick={() => setActiveTab('assisted-booking')}
+            variant={activeTab === 'assisted-booking' ? 'default' : 'outline'}
+            className={activeTab === 'assisted-booking' ? 'bg-purple-600' : ''}
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Assisted Booking
           </Button>
           <Button
             onClick={() => setActiveTab('testimonials')}
@@ -217,21 +226,33 @@ const Admin = () => {
           </Button>
         </div>
 
-        {activeTab === 'bookings' && (
+        <div style={{ display: activeTab === 'bookings' ? 'block' : 'none' }}>
           <>
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           {[
-            { label: 'Total Bookings', value: bookings.length, color: 'purple' },
-            { label: 'Pending', value: bookings.filter(b => b.status === 'pending').length, color: 'yellow' },
-            { label: 'Confirmed', value: bookings.filter(b => b.status === 'confirmed').length, color: 'green' },
-            { label: 'Completed', value: bookings.filter(b => b.status === 'completed').length, color: 'blue' }
-          ].map((stat, index) => (
-            <Card key={index} className="p-6">
-              <p className="text-gray-600 text-sm mb-2">{stat.label}</p>
-              <p className="text-3xl font-bold text-purple-900">{stat.value}</p>
-            </Card>
-          ))}
+            { label: 'Total Bookings', value: bookings.length, color: 'purple', icon: Calendar },
+            { label: 'Pending', value: bookings.filter(b => b.status === 'pending').length, color: 'yellow', icon: AlertCircle },
+            { label: 'Confirmed', value: bookings.filter(b => b.status === 'confirmed').length, color: 'green', icon: CheckCircle },
+            { label: 'Completed', value: bookings.filter(b => b.status === 'completed').length, color: 'blue', icon: Star },
+            {
+              label: 'Payment Pending',
+              value: bookings.filter(b => b.payment_status === 'pending' && b.amount > 0).length,
+              color: 'orange',
+              icon: CreditCard
+            }
+          ].map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <Card key={index} className="p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-gray-600 text-sm">{stat.label}</p>
+                  {Icon && <Icon className={`w-5 h-5 text-${stat.color}-600`} />}
+                </div>
+                <p className="text-3xl font-bold text-purple-900">{stat.value}</p>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Filters */}
@@ -289,9 +310,26 @@ const Admin = () => {
                           <Badge className={getStatusBadge(booking.status)}>
                             {booking.status}
                           </Badge>
-                          <Badge className={getPaymentBadge(booking.payment_status)}>
-                            {booking.payment_status === 'completed' ? 'Paid' : 'Payment Pending'}
-                          </Badge>
+                          {booking.amount === 0 ? (
+                            <Badge className="bg-green-100 text-green-800 flex items-center gap-1">
+                              <CheckCircle className="w-3 h-3" />
+                              Free
+                            </Badge>
+                          ) : (
+                            <Badge className={getPaymentBadge(booking.payment_status) + ' flex items-center gap-1'}>
+                              {booking.payment_status === 'completed' ? (
+                                <>
+                                  <CheckCircle className="w-3 h-3" />
+                                  Payment Received ✓
+                                </>
+                              ) : (
+                                <>
+                                  <AlertCircle className="w-3 h-3" />
+                                  Payment Pending
+                                </>
+                              )}
+                            </Badge>
+                          )}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
@@ -314,7 +352,7 @@ const Admin = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <p className="text-gray-500">Service</p>
                         <p className="font-medium text-gray-900">{getServiceName(booking.service)}</p>
@@ -328,6 +366,27 @@ const Admin = () => {
                         <p className="font-medium text-green-600">
                           {booking.amount === 0 ? 'Free' : `₹${booking.amount / 100}`}
                         </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Payment Status</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          {booking.amount === 0 ? (
+                            <span className="font-medium text-green-600 flex items-center gap-1">
+                              <CheckCircle className="w-4 h-4" />
+                              N/A (Free)
+                            </span>
+                          ) : booking.payment_status === 'completed' ? (
+                            <span className="font-medium text-green-600 flex items-center gap-1">
+                              <CheckCircle className="w-4 h-4" />
+                              Received ✓
+                            </span>
+                          ) : (
+                            <span className="font-medium text-orange-600 flex items-center gap-1">
+                              <AlertCircle className="w-4 h-4" />
+                              Pending
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -358,9 +417,9 @@ const Admin = () => {
           </div>
         )}
           </>
-        )}
+        </div>
 
-        {activeTab === 'testimonials' && (
+        <div style={{ display: activeTab === 'testimonials' ? 'block' : 'none' }}>
           <>
             {/* Testimonials Header */}
             <div className="flex justify-between items-center mb-6">
@@ -455,7 +514,12 @@ const Admin = () => {
               </div>
             )}
           </>
-        )}
+        </div>
+
+        {/* Assisted Booking Tab - Always render but hide when not active */}
+        <div style={{ display: activeTab === 'assisted-booking' ? 'block' : 'none' }}>
+          <AdminAssistedBooking />
+        </div>
       </div>
     </div>
   );
