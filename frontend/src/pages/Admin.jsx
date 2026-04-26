@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw, Star, CheckCircle, XCircle, UserPlus, CreditCard, AlertCircle, DollarSign } from 'lucide-react';
+import { Calendar, User, Phone, Mail, Search, Filter, RefreshCw, Star, CheckCircle, XCircle, UserPlus, CreditCard, AlertCircle, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { getServiceName } from '../utils/serviceMapping';
@@ -29,6 +29,10 @@ const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Simple authentication (In production, use proper auth)
   const handleLogin = (e) => {
@@ -160,12 +164,27 @@ const Admin = () => {
 
   const filteredBookings = bookings.filter(booking => {
     const matchesFilter = filter === 'all' || booking.status === filter;
-    const matchesSearch = 
+    const matchesSearch =
       booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       booking.phone.includes(searchTerm);
     return matchesFilter && matchesSearch;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchTerm]);
+
+  const goToPage = (page) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
 
   if (!isAuthenticated) {
     return (
@@ -279,6 +298,17 @@ const Admin = () => {
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
+              <SelectTrigger className="w-full md:w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 / page</SelectItem>
+                <SelectItem value="25">25 / page</SelectItem>
+                <SelectItem value="50">50 / page</SelectItem>
+                <SelectItem value="100">100 / page</SelectItem>
+              </SelectContent>
+            </Select>
             <Button onClick={fetchBookings} variant="outline">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
@@ -297,9 +327,15 @@ const Admin = () => {
             <p className="text-gray-600">No bookings found</p>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {filteredBookings.map((booking) => (
-              <Card key={booking.id} className="p-6 hover:shadow-lg transition-shadow">
+          <>
+            {/* Results info */}
+            <div className="mb-4 text-sm text-gray-600">
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredBookings.length)} of {filteredBookings.length} bookings
+            </div>
+
+            <div className="space-y-4">
+              {paginatedBookings.map((booking) => (
+                <Card key={booking.id} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   {/* Booking Info */}
                   <div className="flex-1">
@@ -415,6 +451,81 @@ const Admin = () => {
               </Card>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Card className="p-4 mt-6">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => goToPage(1)}
+                    disabled={currentPage === 1}
+                    variant="outline"
+                    size="sm"
+                  >
+                    First
+                  </Button>
+                  <Button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+
+                  {/* Page numbers */}
+                  <div className="flex gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <Button
+                          key={pageNum}
+                          onClick={() => goToPage(pageNum)}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          className={currentPage === pageNum ? "bg-purple-600" : ""}
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <Button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    onClick={() => goToPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Last
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          )}
+          </>
         )}
           </>
         </div>
