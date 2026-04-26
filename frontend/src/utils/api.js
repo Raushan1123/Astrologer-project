@@ -90,22 +90,33 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       console.warn('⚠️ 401 Unauthorized - Token may be invalid or network interference');
-      
+
       const isAuthEndpoint = originalRequest.url?.includes('/login') ||
                             originalRequest.url?.includes('/signup') ||
                             originalRequest.url?.includes('/auth');
-      
-      if (!isAuthEndpoint && !originalRequest._retryAuth) {
+
+      // For auth endpoints, don't retry or redirect
+      if (isAuthEndpoint) {
+        return Promise.reject(error);
+      }
+
+      // Retry once in case of network interference
+      if (!originalRequest._retryAuth) {
         originalRequest._retryAuth = true;
         console.log('🔄 Retrying due to possible Jio network interference...');
-        
+
         await new Promise(resolve => setTimeout(resolve, 1000));
         return api(originalRequest);
       }
 
+      // Only logout if retry failed - token genuinely expired
+      // This prevents premature logouts due to network issues
+      console.error('❌ Token expired - logging out');
       localStorage.removeItem('authToken');
-      
-      if (!window.location.pathname.includes('/login')) {
+
+      // Only redirect if not already on login page
+      if (!window.location.pathname.includes('/login') &&
+          !window.location.pathname.includes('/signup')) {
         window.location.href = '/login?session=expired';
       }
     }

@@ -96,8 +96,8 @@ const Contact = () => {
               {
                 icon: Phone,
                 titleKey: 'phoneTitle',
-                content: '+91 8130420339',
-                link: 'tel:+918130420339',
+                content: '+91 8792967417',
+                link: 'tel:+918792967417',
                 color: 'purple'
               },
               {
@@ -283,7 +283,7 @@ const Contact = () => {
                     <h3 className="text-xl font-bold text-gray-900 mb-1">Quick WhatsApp Contact</h3>
                     <p className="text-sm text-gray-600 mb-3">Get instant responses to your queries</p>
                     <a
-                      href="https://wa.me/918130420339"
+                      href="https://wa.me/918792967417"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

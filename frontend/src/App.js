@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import BookingHelpBanner from "./components/BookingHelpBanner";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Team from "./pages/Team";
@@ -79,6 +80,7 @@ function App() {
               <Route path="/cancellation-policy" element={<CancellationPolicy />} />
             </Routes>
             <Footer />
+            <BookingHelpBanner />
             <Toaster />
           </BrowserRouter>
         </div>

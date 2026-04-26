@@ -79,7 +79,7 @@ if razorpay_key_id and razorpay_key_secret:
 # JWT Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-secret-key-change-in-production')
 JWT_ALGORITHM = 'HS256'
-JWT_EXPIRATION_HOURS = 24 * 7  # 7 days
+JWT_EXPIRATION_HOURS = 24 * 30  # 30 days - Keep users logged in for a month
 
 # Security
 security = HTTPBearer()

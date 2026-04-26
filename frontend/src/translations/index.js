@@ -93,6 +93,12 @@ export const translations = {
       termsOfService: 'Terms of Service',
       rights: 'All rights reserved.'
     },
+    helpBanner: {
+      title: 'Need Help with Booking?',
+      subtitle: 'Call us directly for easy booking assistance',
+      callButton: 'Call Now',
+      whatsappButton: 'WhatsApp Us'
+    },
     booking: {
       title: 'Book Your Consultation',
       subtitle: 'Fill in your details to schedule a personalized astrology session',
@@ -627,6 +633,12 @@ export const translations = {
       privacyPolicy: 'गोपनीयता नीति',
       termsOfService: 'सेवा की शर्तें',
       rights: 'सर्वाधिकार सुरक्षित।'
+    },
+    helpBanner: {
+      title: 'बुकिंग में मदद चाहिए?',
+      subtitle: 'आसान बुकिंग सहायता के लिए हमें सीधे कॉल करें',
+      callButton: 'अभी कॉल करें',
+      whatsappButton: 'व्हाट्सएप करें'
     },
     booking: {
       title: 'अपना परामर्श बुक करें',

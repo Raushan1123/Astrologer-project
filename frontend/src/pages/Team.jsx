@@ -44,7 +44,7 @@ const Team = () => {
         id: "3",
         name: t('team.astrologer3Name'),
         role: t('team.astrologer3Role'),
-        experience: "4",
+        experience: "7",
         specialization: [
           t('team.astrologer3Spec1'),
           t('team.astrologer3Spec2'),

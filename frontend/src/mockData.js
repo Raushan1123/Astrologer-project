@@ -244,7 +244,7 @@ export const astrologers = [
     id: "3",
     name: "Acharyaa Ankita Pandey",
     role: "Junior Astrologer",
-    experience: "4+",
+    experience: "7+",
     specialization: ["Basic Consultations", "Numerology", "Vastu Basics", "Young Adults Guidance"],
     image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80&fm=webp&fit=crop&auto=format",
     bio: "A dedicated and enthusiastic astrologer specializing in guidance for young adults and modern life challenges.",

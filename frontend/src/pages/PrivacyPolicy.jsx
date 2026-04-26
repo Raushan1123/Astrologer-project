@@ -103,7 +103,7 @@ const PrivacyPolicy = () => {
               <div className="bg-purple-50 p-4 rounded-lg">
                 <p><strong>Acharyaa Indira Pandey</strong></p>
                 <p>Email: indirapandey2526@gmail.com</p>
-                <p>Phone: +91 8130420339</p>
+                <p>Phone: +91 8792967417</p>
                 <p>Location: Ghaziabad, India</p>
               </div>
             </section>
