@@ -52,23 +52,46 @@ const BookingHelpBanner = () => {
         </div>
       </div>
 
-      {/* Mobile Version - Floating Button */}
-      <div className="md:hidden fixed bottom-4 right-4 z-40 animate-bounce-slow">
-        <div className="relative">
-          {/* Pulsing ring animation */}
-          <div className="absolute inset-0 bg-purple-600 rounded-full animate-ping opacity-75"></div>
-          
-          <a href="tel:+918792967417">
-            <Button className="relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full w-16 h-16 shadow-2xl flex items-center justify-center">
-              <Phone className="w-7 h-7" />
-            </Button>
-          </a>
-        </div>
-        
-        {/* Tooltip */}
-        <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap shadow-xl animate-fade-in">
-          Need help? Call us!
-          <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+      {/* Mobile Version - Full Banner */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 animate-slide-up">
+        <div className="bg-gradient-to-r from-purple-700 via-purple-600 to-pink-600 text-white shadow-2xl">
+          <div className="px-4 py-3">
+            {/* Title Section */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center animate-pulse flex-shrink-0">
+                <Phone className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold leading-tight">
+                  {t('helpBanner.title', 'Need Help with Booking?')}
+                </p>
+                <p className="text-xs text-purple-100 leading-tight">
+                  {t('helpBanner.subtitle', 'Call us for assistance')}
+                </p>
+              </div>
+            </div>
+
+            {/* Buttons Section */}
+            <div className="flex gap-2">
+              <a href="tel:+918792967417" className="flex-1">
+                <Button className="w-full bg-white text-purple-700 hover:bg-purple-50 font-bold shadow-lg text-sm py-2.5">
+                  <Phone className="w-4 h-4 mr-1.5" />
+                  {t('helpBanner.callButton', 'Call Now')}
+                </Button>
+              </a>
+              <a
+                href="https://wa.me/918792967417?text=Hello,%20I%20need%20help%20with%20booking%20a%20consultation"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1"
+              >
+                <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold shadow-lg text-sm py-2.5">
+                  <MessageCircle className="w-4 h-4 mr-1.5" />
+                  WhatsApp
+                </Button>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </>
