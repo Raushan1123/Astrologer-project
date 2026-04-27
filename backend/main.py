@@ -412,6 +412,67 @@ async def send_email(to_email: str, subject: str, body: str):
             return False
 
 
+# Helper function to send SMS using Twilio
+async def send_sms(to_phone: str, message: str):
+    """
+    Send SMS using Twilio SMS API
+
+    Required environment variables:
+    - TWILIO_ACCOUNT_SID: Your Twilio Account SID
+    - TWILIO_AUTH_TOKEN: Your Twilio Auth Token
+    - TWILIO_PHONE_FROM: Your Twilio phone number (format: +1234567890)
+
+    Args:
+        to_phone: Recipient phone number with country code (e.g., +919876543210)
+        message: Message text to send
+
+    Returns:
+        bool: True if message sent successfully, False otherwise
+    """
+    try:
+        twilio_account_sid = os.environ.get('TWILIO_ACCOUNT_SID', '')
+        twilio_auth_token = os.environ.get('TWILIO_AUTH_TOKEN', '')
+        twilio_phone_from = os.environ.get('TWILIO_PHONE_FROM', '')
+
+        # Check if Twilio is configured
+        if not twilio_account_sid or not twilio_auth_token or not twilio_phone_from:
+            logger.warning("Twilio SMS not configured - skipping SMS")
+            return False
+
+        # Format recipient number (ensure it has + prefix for country code)
+        if not to_phone.startswith('+'):
+            to_phone = '+' + to_phone
+
+        # Twilio API endpoint
+        url = f'https://api.twilio.com/2010-04-01/Accounts/{twilio_account_sid}/Messages.json'
+
+        # Request payload
+        data = {
+            'From': twilio_phone_from,
+            'To': to_phone,
+            'Body': message
+        }
+
+        # Send request with basic auth
+        response = requests.post(
+            url,
+            data=data,
+            auth=(twilio_account_sid, twilio_auth_token),
+            timeout=10
+        )
+
+        if response.status_code in [200, 201]:
+            logger.info(f"✅ SMS sent to {to_phone} via Twilio")
+            return True
+        else:
+            logger.error(f"❌ Twilio SMS error: {response.status_code} - {response.text}")
+            return False
+
+    except Exception as e:
+        logger.error(f"❌ Failed to send SMS: {str(e)}")
+        return False
+
+
 # Helper function to send WhatsApp messages using Twilio
 async def send_whatsapp(to_phone: str, message: str):
     """
@@ -1048,6 +1109,183 @@ async def reset_password(reset_data: PasswordReset):
         raise HTTPException(status_code=500, detail="Failed to reset password")
 
 
+# OTP Authentication Endpoints
+@api_router.post("/auth/send-otp")
+async def send_otp(request: dict):
+    """
+    Send OTP to phone number for authentication.
+    Creates user if doesn't exist.
+    """
+    try:
+        phone = request.get("phone", "").strip()
+
+        if not phone:
+            raise HTTPException(status_code=400, detail="Phone number is required")
+
+        # Format phone number (add +91 for India if not present)
+        if not phone.startswith('+'):
+            phone = '+91' + phone.lstrip('0')
+
+        # Generate 6-digit OTP
+        import random
+        otp = str(random.randint(100000, 999999))
+
+        # Store OTP in database (expires in 10 minutes)
+        otp_expiry = datetime.now(timezone.utc) + timedelta(minutes=10)
+
+        # Delete any existing OTPs for this phone
+        await db.otp_verifications.delete_many({"phone": phone})
+
+        # Create new OTP record
+        await db.otp_verifications.insert_one({
+            "phone": phone,
+            "otp": otp,
+            "expires_at": otp_expiry,
+            "verified": False,
+            "created_at": datetime.now(timezone.utc)
+        })
+
+        # Send OTP via SMS
+        sms_message = f"Your OTP for Acharyaa Indira Pandey Astrology is: {otp}. Valid for 10 minutes. Do not share this OTP with anyone."
+
+        sms_sent = await send_sms(phone, sms_message)
+
+        if not sms_sent:
+            # If SMS fails, log the OTP for testing (REMOVE IN PRODUCTION)
+            logger.warning(f"⚠️ SMS not sent. OTP for {phone}: {otp}")
+
+        logger.info(f"📱 OTP sent to {phone}")
+
+        return {
+            "success": True,
+            "message": "OTP sent successfully",
+            "phone": phone,
+            # Include OTP in response for testing ONLY (REMOVE IN PRODUCTION)
+            "otp_for_testing": otp if not sms_sent else None
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Send OTP error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to send OTP")
+
+
+@api_router.post("/auth/verify-otp")
+async def verify_otp(request: dict):
+    """
+    Verify OTP and login/signup user.
+    If user doesn't exist, create a new account.
+    """
+    try:
+        phone = request.get("phone", "").strip()
+        otp = request.get("otp", "").strip()
+        name = request.get("name", "").strip()  # Required for new users
+
+        if not phone or not otp:
+            raise HTTPException(status_code=400, detail="Phone and OTP are required")
+
+        # Format phone number
+        if not phone.startswith('+'):
+            phone = '+91' + phone.lstrip('0')
+
+        # Find OTP record
+        otp_record = await db.otp_verifications.find_one({
+            "phone": phone,
+            "otp": otp,
+            "verified": False
+        })
+
+        if not otp_record:
+            raise HTTPException(status_code=400, detail="Invalid OTP")
+
+        # Check if OTP has expired
+        expires_at = otp_record["expires_at"]
+        if not expires_at.tzinfo:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+        if expires_at < datetime.now(timezone.utc):
+            raise HTTPException(status_code=400, detail="OTP has expired. Please request a new one.")
+
+        # Mark OTP as verified
+        await db.otp_verifications.update_one(
+            {"_id": otp_record["_id"]},
+            {"$set": {"verified": True, "verified_at": datetime.now(timezone.utc)}}
+        )
+
+        # Check if user exists
+        user = await db.users.find_one({"phone": phone})
+
+        if user:
+            # Existing user - login
+            logger.info(f"📱 Existing user logged in via OTP: {phone}")
+
+            # Create access token
+            token = create_access_token(user["id"], user.get("email", phone))
+
+            # Return user data
+            user_response = User(
+                id=user["id"],
+                name=user["name"],
+                email=user.get("email", ""),
+                phone=user.get("phone"),
+                created_at=user["created_at"],
+                first_booking_completed=user.get("first_booking_completed", False)
+            )
+
+            return {
+                "token": token,
+                "user": user_response.model_dump(),
+                "is_new_user": False
+            }
+        else:
+            # New user - signup
+            if not name:
+                raise HTTPException(status_code=400, detail="Name is required for new users")
+
+            # Create new user
+            user_id = str(uuid.uuid4())
+            new_user = {
+                "id": user_id,
+                "name": name,
+                "email": "",  # Email optional for OTP users
+                "phone": phone,
+                "password": "",  # No password for OTP users
+                "created_at": datetime.now(timezone.utc),
+                "first_booking_completed": False,
+                "auth_method": "otp"  # Track authentication method
+            }
+
+            await db.users.insert_one(new_user)
+
+            logger.info(f"📱 New user created via OTP: {phone}")
+
+            # Create access token
+            token = create_access_token(user_id, phone)
+
+            # Return user data
+            user_response = User(
+                id=user_id,
+                name=name,
+                email="",
+                phone=phone,
+                created_at=new_user["created_at"],
+                first_booking_completed=False
+            )
+
+            return {
+                "token": token,
+                "user": user_response.model_dump(),
+                "is_new_user": True
+            }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Verify OTP error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to verify OTP")
+
+
 # Auto-cancel expired bookings function
 async def auto_cancel_expired_bookings():
     """
@@ -1205,7 +1443,17 @@ async def create_booking(
                 logger.warning(f"Geolocation failed, using default India: {str(geo_error)}")
 
         # Check if this is user's first booking
-        user_bookings_count = await db.bookings.count_documents({"email": current_user["email"]})
+        # Use both email and phone to check (in case user has OTP account without email)
+        query = {
+            "$or": [
+                {"email": current_user.get("email", "")},
+                {"phone": current_user.get("phone", "")}
+            ]
+        }
+        # Remove empty values from query
+        query["$or"] = [q for q in query["$or"] if any(q.values())]
+
+        user_bookings_count = await db.bookings.count_documents(query) if query["$or"] else 0
         is_first_booking = user_bookings_count == 0
 
         # Calculate price with breakdown (base price + platform fee + taxes)
@@ -1393,15 +1641,54 @@ async def create_booking(
         </html>
         """
 
-        # Send email to customer immediately (not background task)
-        try:
-            customer_email_sent = await send_email(booking.email, email_subject, email_body)
-            if customer_email_sent:
-                logger.info(f"📧 Customer email sent to {booking.email}")
-            else:
-                logger.warning(f"⚠️ Failed to send customer email to {booking.email}")
-        except Exception as e:
-            logger.error(f"❌ Error sending customer email: {str(e)}")
+        # Send email to customer immediately (not background task) - only if email provided
+        if booking.email and booking.email.strip():
+            try:
+                customer_email_sent = await send_email(booking.email, email_subject, email_body)
+                if customer_email_sent:
+                    logger.info(f"📧 Customer email sent to {booking.email}")
+                else:
+                    logger.warning(f"⚠️ Failed to send customer email to {booking.email}")
+            except Exception as e:
+                logger.error(f"❌ Error sending customer email: {str(e)}")
+        else:
+            logger.info(f"📱 No email provided - will send SMS confirmation instead")
+
+        # Send SMS confirmation to customer (especially important for OTP users without email)
+        if booking.phone:
+            try:
+                sms_message = f"""🌟 Booking Confirmation - Acharyaa Indira Pandey Astrology
+
+Dear {booking.name},
+
+Your consultation booking has been received!
+
+📋 Booking ID: {booking.id}
+🔮 Service: {get_service_name(booking.service)}
+👤 Astrologer: {booking.astrologer}
+⏱️ Duration: {duration_display}
+💰 Amount: {amount_display}
+
+📅 Preferred Schedule:
+Date: {booking.preferred_date or 'To be scheduled'}
+Time: {booking.preferred_time or 'To be scheduled'}
+
+{payment_notice.replace('<div style="margin: 20px 0; padding: 15px; background-color: #fef3c7; border-left: 4px solid #f59e0b;">', '').replace('</div>', '').replace('<strong>', '').replace('</strong>', '').replace('<br>', ' ').strip() if payment_status == PaymentStatus.PENDING else '✅ Your consultation is confirmed!'}
+
+We will contact you within 24 hours to finalize the schedule.
+
+For queries: +91-XXX-XXX-XXXX
+
+Thank you!
+Acharyaa Indira Pandey"""
+
+                sms_sent = await send_sms(booking.phone, sms_message)
+                if sms_sent:
+                    logger.info(f"📱 SMS confirmation sent to {booking.phone}")
+                else:
+                    logger.warning(f"⚠️ Failed to send SMS to {booking.phone}")
+            except Exception as e:
+                logger.error(f"❌ Error sending SMS confirmation: {str(e)}")
 
         # Send notification email to admin/astrologer
         admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
@@ -2544,7 +2831,58 @@ async def razorpay_webhook(request: Request, background_tasks: BackgroundTasks):
                     customer_email_body
                 )
 
-                # Send WhatsApp confirmation
+                # Send admin notification about payment
+                admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+                admin_email_body = f"""
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #10b981;">✅ Payment Received - Booking Confirmed</h2>
+                        <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                            <strong>✅ Payment Status: COMPLETED</strong><br>
+                            Amount: ₹{amount/100}<br>
+                            Payment ID: {payment_id}<br>
+                            Order ID: {order_id}
+                        </div>
+                        <h3 style="color: #7c3aed;">Customer Details:</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{booking['name']}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking['email']}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{booking['phone']}</td></tr>
+                        </table>
+
+                        <h3 style="color: #7c3aed; margin-top: 20px;">Birth Details:</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong></td><td>{booking.get('date_of_birth') or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong></td><td>{format_time_12hr(booking.get('time_of_birth')) if booking.get('time_of_birth') else '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong></td><td>{booking.get('place_of_birth') or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                        </table>
+
+                        <h3 style="color: #7c3aed; margin-top: 20px;">Consultation Details:</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr><td style="padding: 8px 0;"><strong>Chosen Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong></td><td>{booking.get('preferred_date', 'To be scheduled')}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong></td><td>{booking.get('preferred_time', 'To be scheduled')}</td></tr>
+                            <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking['id']}</td></tr>
+                        </table>
+                        <p style="margin-top: 30px; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                            <strong>✅ Action Required:</strong> Payment confirmed via Razorpay! Please contact the customer within 24 hours to schedule the appointment.
+                        </p>
+                    </div>
+                </body>
+                </html>
+                """
+
+                background_tasks.add_task(
+                    send_email,
+                    admin_email,
+                    f"✅ Payment Received - {booking['name']}",
+                    admin_email_body
+                )
+
+                # Send WhatsApp confirmation to customer
                 if booking.get('phone'):
                     whatsapp_msg = f"""🌟 *Payment Received - Booking Confirmed!*
 
@@ -2567,6 +2905,28 @@ Best regards,
 *Acharyaa Indira Pandey Team* 🙏"""
 
                     background_tasks.add_task(send_whatsapp, booking['phone'], whatsapp_msg)
+
+                # Send WhatsApp notification to admin
+                admin_phone = os.environ.get('ADMIN_WHATSAPP_NUMBER', '')
+                if admin_phone:
+                    admin_whatsapp = f"""💰 *Payment Received via Razorpay!*
+
+✅ *Payment Confirmed*
+
+👤 *Customer:* {booking['name']}
+📞 *Phone:* {booking['phone']}
+💵 *Amount:* ₹{amount/100}
+🆔 *Payment ID:* {payment_id}
+📝 *Booking ID:* {booking['id']}
+
+🎯 *Service:* {get_service_name(booking['service'])}
+⏱️ *Duration:* {duration_display}
+
+⚡ *Action Required:* Contact customer within 24 hours to schedule the appointment."""
+
+                    background_tasks.add_task(send_whatsapp, admin_phone, admin_whatsapp)
+
+                logger.info(f"✅ Payment confirmed for booking {booking['id']} via webhook - emails and WhatsApp sent to customer and admin")
 
                 return {"status": "success", "message": "Payment confirmed and booking updated"}
             else:
@@ -2954,25 +3314,55 @@ async def admin_create_booking(booking_data: BookingCreate, background_tasks: Ba
         # Create booking
         booking_id = str(uuid.uuid4())
 
-        # Create Razorpay order if amount > 0
+        # Create Razorpay order AND payment link if amount > 0
         razorpay_order_id = None
+        razorpay_payment_link_url = None
         if amount > 0 and RAZORPAY_ENABLED and razorpay_client:
             try:
-                razorpay_order = razorpay_client.order.create({
+                # Create Razorpay Payment Link (better than just payment page)
+                # This creates a unique link with the exact amount pre-filled
+                payment_link_data = {
                     "amount": amount,
                     "currency": "INR",
-                    "receipt": booking_id,
-                    "notes": {
-                        "booking_id": booking_id,
-                        "customer_email": booking_data.email,
-                        "created_by": "admin"
-                    }
-                })
-                razorpay_order_id = razorpay_order["id"]
-                logger.info(f"Created Razorpay order: {razorpay_order_id}, amount: ₹{amount/100}")
+                    "description": f"{get_service_name(booking_data.service)} - {booking_data.astrologer}",
+                    "customer": {
+                        "name": booking_data.name,
+                        "email": booking_data.email,
+                        "contact": booking_data.phone
+                    },
+                    "notify": {
+                        "sms": False,  # We'll send link manually via admin
+                        "email": False  # We'll send our own email
+                    },
+                    "reminder_enable": False,
+                    "callback_url": f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/booking-success/{booking_id}",
+                    "callback_method": "get"
+                }
+
+                payment_link = razorpay_client.payment_link.create(payment_link_data)
+                razorpay_payment_link_url = payment_link.get("short_url")
+                razorpay_order_id = payment_link.get("id")  # Payment link ID
+
+                logger.info(f"Created Razorpay payment link: {razorpay_payment_link_url}, amount: ₹{amount/100}")
             except Exception as razorpay_error:
-                logger.error(f"Razorpay order creation failed: {str(razorpay_error)}")
-                # Continue without Razorpay order - admin can handle payment manually
+                logger.error(f"Razorpay payment link creation failed: {str(razorpay_error)}")
+                # Fallback: Try creating just an order
+                try:
+                    razorpay_order = razorpay_client.order.create({
+                        "amount": amount,
+                        "currency": "INR",
+                        "receipt": booking_id,
+                        "notes": {
+                            "booking_id": booking_id,
+                            "customer_email": booking_data.email,
+                            "created_by": "admin"
+                        }
+                    })
+                    razorpay_order_id = razorpay_order["id"]
+                    logger.info(f"Created Razorpay order (fallback): {razorpay_order_id}, amount: ₹{amount/100}")
+                except Exception as order_error:
+                    logger.error(f"Razorpay order creation also failed: {str(order_error)}")
+                    # Continue without Razorpay - admin can handle payment manually
 
         # For free bookings (5-10 mins or amount=0), auto-confirm
         if amount == 0:
@@ -3024,12 +3414,17 @@ async def admin_create_booking(booking_data: BookingCreate, background_tasks: Ba
             await db.time_slots.insert_one(slot_doc)
             logger.info(f"Reserved slot: {booking_data.preferred_date} at {booking_data.preferred_time}")
 
-        # Generate payment link
+        # Use Razorpay payment link if available, otherwise fallback to payment page
         payment_link = None
         if amount > 0:
-            # Use Razorpay payment link - customize with booking details
-            payment_link = f"https://razorpay.me/@myastroguru/{amount/100}"
-            logger.info(f"Generated payment link: {payment_link}")
+            if razorpay_payment_link_url:
+                # Use the Razorpay Payment Link (exact amount, pre-filled customer info)
+                payment_link = razorpay_payment_link_url
+                logger.info(f"Using Razorpay payment link: {payment_link}")
+            else:
+                # Fallback: Use Razorpay Payment Page (customer enters amount manually)
+                payment_link = "https://razorpay.me/@myastroguru"
+                logger.warning(f"Using fallback payment page (customer must enter ₹{amount/100} manually): {payment_link}")
 
         # Send confirmation email to customer
         duration_display = f"{booking_data.consultation_duration.value} minutes"
@@ -3189,7 +3584,62 @@ async def admin_confirm_payment(booking_id: str, payment_details: dict, backgrou
             customer_email_body
         )
 
-        # Send WhatsApp confirmation
+        # Send admin notification about payment confirmation
+        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        payment_method = payment_details.get("payment_method", "admin_confirmed")
+        transaction_id = payment_details.get("transaction_id", "N/A")
+
+        admin_email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #10b981;">✅ Payment Received - Booking Confirmed</h2>
+                <div style="margin: 20px 0; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Payment Status: COMPLETED</strong><br>
+                    Amount: {amount_display}<br>
+                    Payment Method: {payment_method.upper()}<br>
+                    Transaction ID: {transaction_id}<br>
+                    Confirmed by: Admin
+                </div>
+                <h3 style="color: #7c3aed;">Customer Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Name:</strong></td><td>{booking['name']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Email:</strong></td><td>{booking['email']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Phone:</strong></td><td>{booking['phone']}</td></tr>
+                </table>
+
+                <h3 style="color: #7c3aed; margin-top: 20px;">Birth Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Date of Birth:</strong></td><td>{booking.get('date_of_birth') or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Time of Birth:</strong></td><td>{format_time_12hr(booking.get('time_of_birth')) if booking.get('time_of_birth') else '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Place of Birth:</strong></td><td>{booking.get('place_of_birth') or '<em style="color: #999;">To be collected during call</em>'}</td></tr>
+                </table>
+
+                <h3 style="color: #7c3aed; margin-top: 20px;">Consultation Details:</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="padding: 8px 0;"><strong>Chosen Astrologer:</strong></td><td>{booking['astrologer']}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Service:</strong></td><td>{get_service_name(booking['service'])}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Duration:</strong></td><td>{duration_display}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Date:</strong></td><td>{booking.get('preferred_date', 'To be scheduled')}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Preferred Time:</strong></td><td>{booking.get('preferred_time', 'To be scheduled')}</td></tr>
+                    <tr><td style="padding: 8px 0;"><strong>Booking ID:</strong></td><td>{booking_id}</td></tr>
+                </table>
+                <p style="margin-top: 30px; padding: 15px; background-color: #d1fae5; border-left: 4px solid #10b981;">
+                    <strong>✅ Action Required:</strong> Payment confirmed! Please contact the customer within 24 hours to schedule the appointment.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+
+        background_tasks.add_task(
+            send_email,
+            admin_email,
+            f"✅ Payment Confirmed - {booking['name']}",
+            admin_email_body
+        )
+
+        # Send WhatsApp confirmation to customer
         customer_phone = booking.get('phone')
         if customer_phone:
             whatsapp_msg = f"""🌟 *Booking Confirmed!*
@@ -3214,7 +3664,28 @@ Best regards,
 
             background_tasks.add_task(send_whatsapp, customer_phone, whatsapp_msg)
 
-        logger.info(f"✅ Payment confirmed for booking {booking_id} by admin")
+        # Send WhatsApp notification to admin
+        admin_phone = os.environ.get('ADMIN_WHATSAPP_NUMBER', '')
+        if admin_phone:
+            admin_whatsapp = f"""💰 *Payment Received!*
+
+✅ *Payment Confirmed*
+
+👤 *Customer:* {booking['name']}
+📞 *Phone:* {booking['phone']}
+💵 *Amount:* {amount_display}
+💳 *Payment Method:* {payment_method.upper()}
+🆔 *Transaction ID:* {transaction_id}
+📝 *Booking ID:* {booking_id}
+
+🎯 *Service:* {get_service_name(booking['service'])}
+⏱️ *Duration:* {duration_display}
+
+⚡ *Action Required:* Contact customer within 24 hours to schedule the appointment."""
+
+            background_tasks.add_task(send_whatsapp, admin_phone, admin_whatsapp)
+
+        logger.info(f"✅ Payment confirmed for booking {booking_id} by admin - emails and WhatsApp sent to customer and admin")
 
         return {
             "success": True,
