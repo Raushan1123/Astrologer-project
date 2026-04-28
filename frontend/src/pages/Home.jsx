@@ -8,6 +8,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import PlanetaryAnimation from '../components/PlanetaryAnimation';
 import AnimatedCounter from '../components/AnimatedCounter';
+import SEO from '../components/SEO';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -75,6 +76,11 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50">
+      <SEO
+        title="Vedic Indian Astrology Consultation, Astrological Career Guidance, Kundli Reading, Birth Chart Analysis, Marriage, Business & Health Astrology Prediction Ghaziabad UP - Acharyaa Indira Pandey"
+        description="Get expert Vedic astrology services in Ghaziabad, including kundli reading, marriage, career & health predictions by Acharyaa Indira Pandey. Contact us and book your astrology consultation today!"
+      />
+
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
         {/* Background Image with Overlay - Optimized */}

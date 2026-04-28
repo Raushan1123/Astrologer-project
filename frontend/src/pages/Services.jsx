@@ -5,6 +5,7 @@ import { Card } from '../components/ui/card';
 import { mockServices, consultationPricing } from '../mockData';
 import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hand, Sparkles, CheckCircle, Gem, Baby, BadgeCheck, Clock, IndianRupee } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -217,6 +218,11 @@ const Services = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
+      <SEO
+        title="Vedic Astrology Services Ghaziabad UP - Acharyaa Indira Pandey"
+        description="Explore Vedic astrology services by Acharyaa Indira Pandey, including kundli reading, marriage, career, health predictions, Palmistry, Vastu Consultation, and more. Book your consultation today!"
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

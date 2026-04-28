@@ -7,6 +7,7 @@ import { Star, Quote, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import TestimonialForm from '../components/TestimonialForm';
 import AnimatedCounter from '../components/AnimatedCounter';
+import SEO from '../components/SEO';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -54,6 +55,11 @@ const Testimonials = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
+      <SEO
+        title="Client Testimonials - Acharyaa Indira Pandey"
+        description="Explore genuine reviews of Acharyaa Indira Pandey's astrology consultations. Trusted for marriage, career & life solutions—connect with an expert today!"
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

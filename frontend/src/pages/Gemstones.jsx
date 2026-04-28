@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import SEO from '../components/SEO';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -149,6 +150,11 @@ const Gemstones = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
+      <SEO
+        title="Gemstone Catalog - Acharyaa Indira Pandey"
+        description="Get expert gemstone recommendations by Acharyaa Indira Pandey based on your kundli. Balance planetary energies with the right stone—book consultation today!"
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

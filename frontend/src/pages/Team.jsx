@@ -5,6 +5,7 @@ import { Card } from '../components/ui/card';
 import { astrologers } from '../mockData';
 import { Award, Star, ArrowRight, Sparkles, User } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const Team = () => {
   const { t } = useLanguage();
@@ -61,6 +62,11 @@ const Team = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
+      <SEO
+        title="Our Team - Acharyaa Indira Pandey"
+        description="Explore our astrology team led by Acharyaa Indira Pandey for kundli reading, career, health, marriage predictions, and more. Consult our experts now!"
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

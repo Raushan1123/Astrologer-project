@@ -15,6 +15,7 @@ import {
 import { mockFAQs } from '../mockData';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -66,6 +67,11 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
+      <SEO
+        title="Contact Us - +91 8130420339 | Acharyaa Indira Pandey"
+        description="Contact Acharyaa Indira Pandey for expert Vedic astrology consultation on marriage, career, health & life issues and more. Get personalized guidance—reach out today!"
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

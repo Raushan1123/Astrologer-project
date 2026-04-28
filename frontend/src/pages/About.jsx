@@ -4,12 +4,18 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Award, Users, Heart, Shield, Star, Target, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const About = () => {
   const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-amber-50 pt-20">
+      <SEO
+        title="About Acharyaa Indira Pandey - Vedic Astrologer Ghaziabad Uttar Pradesh"
+        description="Know Acharyaa Indira Pandey's journey in Vedic astrology, helping people solve love, career & life challenges. Get personalized guidance—connect today!"
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

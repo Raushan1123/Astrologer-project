@@ -7,6 +7,7 @@ import { Calendar, Clock, User, ArrowRight, Search, Sparkles } from 'lucide-reac
 import { toast } from 'sonner';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -61,6 +62,11 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
+      <SEO
+        title="Astrology Blog - Acharyaa Indira Pandey"
+        description="Read expert astrology blogs on kundli analysis, planetary effects, career & marriage guidance by Acharyaa Indira Pandey. Discover insights—consult now!"
+      />
+
       {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">

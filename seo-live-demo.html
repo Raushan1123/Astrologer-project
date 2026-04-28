@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Live Demo - Test Your Pages</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+        .left-panel {
+            padding: 30px;
+            background: #f8f9fa;
+            border-right: 3px solid #dee2e6;
+        }
+        .right-panel {
+            padding: 30px;
+            background: white;
+        }
+        .instructions {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        .page-buttons {
+            display: grid;
+            gap: 15px;
+        }
+        .page-btn {
+            display: block;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .page-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .page-btn .emoji { font-size: 1.3em; margin-right: 10px; }
+        .demo-section {
+            margin-bottom: 30px;
+        }
+        .demo-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        .browser-mockup {
+            border: 3px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .browser-header {
+            background: #e9ecef;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .browser-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+        .browser-tab {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 8px 8px 0 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #495057;
+            margin-left: 10px;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+        .browser-content {
+            padding: 20px;
+            background: #f8f9fa;
+            min-height: 200px;
+        }
+        .meta-display {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid #667eea;
+            margin-bottom: 15px;
+        }
+        .meta-label {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .meta-value {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .highlight {
+            background: #d4edda;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: #155724;
+        }
+        .tip {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+        .tip strong { color: #0d47a1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SEO Live Testing Dashboard</h1>
+            <p>Click any page below and watch the browser tab title change!</p>
+        </div>
+        
+        <div class="content">
+            <!-- Left Panel - Page Links -->
+            <div class="left-panel">
+                <div class="instructions">
+                    <h3>📋 How to Test:</h3>
+                    <ol>
+                        <li>Click any page button below</li>
+                        <li>Look at your <strong>browser tab</strong> at the top</li>
+                        <li>The title should match what's shown on the right →</li>
+                        <li>Try different pages and watch it change!</li>
+                    </ol>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #495057;">🌐 Test These Pages:</h3>
+                
+                <div class="page-buttons">
+                    <a href="http://localhost:3000/" target="_blank" class="page-btn">
+                        <span class="emoji">🏠</span> Home Page
+                    </a>
+                    <a href="http://localhost:3000/about" target="_blank" class="page-btn">
+                        <span class="emoji">👤</span> About Page
+                    </a>
+                    <a href="http://localhost:3000/team" target="_blank" class="page-btn">
+                        <span class="emoji">👥</span> Team Page
+                    </a>
+                    <a href="http://localhost:3000/services" target="_blank" class="page-btn">
+                        <span class="emoji">⚡</span> Services Page
+                    </a>
+                    <a href="http://localhost:3000/gemstones" target="_blank" class="page-btn">
+                        <span class="emoji">💎</span> Gemstones Page
+                    </a>
+                    <a href="http://localhost:3000/testimonials" target="_blank" class="page-btn">
+                        <span class="emoji">⭐</span> Testimonials Page
+                    </a>
+                    <a href="http://localhost:3000/blog" target="_blank" class="page-btn">
+                        <span class="emoji">📝</span> Blog Page
+                    </a>
+                    <a href="http://localhost:3000/contact" target="_blank" class="page-btn">
+                        <span class="emoji">📞</span> Contact Page
+                    </a>
+                </div>
+
+                <div class="tip">
+                    <strong>💡 Pro Tip:</strong> Open Developer Tools (F12) and navigate to the "Elements" tab. Look for the <code>&lt;title&gt;</code> tag in the <code>&lt;head&gt;</code> section. Watch it change as you navigate!
+                </div>
+            </div>
+
+            <!-- Right Panel - Expected Results -->
+            <div class="right-panel">
+                <h3 style="margin-bottom: 20px; color: #495057;">✅ What You Should See:</h3>
+
+                <div class="demo-section">
+                    <div class="browser-mockup">
+                        <div class="browser-header">
+                            <div class="browser-dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <div class="browser-tab">
+                                Vedic Indian Astrology Consultation, Astrological Career...
+                            </div>
+                        </div>
+                        <div class="browser-content">
+                            <div class="meta-display">
+                                <div class="meta-label">🏠 Home Page - Browser Tab Title:</div>
+                                <div class="meta-value">
+                                    <span class="highlight">Vedic Indian Astrology Consultation</span>, Astrological Career Guidance, Kundli Reading, Birth Chart Analysis, Marriage, Business & Health Astrology Prediction Ghaziabad UP - Acharyaa Indira Pandey
+                                </div>
+                            </div>
+                            <div class="meta-display">
+                                <div class="meta-label">Meta Description:</div>
+                                <div class="meta-value">
+                                    Get expert Vedic astrology services in <span class="highlight">Ghaziabad</span>, including kundli reading, marriage, career & health predictions by Acharyaa Indira Pandey.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <h4 style="color: #667eea; margin-bottom: 10px;">Other Page Titles:</h4>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; line-height: 2;">
+                        <strong>About:</strong> About Acharyaa Indira Pandey - Vedic Astrologer Ghaziabad Uttar Pradesh<br>
+                        <strong>Team:</strong> Our Team - Acharyaa Indira Pandey<br>
+                        <strong>Services:</strong> Vedic Astrology Services Ghaziabad UP - Acharyaa Indira Pandey<br>
+                        <strong>Gemstones:</strong> Gemstone Catalog - Acharyaa Indira Pandey<br>
+                        <strong>Testimonials:</strong> Client Testimonials - Acharyaa Indira Pandey<br>
+                        <strong>Blog:</strong> Astrology Blog - Acharyaa Indira Pandey<br>
+                        <strong>Contact:</strong> Contact Us - +91 8130420339 | Acharyaa Indira Pandey
+                    </div>
+                </div>
+
+                <div class="tip">
+                    <strong>✨ Success Indicators:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                        <li>Browser tab title is NOT "Acharyaa Indira Pandey - Vedic Astrology Consultation"</li>
+                        <li>Each page has a DIFFERENT, unique title</li>
+                        <li>Titles change automatically when you navigate</li>
+                        <li>Titles include keywords like "Ghaziabad", "Vedic", service names</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
