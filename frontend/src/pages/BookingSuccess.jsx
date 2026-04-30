@@ -363,9 +363,9 @@ const BookingSuccess = () => {
                 <Mail className="w-5 h-5" />
                 indirapandey2526@gmail.com
               </a>
-              <a href="tel:+918130420339" className="inline-flex items-center gap-2">
+              <a href="tel:+918792967417" className="inline-flex items-center gap-2">
                 <Phone className="w-5 h-5" />
-                +91 8130420339
+                +91 8792967417
               </a>
             </div>
           </div>

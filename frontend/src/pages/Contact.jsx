@@ -68,7 +68,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-purple-50 pt-20">
       <SEO
-        title="Contact Us - +91 8130420339 | Acharyaa Indira Pandey"
+        title="Contact Us - +91 8792967417 | Acharyaa Indira Pandey"
         description="Contact Acharyaa Indira Pandey for expert Vedic astrology consultation on marriage, career, health & life issues and more. Get personalized guidance—reach out today!"
       />
 

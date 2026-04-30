@@ -20,17 +20,8 @@ const SEO = ({ title, description }) => {
         metaDescription.name = 'description';
         document.head.appendChild(metaDescription);
       }
-      metaDescription.content = description;
+      metaDescription.setAttribute('content', description);
     }
-
-    // Cleanup function to reset to default values
-    return () => {
-      document.title = 'Acharyaa Indira Pandey - Vedic Astrology Consultation';
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.content = 'Professional Vedic Astrology Consultation by Acharyaa Indira Pandey - Expert guidance for life, career, relationships, and spiritual growth';
-      }
-    };
   }, [title, description]);
 
   return null; // This component doesn't render anything

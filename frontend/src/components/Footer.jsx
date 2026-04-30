@@ -57,21 +57,21 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-amber-300">Services</h4>
             <ul className="space-y-2">
               {[
-                'Birth Chart Analysis',
-                'Career Guidance',
-                'Marriage Compatibility',
-                'Health Insights',
-                'Vastu Consultation',
-                'Palmistry',
-                'Gemstone Remedies',
-                'Childbirth Timing'
+                { name: 'Birth Chart Analysis', link: '/birth-chart-analysis' },
+                { name: 'Health Astrology', link: '/health-astrology-prediction' },
+                { name: 'Business Astrology', link: '/business-astrology-consultation' },
+                { name: 'Marriage Astrology', link: '/marriage-astrology-consultation' },
+                { name: 'Career Guidance', link: '/services' },
+                { name: 'Vastu Consultation', link: '/services' },
+                { name: 'Gemstone Remedies', link: '/gemstones' },
+                { name: 'Palmistry', link: '/services' }
               ].map((service) => (
-                <li key={service}>
+                <li key={service.name}>
                   <Link
-                    to="/services"
+                    to={service.link}
                     className="text-sm text-purple-200 hover:text-amber-300 transition-colors duration-300 inline-block hover:translate-x-1 transform"
                   >
-                    {service}
+                    {service.name}
                   </Link>
                 </li>
               ))}

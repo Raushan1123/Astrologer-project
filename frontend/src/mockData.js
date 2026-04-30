@@ -45,7 +45,8 @@ export const mockServices = [
     duration: "30 mins",
     actualPrice: 4100,
     discountPercent: 25,
-    markup: 20  // 20% markup applied to final price
+    markup: 20,  // 20% markup applied to final price
+    link: "/birth-chart-analysis"
   },
   {
     id: "2",
@@ -78,7 +79,8 @@ export const mockServices = [
     duration: "30 mins",
     actualPrice: 3500,
     discountPercent: 25,
-    markup: 20  // 20% markup applied to final price
+    markup: 20,  // 20% markup applied to final price
+    link: "/health-astrology-prediction"
   },
   {
     id: "5",

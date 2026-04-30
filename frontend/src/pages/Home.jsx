@@ -405,7 +405,7 @@ const Home = () => {
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-purple-900 mb-3">{translatedService.title}</h3>
                     <p className="text-gray-600 mb-4 leading-relaxed">{translatedService.description}</p>
-                    <Link to="/services">
+                    <Link to={service.link || "/services"}>
                       <Button
                         variant="ghost"
                         className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent"

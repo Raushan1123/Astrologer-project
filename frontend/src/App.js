@@ -28,6 +28,10 @@ import Admin from "./pages/Admin";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CancellationPolicy from "./pages/CancellationPolicy";
+import BirthChartAnalysis from "./pages/BirthChartAnalysis";
+import HealthAstrology from "./pages/HealthAstrology";
+import BusinessAstrology from "./pages/BusinessAstrology";
+import MarriageAstrology from "./pages/MarriageAstrology";
 
 function App() {
   return (
@@ -78,6 +82,10 @@ function App() {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/cancellation-policy" element={<CancellationPolicy />} />
+              <Route path="/birth-chart-analysis" element={<BirthChartAnalysis />} />
+              <Route path="/health-astrology-prediction" element={<HealthAstrology />} />
+              <Route path="/business-astrology-consultation" element={<BusinessAstrology />} />
+              <Route path="/marriage-astrology-consultation" element={<MarriageAstrology />} />
             </Routes>
             <Footer />
             <BookingHelpBanner />
