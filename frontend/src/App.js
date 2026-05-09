@@ -2,6 +2,7 @@ import React from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
+import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -32,15 +33,17 @@ import BirthChartAnalysis from "./pages/BirthChartAnalysis";
 import HealthAstrology from "./pages/HealthAstrology";
 import BusinessAstrology from "./pages/BusinessAstrology";
 import MarriageAstrology from "./pages/MarriageAstrology";
+import TestSEO from "./pages/TestSEO";
 
 function App() {
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <div className="App">
-          <BrowserRouter>
-            <ScrollToTop />
-            <Header />
+    <HelmetProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <div className="App">
+            <BrowserRouter>
+              <ScrollToTop />
+              <Header />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
@@ -86,14 +89,16 @@ function App() {
               <Route path="/health-astrology-prediction" element={<HealthAstrology />} />
               <Route path="/business-astrology-consultation" element={<BusinessAstrology />} />
               <Route path="/marriage-astrology-consultation" element={<MarriageAstrology />} />
+              <Route path="/test-seo" element={<TestSEO />} />
             </Routes>
-            <Footer />
-            <BookingHelpBanner />
-            <Toaster />
-          </BrowserRouter>
-        </div>
-      </LanguageProvider>
-    </AuthProvider>
+              <Footer />
+              <BookingHelpBanner />
+              <Toaster />
+            </BrowserRouter>
+          </div>
+        </LanguageProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
 
