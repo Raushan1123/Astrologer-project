@@ -1,0 +1,11 @@
+# Allow all robots to access all pages
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.happykismat.com/sitemap.xml
+
+# Disallow admin and internal pages (if any)
+Disallow: /admin
+Disallow: /api/
+

@@ -1,0 +1,19 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Acharyaa Indira Pandey",
+  "image": "",
+  "@id": "",
+  "url": "https://www.happykismat.com/",
+  "telephone": "+91 8792967417",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "",
+    "addressLocality": "Ghaziabad",
+    "postalCode": "",
+    "addressCountry": "IN"
+  }  
+}
+</script>
+
