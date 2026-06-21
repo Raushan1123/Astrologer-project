@@ -16,6 +16,7 @@ import Team from "./pages/Team";
 import Services from "./pages/Services";
 import Testimonials from "./pages/Testimonials";
 import Blog from "./pages/Blog";
+import BlogDetail from "./pages/BlogDetail";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -51,6 +52,7 @@ function App() {
               <Route path="/services" element={<Services />} />
               <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

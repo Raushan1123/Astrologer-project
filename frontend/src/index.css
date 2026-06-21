@@ -17,6 +17,40 @@ code {
         source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+/* Blog Content Styles */
+.blog-content details summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.blog-content details summary::-webkit-details-marker {
+    display: none;
+}
+
+.blog-content details[open] summary {
+    margin-bottom: 0;
+}
+
+.blog-content .lead {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 300;
+}
+
+/* Smooth transitions for interactive elements */
+.blog-content details {
+    transition: all 0.3s ease;
+}
+
+.blog-content a {
+    transition: all 0.2s ease;
+}
+
+/* Ensure proper spacing in blog content */
+.blog-content > div {
+    line-height: 1.8;
+}
+
 @layer base {
     :root {
         --background: 0 0% 100%;

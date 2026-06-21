@@ -25,7 +25,7 @@ from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
     BookingStatus, PaymentStatus, AstrologerAvailability,
     TestimonialCreate, Testimonial, UserCreate, UserLogin, User,
-    PasswordResetRequest, PasswordReset
+    PasswordResetRequest, PasswordReset, BlogPost
 )
 
 ROOT_DIR = Path(__file__).parent
@@ -4111,6 +4111,32 @@ async def get_blog_post(post_id: str):
         raise
     except Exception as e:
         logger.error(f"Error fetching blog post: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/blog")
+async def create_blog_post(blog_post: BlogPost):
+    """
+    Create a new blog post (admin only)
+    """
+    try:
+        # Check if blog post with same ID already exists
+        existing = await db.blog_posts.find_one({"id": blog_post.id})
+        if existing:
+            raise HTTPException(status_code=400, detail="Blog post with this ID already exists")
+
+        # Save to database
+        blog_doc = blog_post.model_dump()
+        await db.blog_posts.insert_one(blog_doc)
+
+        logger.info(f"New blog post created: {blog_post.title} (ID: {blog_post.id})")
+        return {
+            "message": "Blog post created successfully",
+            "id": blog_post.id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating blog post: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Gemstones

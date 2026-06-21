@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -18,16 +18,41 @@ const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch blogs from API and merge with mock blogs
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const response = await axios.get(`${API}/blog`);
+        // Merge API blogs with mock blogs
+        const allBlogs = [...response.data, ...mockBlogs];
+        // Sort by date (newest first)
+        allBlogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+        setBlogs(allBlogs);
+      } catch (error) {
+        console.error('Error fetching blogs:', error);
+        // Fallback to mock data if API fails
+        setBlogs(mockBlogs);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
 
   const categories = [
     { key: 'All', label: t('blog.categoryAll') },
     { key: 'Astrology Basics', label: t('blog.categoryBasics') },
     { key: 'Weekly Horoscope', label: t('blog.categoryHoroscope') },
     { key: 'Planetary Movements', label: t('blog.categoryPlanetary') },
-    { key: 'Remedies', label: t('blog.categoryRemedies') }
+    { key: 'Remedies', label: t('blog.categoryRemedies') },
+    { key: 'Vedic Astrology', label: 'Vedic Astrology' }
   ];
 
-  const filteredBlogs = mockBlogs.filter(blog => {
+  const filteredBlogs = blogs.filter(blog => {
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || blog.category === selectedCategory;
@@ -132,8 +157,19 @@ const Blog = () => {
         </div>
       </section>
 
+      {/* Loading State */}
+      {loading && (
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto text-center">
+              <p className="text-gray-600">Loading blogs...</p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Featured Post */}
-      {filteredBlogs.length > 0 && (
+      {!loading && filteredBlogs.length > 0 && (
         <section className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
@@ -169,19 +205,28 @@ const Blog = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
-                        <span>{filteredBlogs[0].readTime}</span>
+                        <span>{filteredBlogs[0].read_time || filteredBlogs[0].readTime}</span>
                       </div>
                     </div>
-                    <a
-                      href={filteredBlogs[0].externalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
-                        {t('blog.readFullArticle')}
-                        <ArrowRight className="ml-2 w-4 h-4" />
-                      </Button>
-                    </a>
+                    {filteredBlogs[0].externalUrl ? (
+                      <a
+                        href={filteredBlogs[0].externalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
+                          {t('blog.readFullArticle')}
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </a>
+                    ) : (
+                      <Link to={`/blog/${filteredBlogs[0].id}`}>
+                        <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
+                          {t('blog.readFullArticle')}
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -230,22 +275,34 @@ const Blog = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          <span>{blog.readTime}</span>
+                          <span>{blog.read_time || blog.readTime}</span>
                         </div>
                       </div>
-                      <a
-                        href={blog.externalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button
-                          variant="ghost"
-                          className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
+                      {blog.externalUrl ? (
+                        <a
+                          href={blog.externalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
-                          {t('blog.readMore')}
-                          <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                        </Button>
-                      </a>
+                          <Button
+                            variant="ghost"
+                            className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
+                          >
+                            {t('blog.readMore')}
+                            <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                          </Button>
+                        </a>
+                      ) : (
+                        <Link to={`/blog/${blog.id}`}>
+                          <Button
+                            variant="ghost"
+                            className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
+                          >
+                            {t('blog.readMore')}
+                            <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                          </Button>
+                        </Link>
+                      )}
                     </div>
                   </Card>
                 ))}
