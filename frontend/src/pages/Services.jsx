@@ -591,7 +591,7 @@ const Services = () => {
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
-                {t.servicesFaq.title}
+                {t('servicesFaq.title')}
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-amber-500 to-purple-500 mx-auto"></div>
             </div>
@@ -599,73 +599,73 @@ const Services = () => {
             <Accordion type="single" collapsible className="space-y-3">
               <AccordionItem value="q1" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q1}
+                  {t('servicesFaq.q1')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a1}
+                  {t('servicesFaq.a1')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q2" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q2}
+                  {t('servicesFaq.q2')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a2}
+                  {t('servicesFaq.a2')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q3" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q3}
+                  {t('servicesFaq.q3')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a3}
+                  {t('servicesFaq.a3')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q4" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q4}
+                  {t('servicesFaq.q4')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a4}
+                  {t('servicesFaq.a4')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q5" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q5}
+                  {t('servicesFaq.q5')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a5}
+                  {t('servicesFaq.a5')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q6" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q6}
+                  {t('servicesFaq.q6')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a6}
+                  {t('servicesFaq.a6')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q7" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q7}
+                  {t('servicesFaq.q7')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a7}
+                  {t('servicesFaq.a7')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q8" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.servicesFaq.q8}
+                  {t('servicesFaq.q8')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.servicesFaq.a8}
+                  {t('servicesFaq.a8')}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

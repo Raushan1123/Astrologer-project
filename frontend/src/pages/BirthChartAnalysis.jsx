@@ -332,7 +332,7 @@ const BirthChartAnalysis = () => {
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
-                {t.birthChartFaq.title}
+                {t('birthChartFaq.title')}
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-amber-500 to-purple-500 mx-auto"></div>
             </div>
@@ -340,73 +340,73 @@ const BirthChartAnalysis = () => {
             <Accordion type="single" collapsible className="space-y-3">
               <AccordionItem value="q1" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q1}
+                  {t('birthChartFaq.q1')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a1}
+                  {t('birthChartFaq.a1')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q2" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q2}
+                  {t('birthChartFaq.q2')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a2}
+                  {t('birthChartFaq.a2')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q3" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q3}
+                  {t('birthChartFaq.q3')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a3}
+                  {t('birthChartFaq.a3')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q4" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q4}
+                  {t('birthChartFaq.q4')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a4}
+                  {t('birthChartFaq.a4')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q5" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q5}
+                  {t('birthChartFaq.q5')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a5}
+                  {t('birthChartFaq.a5')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q6" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q6}
+                  {t('birthChartFaq.q6')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a6}
+                  {t('birthChartFaq.a6')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q7" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q7}
+                  {t('birthChartFaq.q7')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a7}
+                  {t('birthChartFaq.a7')}
                 </AccordionContent>
               </AccordionItem>
 
               <AccordionItem value="q8" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
                 <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
-                  {t.birthChartFaq.q8}
+                  {t('birthChartFaq.q8')}
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  {t.birthChartFaq.a8}
+                  {t('birthChartFaq.a8')}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
