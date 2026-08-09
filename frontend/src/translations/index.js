@@ -477,6 +477,17 @@ export const translations = {
       included6Title: 'Follow-up Support',
       included6Desc: 'Email support for clarifications within 7 days of consultation'
     },
+    homeSeoSection: {
+      heading: 'Vedic Astrology Services in Ghaziabad and Beyond',
+      p1: 'Welcome to <strong>Acharyaa Indira Pandey</strong>, your trusted expert for <strong>Vedic Astrology Services in Ghaziabad</strong> and across India. With years of experience in astrology and spiritual guidance, we offer accurate and personalized insights to help you make informed decisions in your personal, professional, and health matters. Our goal is to empower you with knowledge that aligns your life with cosmic energies and improves your overall well-being.',
+      p2: 'At Acharyaa Indira Pandey, we specialize in providing detailed <strong>Marriage Astrology Prediction</strong>, helping individuals and couples understand compatibility, timing, and future prospects in their relationships. Our predictions are based on in-depth analysis of your horoscope, planetary positions, and astrological principles, ensuring clarity and confidence in your life decisions. Whether you are seeking guidance for a new relationship or wish to strengthen your marital bond, our astrology consultations provide actionable insights tailored to your unique life circumstances.',
+      p3: 'We also offer comprehensive <strong>Business Astrology Consultation</strong>, designed to support entrepreneurs and professionals in Ghaziabad and beyond. From selecting auspicious dates for launching new ventures to analyzing the potential of business partnerships, our guidance helps you navigate challenges and seize opportunities. With a focus on your goals and planetary influences, our business astrology services ensure you make strategic choices that maximize success and prosperity.',
+      p4: 'In addition, our services of <strong>Health Astrology Prediction in Ghaziabad</strong> provide valuable insights into your physical and mental well-being. By examining your astrological chart, we identify potential health challenges and suggest remedies, lifestyle changes, and preventive measures. Our approach combines traditional astrological wisdom with modern understanding, ensuring a balanced and holistic perspective on health and wellness.',
+      p5: "At Acharyaa Indira Pandey, we understand that each individual's journey is unique. That's why our consultations are personalized, confidential, and supportive, designed to address your specific concerns. Whether you are in Ghaziabad or anywhere else in India, our expertise is accessible to everyone seeking guidance in love, career, business, and health.",
+      p6: 'Our services are complemented by other offerings listed on our website, including astrology predictions for life events, career guidance, and remedies for challenges. By integrating these services, we provide a complete spiritual and astrological solution that empowers you to live your life in harmony with universal energies.',
+      p7: 'Contact Acharyaa Indira Pandey today for a consultation and experience the clarity, guidance, and peace that comes from working with a trusted astrology expert in Ghaziabad. Let us help you unlock the potential of your future with precise, insightful, and reliable astrological predictions.',
+      ctaButton: 'Book Your Consultation Now'
+    },
     servicesFaq: {
       title: 'Frequently Asked Questions',
       q1: 'What services does Happy Kismat offer as an astrologer?',
@@ -1055,6 +1066,17 @@ export const translations = {
       included5Desc: 'आपके सभी विशिष्ट प्रश्नों और चिंताओं को संबोधित करने के लिए समर्पित समय',
       included6Title: 'अनुवर्ती सहायता',
       included6Desc: 'परामर्श के 7 दिनों के भीतर स्पष्टीकरण के लिए ईमेल सहायता'
+    },
+    homeSeoSection: {
+      heading: 'गाजियाबाद और उससे परे वैदिक ज्योतिष सेवाएं',
+      p1: '<strong>आचार्या इंदिरा पांडे</strong> में आपका स्वागत है, जो <strong>गाजियाबाद में वैदिक ज्योतिष सेवाओं</strong> और पूरे भारत के लिए आपकी विश्वसनीय विशेषज्ञ हैं। ज्योतिष और आध्यात्मिक मार्गदर्शन में वर्षों के अनुभव के साथ, हम आपको अपने व्यक्तिगत, पेशेवर और स्वास्थ्य संबंधी मामलों में सूचित निर्णय लेने में मदद करने के लिए सटीक और व्यक्तिगत अंतर्दृष्टि प्रदान करते हैं। हमारा लक्ष्य आपको ऐसे ज्ञान से सशक्त बनाना है जो आपके जीवन को ब्रह्मांडीय ऊर्जाओं के साथ संरेखित करे और आपके समग्र कल्याण में सुधार करे।',
+      p2: 'आचार्या इंदिरा पांडे में, हम विस्तृत <strong>विवाह ज्योतिष भविष्यवाणी</strong> प्रदान करने में विशेषज्ञ हैं, जो व्यक्तियों और जोड़ों को उनके रिश्तों में अनुकूलता, समय और भविष्य की संभावनाओं को समझने में मदद करती है। हमारी भविष्यवाणियां आपकी जन्म कुंडली, ग्रहीय स्थितियों और ज्योतिषीय सिद्धांतों के गहन विश्लेषण पर आधारित हैं, जो आपके जीवन निर्णयों में स्पष्टता और आत्मविश्वास सुनिश्चित करती हैं।',
+      p3: 'हम व्यापक <strong>व्यापार ज्योतिष परामर्श</strong> भी प्रदान करते हैं, जो गाजियाबाद और उससे परे उद्यमियों और पेशेवरों का समर्थन करने के लिए डिज़ाइन किया गया है। नए उद्यम शुरू करने के लिए शुभ तिथियों के चयन से लेकर व्यावसायिक साझेदारी की संभावनाओं का विश्लेषण करने तक, हमारा मार्गदर्शन आपको चुनौतियों से निपटने और अवसरों को जब्त करने में मदद करता है।',
+      p4: 'इसके अतिरिक्त, <strong>गाजियाबाद में स्वास्थ्य ज्योतिष भविष्यवाणी</strong> की हमारी सेवाएं आपके शारीरिक और मानसिक स्वास्थ्य में मूल्यवान अंतर्दृष्टि प्रदान करती हैं। आपकी ज्योतिषीय कुंडली की जांच करके, हम संभावित स्वास्थ्य चुनौतियों की पहचान करते हैं और उपाय, जीवनशैली में बदलाव और निवारक उपाय सुझाते हैं।',
+      p5: 'आचार्या इंदिरा पांडे में, हम समझते हैं कि प्रत्येक व्यक्ति की यात्रा अद्वितीय है। इसीलिए हमारे परामर्श व्यक्तिगत, गोपनीय और सहायक हैं, जो आपकी विशिष्ट चिंताओं को संबोधित करने के लिए डिज़ाइन किए गए हैं। चाहे आप गाजियाबाद में हों या भारत में कहीं भी, हमारी विशेषज्ञता प्रेम, करियर, व्यापार और स्वास्थ्य में मार्गदर्शन चाहने वाले सभी के लिए सुलभ है।',
+      p6: 'हमारी सेवाएं हमारी वेबसाइट पर सूचीबद्ध अन्य प्रस्तावों द्वारा पूरक हैं, जिनमें जीवन की घटनाओं के लिए ज्योतिष भविष्यवाणियां, करियर मार्गदर्शन और चुनौतियों के लिए उपाय शामिल हैं। इन सेवाओं को एकीकृत करके, हम एक संपूर्ण आध्यात्मिक और ज्योतिषीय समाधान प्रदान करते हैं जो आपको सार्वभौमिक ऊर्जाओं के साथ सामंजस्य में जीने के लिए सशक्त बनाता है।',
+      p7: 'आज ही आचार्या इंदिरा पांडे से परामर्श के लिए संपर्क करें और गाजियाबाद में एक विश्वसनीय ज्योतिष विशेषज्ञ के साथ काम करने से मिलने वाली स्पष्टता, मार्गदर्शन और शांति का अनुभव करें। हमें आपको सटीक, अंतर्दृष्टिपूर्ण और विश्वसनीय ज्योतिषीय भविष्यवाणियों के साथ आपके भविष्य की संभावनाओं को उजागर करने में मदद करने दें।',
+      ctaButton: 'अभी अपना परामर्श बुक करें'
     },
     servicesFaq: {
       title: 'अक्सर पूछे जाने वाले प्रश्न',

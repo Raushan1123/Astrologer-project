@@ -488,38 +488,18 @@ const Home = () => {
             <div className="prose prose-lg max-w-none">
               {/* Main Heading */}
               <h2 className="text-4xl md:text-5xl font-bold text-purple-900 mb-8 text-center">
-                Vedic Astrology Services in Ghaziabad and Beyond
+                {t('homeSeoSection.heading')}
               </h2>
 
               {/* Introduction */}
               <div className="text-gray-700 leading-relaxed space-y-6 text-justify">
-                <p className="text-lg">
-                  Welcome to <strong>Acharyaa Indira Pandey</strong>, your trusted expert for <strong>Vedic Astrology Services in Ghaziabad</strong> and across India. With years of experience in astrology and spiritual guidance, we offer accurate and personalized insights to help you make informed decisions in your personal, professional, and health matters. Our goal is to empower you with knowledge that aligns your life with cosmic energies and improves your overall well-being.
-                </p>
-
-                <p className="text-lg">
-                  At Acharyaa Indira Pandey, we specialize in providing detailed <strong>Marriage Astrology Prediction</strong>, helping individuals and couples understand compatibility, timing, and future prospects in their relationships. Our predictions are based on in-depth analysis of your horoscope, planetary positions, and astrological principles, ensuring clarity and confidence in your life decisions. Whether you are seeking guidance for a new relationship or wish to strengthen your marital bond, our astrology consultations provide actionable insights tailored to your unique life circumstances.
-                </p>
-
-                <p className="text-lg">
-                  We also offer comprehensive <strong>Business Astrology Consultation</strong>, designed to support entrepreneurs and professionals in Ghaziabad and beyond. From selecting auspicious dates for launching new ventures to analyzing the potential of business partnerships, our guidance helps you navigate challenges and seize opportunities. With a focus on your goals and planetary influences, our business astrology services ensure you make strategic choices that maximize success and prosperity.
-                </p>
-
-                <p className="text-lg">
-                  In addition, our services of <strong>Health Astrology Prediction in Ghaziabad</strong> provide valuable insights into your physical and mental well-being. By examining your astrological chart, we identify potential health challenges and suggest remedies, lifestyle changes, and preventive measures. Our approach combines traditional astrological wisdom with modern understanding, ensuring a balanced and holistic perspective on health and wellness.
-                </p>
-
-                <p className="text-lg">
-                  At Acharyaa Indira Pandey, we understand that each individual's journey is unique. That's why our consultations are personalized, confidential, and supportive, designed to address your specific concerns. Whether you are in Ghaziabad or anywhere else in India, our expertise is accessible to everyone seeking guidance in love, career, business, and health.
-                </p>
-
-                <p className="text-lg">
-                  Our services are complemented by other offerings listed on our website, including astrology predictions for life events, career guidance, and remedies for challenges. By integrating these services, we provide a complete spiritual and astrological solution that empowers you to live your life in harmony with universal energies.
-                </p>
-
-                <p className="text-lg font-semibold text-purple-900">
-                  Contact Acharyaa Indira Pandey today for a consultation and experience the clarity, guidance, and peace that comes from working with a trusted astrology expert in Ghaziabad. Let us help you unlock the potential of your future with precise, insightful, and reliable astrological predictions.
-                </p>
+                <p className="text-lg" dangerouslySetInnerHTML={{ __html: t('homeSeoSection.p1') }} />
+                <p className="text-lg" dangerouslySetInnerHTML={{ __html: t('homeSeoSection.p2') }} />
+                <p className="text-lg" dangerouslySetInnerHTML={{ __html: t('homeSeoSection.p3') }} />
+                <p className="text-lg" dangerouslySetInnerHTML={{ __html: t('homeSeoSection.p4') }} />
+                <p className="text-lg" dangerouslySetInnerHTML={{ __html: t('homeSeoSection.p5') }} />
+                <p className="text-lg" dangerouslySetInnerHTML={{ __html: t('homeSeoSection.p6') }} />
+                <p className="text-lg font-semibold text-purple-900" dangerouslySetInnerHTML={{ __html: t('homeSeoSection.p7') }} />
               </div>
 
               {/* CTA Button */}
@@ -529,7 +509,7 @@ const Home = () => {
                     size="lg"
                     className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-10 py-6 text-lg font-semibold shadow-2xl shadow-purple-300 transform hover:scale-105 transition-all duration-300"
                   >
-                    Book Your Consultation Now
+                    {t('homeSeoSection.ctaButton')}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>

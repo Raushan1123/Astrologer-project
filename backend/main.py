@@ -13,8 +13,6 @@ import razorpay
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 import pytz
 import bcrypt
 import jwt
@@ -315,101 +313,54 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Helper function to send emails using SendGrid
+# Helper function to send emails via Gmail SMTP
 async def send_email(to_email: str, subject: str, body: str):
     """
-    Send email using SendGrid API (works on Railway, unlike SMTP)
+    Send email via Gmail SMTP.
 
     Required environment variables:
-    - SENDGRID_API_KEY: Your SendGrid API key
-    - SENDGRID_FROM_EMAIL: Sender email (e.g., noreply@yourdomain.com)
-    - SENDGRID_FROM_NAME: Sender name (e.g., Acharyaa Indira Pandey Astrology)
+    - SMTP_EMAIL: Your Gmail address (e.g., yourname@gmail.com)
+    - SMTP_PASSWORD: Gmail App Password (16-char, from Google Account > Security > App Passwords)
 
-    Falls back to SMTP if SendGrid is not configured (for local development)
+    Optional:
+    - SMTP_FROM_NAME: Display name (default: Acharyaa Indira Pandey)
+    - SMTP_SERVER: defaults to smtp.gmail.com
+    - SMTP_PORT: defaults to 587
     """
-    # Try SendGrid first (recommended for production/Railway)
-    sendgrid_api_key = os.environ.get('SENDGRID_API_KEY', '')
+    smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    sender_email = os.environ.get('SMTP_EMAIL', '')
+    sender_password = os.environ.get('SMTP_PASSWORD', '')
+    from_name = os.environ.get('SMTP_FROM_NAME', 'Acharyaa Indira Pandey')
 
-    if sendgrid_api_key:
-        try:
-            import requests
-            from_email = os.environ.get('SENDGRID_FROM_EMAIL', 'noreply@astrology.com')
-            from_name = os.environ.get('SENDGRID_FROM_NAME', 'Acharyaa Indira Pandey Astrology')
+    if not sender_email or not sender_password:
+        logger.warning("⚠️ SMTP_EMAIL / SMTP_PASSWORD not set — skipping email")
+        return False
 
-            # Use requests directly to avoid SSL issues on macOS
-            url = "https://api.sendgrid.com/v3/mail/send"
-            headers = {
-                "Authorization": f"Bearer {sendgrid_api_key}",
-                "Content-Type": "application/json"
-            }
-            data = {
-                "personalizations": [{
-                    "to": [{"email": to_email}],
-                    "subject": subject
-                }],
-                "from": {
-                    "email": from_email,
-                    "name": from_name
-                },
-                "content": [{
-                    "type": "text/html",
-                    "value": body
-                }]
-            }
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['From'] = f"{from_name} <{sender_email}>"
+        msg['To'] = to_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'html'))
 
-            # Send request (verify=False for local dev SSL issues)
-            response = requests.post(url, headers=headers, json=data, verify=False, timeout=10)
-
-            if response.status_code in [200, 202]:
-                logger.info(f"✅ Email sent to {to_email} via SendGrid (Status: {response.status_code})")
-                return True
-            else:
-                logger.error(f"❌ SendGrid error: {response.status_code} - {response.text}")
-                logger.warning("⚠️ Falling back to SMTP...")
-
-        except Exception as e:
-            logger.error(f"❌ SendGrid error: {str(e)}")
-            logger.warning("⚠️ Falling back to SMTP...")
-            # Don't return False yet, let it fall through to SMTP fallback
-
-    # Fallback to SMTP (for local development only - won't work on Railway)
-    else:
-        try:
-            smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
-            smtp_port = int(os.environ.get('SMTP_PORT', 587))
-            sender_email = os.environ.get('SMTP_EMAIL', '')
-            sender_password = os.environ.get('SMTP_PASSWORD', '')
-
-            if not sender_email or not sender_password:
-                logger.warning("⚠️ Email credentials not configured - skipping email")
-                return False
-
-            msg = MIMEMultipart()
-            msg['From'] = sender_email
-            msg['To'] = to_email
-            msg['Subject'] = subject
-
-            msg.attach(MIMEText(body, 'html'))
-
-            # Add timeout to prevent hanging on Railway (SMTP ports may be blocked)
-            server = smtplib.SMTP(smtp_server, smtp_port, timeout=5)
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
             server.starttls()
             server.login(sender_email, sender_password)
             server.send_message(msg)
-            server.quit()
 
-            logger.info(f"✅ Email sent to {to_email} via SMTP")
-            return True
+        logger.info(f"✅ Email sent to {to_email} via Gmail SMTP")
+        return True
 
-        except smtplib.SMTPException as e:
-            logger.error(f"❌ SMTP error: {str(e)}")
-            return False
-        except TimeoutError as e:
-            logger.error(f"❌ SMTP timeout (Railway blocks SMTP ports): {str(e)}")
-            return False
-        except Exception as e:
-            logger.error(f"❌ Failed to send email: {str(e)}")
-            return False
+    except smtplib.SMTPAuthenticationError:
+        logger.error("❌ Gmail SMTP auth failed — check SMTP_EMAIL and SMTP_PASSWORD (use App Password, not account password)")
+        return False
+    except smtplib.SMTPException as e:
+        logger.error(f"❌ SMTP error: {str(e)}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Failed to send email: {str(e)}")
+        return False
 
 
 # Helper function to send SMS using Twilio
@@ -1691,7 +1642,7 @@ Acharyaa Indira Pandey"""
                 logger.error(f"❌ Error sending SMS confirmation: {str(e)}")
 
         # Send notification email to admin/astrologer
-        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
 
         # Different admin notification based on payment status
         if payment_status == PaymentStatus.PENDING:
@@ -2170,7 +2121,7 @@ async def cancel_booking(
         )
 
         # Send notification to admin
-        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
         admin_email_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -2515,7 +2466,7 @@ async def verify_payment(request: Request):
         await send_email(booking['email'], "✅ Payment Confirmed - Consultation Booked", customer_email_body)
 
         # Send admin notification about payment success
-        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
         admin_email_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -2662,7 +2613,7 @@ async def payment_failed(request: Request):
                 <div style="margin-top: 30px; padding: 15px; background-color: #dbeafe; border-left: 4px solid #3b82f6;">
                     <strong>What's Next?</strong><br>
                     • You can try booking again from our website<br>
-                    • Or contact us directly at {os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')}<br>
+                    • Or contact us directly at {os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')}<br>
                     • We're here to help!
                 </div>
                 <p style="margin-top: 30px;">Best regards,<br><strong>Acharyaa Indira Pandey Team</strong></p>
@@ -2673,7 +2624,7 @@ async def payment_failed(request: Request):
         await send_email(booking['email'], "❌ Payment Failed - Booking Not Confirmed", customer_email_body)
 
         # Send admin notification about payment failure
-        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
         admin_email_body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -2832,7 +2783,7 @@ async def razorpay_webhook(request: Request, background_tasks: BackgroundTasks):
                 )
 
                 # Send admin notification about payment
-                admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+                admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
                 admin_email_body = f"""
                 <html>
                 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -3001,7 +2952,7 @@ Best regards,
 
                 elif event == 'refund.failed':
                     # Notify admin about failed refund
-                    admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+                    admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
                     admin_email_body = f"""
                     <html>
                     <body style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -3585,7 +3536,7 @@ async def admin_confirm_payment(booking_id: str, payment_details: dict, backgrou
         )
 
         # Send admin notification about payment confirmation
-        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
         payment_method = payment_details.get("payment_method", "admin_confirmed")
         transaction_id = payment_details.get("transaction_id", "N/A")
 
@@ -3785,7 +3736,7 @@ async def gemstone_inquiry(
         customer = inquiry_data.get('customer', {})
 
         # Get admin email (Indira Pandey's email)
-        admin_email = os.environ.get('SENDGRID_FROM_EMAIL', 'indirapandey2526@gmail.com')
+        admin_email = os.environ.get('SMTP_EMAIL', 'indirapandey2526@gmail.com')
 
         # Send notification email to Indira Pandey
         admin_email_body = f"""
