@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { Star, Calendar, Compass, Heart, Briefcase, Activity, TrendingUp, Clock, MapPin, Phone, Mail, ArrowRight } from 'lucide-react';
 import SEO from '../components/SEO';
 
@@ -319,6 +320,94 @@ const BirthChartAnalysis = () => {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
+                Frequently Asked Questions
+              </h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-amber-500 to-purple-500 mx-auto"></div>
+            </div>
+
+            <Accordion type="single" collapsible className="space-y-3">
+              <AccordionItem value="q1" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  What is Birth Chart Analysis in astrology?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Birth Chart Analysis is a Vedic astrology practice that studies the planetary positions at the exact time and place of a person's birth.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q2" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Where can I get a birth chart analysis in Ghaziabad?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Happy Kismat offers professional services in Ghaziabad to help individuals understand their horoscopes and planetary influences through Vedic astrology.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q3" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  How does Birth Chart Analysis work?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Birth Chart Analysis works by examining the positions of planets, zodiac signs, and houses at the time of birth, interpreted using Vedic methods for personalized insights.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q4" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  What information is required for Birth Chart Analysis?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  For accurate Birth Chart Analysis, astrologers generally require your date of birth, exact time of birth, and place of birth.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q5" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Can I get an online Birth Chart Analysis from Happy Kismat?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Yes, Happy Kismat provides remote consultations across India, allowing clients to receive personalized guidance using their birth details.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q6" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Why should I choose Happy Kismat for Birth Chart Analysis?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Happy Kismat offers guidance related to career, marriage, health, and personal growth using Vedic astrology methods, with a personalized and compassionate approach for each client.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q7" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Does Happy Kismat provide Birth Chart Analysis outside Ghaziabad?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Yes, Happy Kismat provides Birth Chart Analysis services for clients in Ghaziabad and across India.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q8" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  How can I book a Birth Chart Analysis with Happy Kismat?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Contact Happy Kismat to schedule a consultation by sharing your birth details for personalized Vedic astrology guidance.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </section>

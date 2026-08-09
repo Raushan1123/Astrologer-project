@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion';
 import { mockServices, consultationPricing } from '../mockData';
 import { ArrowRight, Star, Briefcase, Heart, Activity, Home, Hand, Sparkles, CheckCircle, Gem, Baby, BadgeCheck, Clock, IndianRupee } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -580,6 +581,94 @@ const Services = () => {
                 </ul>
               </Card>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-gradient-to-b from-purple-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-purple-900 mb-4">
+                Frequently Asked Questions
+              </h2>
+              <div className="w-24 h-1 bg-gradient-to-r from-amber-500 to-purple-500 mx-auto"></div>
+            </div>
+
+            <Accordion type="single" collapsible className="space-y-3">
+              <AccordionItem value="q1" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  What services does Happy Kismat offer as an astrologer?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Happy Kismat offers a range of astrology services, including Vedic astrology, Kundli reading, birth chart analysis, marriage predictions, career guidance, business astrology consultation, and health astrology predictions for clients in Ghaziabad and across India.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q2" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Does Happy Kismat provide astrology consultation outside Ghaziabad?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Yes, Happy Kismat serves clients in Ghaziabad and across India.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q3" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Where can I get Vedic Astrology services in Ghaziabad?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Happy Kismat provides Vedic Astrology services in Ghaziabad for individuals seeking personalized horoscope guidance.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q4" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Can I get an online astrology consultation from Happy Kismat?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Yes, Happy Kismat provides astrology consultation services for clients beyond Ghaziabad, allowing individuals across India to seek personalized Vedic astrology guidance.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q5" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  What is Kundli Reading and why is it important?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Kundli Reading involves analyzing a person's birth chart to understand planetary influences affecting different areas of life.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q6" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  What is Birth Chart Analysis in astrology?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Birth Chart Analysis is the study of planetary placements at the time of birth to understand personality traits, life patterns, and potential opportunities.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q7" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  Where can I get a marriage astrology prediction in Ghaziabad?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  Happy Kismat provides marriage astrology prediction services in Ghaziabad for individuals seeking guidance about marriage timing, compatibility, and relationship-related concerns.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="q8" className="border-2 border-purple-100 rounded-xl px-6 shadow-sm bg-white">
+                <AccordionTrigger className="text-purple-900 font-semibold text-left hover:text-amber-600 hover:no-underline">
+                  How can I book an astrology consultation with Happy Kismat?
+                </AccordionTrigger>
+                <AccordionContent className="text-gray-600 leading-relaxed">
+                  You can contact Happy Kismat to schedule a personalized astrology consultation.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </section>
