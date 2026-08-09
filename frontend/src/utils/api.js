@@ -13,7 +13,7 @@ const api = axios.create({
   },
   withCredentials: false,
   maxRedirects: 5,
-  validateStatus: (status) => status < 500,
+  validateStatus: (status) => status >= 200 && status < 300,
 });
 
 api.interceptors.request.use(

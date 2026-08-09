@@ -611,7 +611,7 @@ const Services = () => {
                   Does Happy Kismat provide astrology consultation outside Ghaziabad?
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  Yes, Happy Kismat serves clients in Ghaziabad and across India.
+                  Yes, Happy Kismat serves clients in Ghaziabad and across India. Individuals from different locations can access astrology consultation services for Kundli reading, career guidance, marriage predictions, and other astrology needs.
                 </AccordionContent>
               </AccordionItem>
 
@@ -620,7 +620,7 @@ const Services = () => {
                   Where can I get Vedic Astrology services in Ghaziabad?
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  Happy Kismat provides Vedic Astrology services in Ghaziabad for individuals seeking personalized horoscope guidance.
+                  Happy Kismat provides Vedic Astrology services in Ghaziabad for individuals seeking personalized horoscope guidance, covering relationships, career, health, finance, and personal development.
                 </AccordionContent>
               </AccordionItem>
 
@@ -665,7 +665,7 @@ const Services = () => {
                   How can I book an astrology consultation with Happy Kismat?
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  You can contact Happy Kismat to schedule a personalized astrology consultation.
+                  You can contact Happy Kismat to schedule a personalized astrology consultation featuring Vedic astrology and specialized chart readings.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

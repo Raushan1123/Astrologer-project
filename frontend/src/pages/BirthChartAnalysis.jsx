@@ -341,7 +341,7 @@ const BirthChartAnalysis = () => {
                   What is Birth Chart Analysis in astrology?
                 </AccordionTrigger>
                 <AccordionContent className="text-gray-600 leading-relaxed">
-                  Birth Chart Analysis is a Vedic astrology practice that studies the planetary positions at the exact time and place of a person's birth.
+                  Birth Chart Analysis is a Vedic astrology practice that studies the planetary positions at the exact time and place of a person's birth. Happy Kismat utilizes this approach to offer guidance on personality, career, relationships, health, and life opportunities.
                 </AccordionContent>
               </AccordionItem>
 
