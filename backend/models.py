@@ -169,6 +169,7 @@ class Testimonial(BaseModel):
 
 class BlogPost(BaseModel):
     id: str
+    slug: Optional[str] = None
     title: str
     excerpt: str
     content: str

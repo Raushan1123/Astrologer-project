@@ -31,7 +31,7 @@ const HealthAstrology = () => {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-purple-900 mb-6 leading-tight">
-              Accurate Health Astrology Prediction
+              Accurate Health Astrology Prediction in Ghaziabad
             </h1>
             <p className="text-xl md:text-2xl text-amber-600 font-semibold mb-8">
               by Acharyaa Indira Pandey
@@ -81,7 +81,7 @@ const HealthAstrology = () => {
               <div className="space-y-4">
                 <p className="text-gray-700 leading-relaxed text-lg">
                   Health astrology is an ancient science that studies the influence of planets, zodiac signs,
-                  and houses on your physical and mental health. At Acharyaa Indira Pandey, we carefully analyze
+                  and houses on your physical and mental health. At <Link to="/" title="Acharyaa Indira Pandey" className="text-purple-700 hover:underline font-medium">Acharyaa Indira Pandey</Link>, we carefully analyze
                   your birth chart to uncover hidden health tendencies and possible future concerns.
                 </p>
                 <p className="text-gray-700 leading-relaxed text-lg">

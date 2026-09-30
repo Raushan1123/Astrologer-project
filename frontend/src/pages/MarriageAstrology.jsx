@@ -31,7 +31,7 @@ const MarriageAstrology = () => {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-purple-900 mb-6 leading-tight">
-              Marriage Astrology Prediction
+              Marriage Astrology Prediction in Ghaziabad
             </h1>
             <p className="text-xl md:text-2xl text-pink-600 font-semibold mb-8">
               by Acharyaa Indira Pandey
@@ -278,7 +278,7 @@ const MarriageAstrology = () => {
 
               <div className="space-y-6">
                 <p className="text-gray-700 leading-relaxed text-lg">
-                  While based in Ghaziabad, Acharyaa Indira Pandey proudly serves clients throughout India with
+                  While based in Ghaziabad, <Link to="/" title="Acharyaa Indira Pandey" className="text-purple-700 hover:underline font-medium">Acharyaa Indira Pandey</Link> proudly serves clients throughout India with
                   reliable and accurate astrology consultations. Our Marriage Astrology Prediction in Ghaziabad
                   services are accessible to anyone seeking guidance, regardless of location.
                 </p>

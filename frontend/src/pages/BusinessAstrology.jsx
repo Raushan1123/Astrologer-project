@@ -31,7 +31,7 @@ const BusinessAstrology = () => {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-purple-900 mb-6 leading-tight">
-              Business Astrology Consultation
+              Business Astrology Consultation in Ghaziabad
             </h1>
             <p className="text-xl md:text-2xl text-amber-600 font-semibold mb-8">
               by Acharyaa Indira Pandey
@@ -85,7 +85,7 @@ const BusinessAstrology = () => {
                   critical investments.
                 </p>
                 <p className="text-gray-700 leading-relaxed text-lg">
-                  Acharyaa Indira Pandey combines deep astrological knowledge with practical business understanding
+                  <Link to="/" title="Acharyaa Indira Pandey" className="text-purple-700 hover:underline font-medium">Acharyaa Indira Pandey</Link> combines deep astrological knowledge with practical business understanding
                   to provide personalized guidance. Whether you are facing financial instability or looking to scale
                   your business, this consultation helps you make informed decisions.
                 </p>

@@ -34,7 +34,7 @@ const BirthChartAnalysis = () => {
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-purple-900 mb-6 leading-tight">
-              Accurate Astrology Guidance on Birth Chart Analysis
+              Accurate Astrology Guidance on Birth Chart Analysis in Ghaziabad
             </h1>
             <p className="text-xl md:text-2xl text-amber-600 font-semibold mb-8">
               by Acharyaa Indira Pandey
@@ -113,7 +113,7 @@ const BirthChartAnalysis = () => {
                 to your life situation.
               </p>
               <p className="text-gray-700 leading-relaxed mb-6">
-                Whether you are planning your career, marriage, or financial investments, our consultation offers
+                Whether you are planning your career, <Link to="/marriage-astrology-consultation" title="Marriage" className="text-purple-700 hover:underline font-medium">marriage</Link>, or financial investments, our consultation offers
                 practical solutions rooted in astrology.
               </p>
               <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg">

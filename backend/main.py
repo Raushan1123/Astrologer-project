@@ -328,39 +328,44 @@ async def send_email(to_email: str, subject: str, body: str):
     - SMTP_PORT: defaults to 587
     """
     smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
-    smtp_port = int(os.environ.get('SMTP_PORT', 587))
     sender_email = os.environ.get('SMTP_EMAIL', '')
-    sender_password = os.environ.get('SMTP_PASSWORD', '')
+    # Strip spaces — Gmail shows App Passwords with spaces but accepts them without
+    sender_password = os.environ.get('SMTP_PASSWORD', '').replace(' ', '')
     from_name = os.environ.get('SMTP_FROM_NAME', 'Acharyaa Indira Pandey')
 
     if not sender_email or not sender_password:
         logger.warning("⚠️ SMTP_EMAIL / SMTP_PASSWORD not set — skipping email")
         return False
 
-    try:
-        msg = MIMEMultipart('alternative')
-        msg['From'] = f"{from_name} <{sender_email}>"
-        msg['To'] = to_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'html'))
+    msg = MIMEMultipart('alternative')
+    msg['From'] = f"{from_name} <{sender_email}>"
+    msg['To'] = to_email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'html'))
 
-        with smtplib.SMTP(smtp_server, smtp_port, timeout=30) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
+    # Try port 465 (SSL) first — more reliable on cloud hosts, then fall back to 587 (STARTTLS)
+    attempts = [
+        ('SSL',      465, lambda: smtplib.SMTP_SSL(smtp_server, 465, timeout=30)),
+        ('STARTTLS', 587, lambda: smtplib.SMTP(smtp_server, 587, timeout=30)),
+    ]
 
-        logger.info(f"✅ Email sent to {to_email} via Gmail SMTP")
-        return True
+    for mode, port, make_conn in attempts:
+        try:
+            with make_conn() as server:
+                if mode == 'STARTTLS':
+                    server.starttls()
+                server.login(sender_email, sender_password)
+                server.send_message(msg)
+            logger.info(f"✅ Email sent to {to_email} via Gmail SMTP ({mode} port {port})")
+            return True
+        except smtplib.SMTPAuthenticationError:
+            logger.error("❌ Gmail auth failed — ensure SMTP_PASSWORD is a Gmail App Password (Google Account > Security > App Passwords)")
+            return False  # Wrong password — no point retrying other port
+        except Exception as e:
+            logger.warning(f"⚠️ Gmail SMTP {mode} (port {port}) failed: {str(e)} — trying next method")
 
-    except smtplib.SMTPAuthenticationError:
-        logger.error("❌ Gmail SMTP auth failed — check SMTP_EMAIL and SMTP_PASSWORD (use App Password, not account password)")
-        return False
-    except smtplib.SMTPException as e:
-        logger.error(f"❌ SMTP error: {str(e)}")
-        return False
-    except Exception as e:
-        logger.error(f"❌ Failed to send email: {str(e)}")
-        return False
+    logger.error("❌ All Gmail SMTP attempts failed")
+    return False
 
 
 # Helper function to send SMS using Twilio
@@ -4024,17 +4029,41 @@ async def delete_testimonial(testimonial_id: str):
 
 
 # Blog posts
+def slugify(text: str) -> str:
+    """Convert a title into a URL-friendly, SEO-safe slug."""
+    text = text.lower().strip()
+    text = re.sub(r"[^a-z0-9\s-]", "", text)  # drop punctuation
+    text = re.sub(r"[\s_]+", "-", text)        # spaces/underscores -> hyphen
+    text = re.sub(r"-+", "-", text).strip("-")  # collapse repeats, trim
+    return text[:80].rstrip("-")
+
+async def generate_unique_slug(title: str, exclude_id: str = None) -> str:
+    """Generate a slug from the title, appending -2/-3/... if it collides."""
+    base_slug = slugify(title) or "post"
+    slug = base_slug
+    counter = 2
+    while True:
+        query = {"slug": slug}
+        if exclude_id:
+            query["id"] = {"$ne": exclude_id}
+        existing = await db.blog_posts.find_one(query, {"_id": 0, "id": 1})
+        if not existing:
+            return slug
+        slug = f"{base_slug}-{counter}"
+        counter += 1
+
 @api_router.get("/blog")
 async def get_blog_posts(category: str = None):
     try:
         query = {"published": True}
         if category and category != "All":
             query["category"] = category
-        
+
         # Optimized query - exclude content field for list view
         projection = {
             "_id": 0,
             "id": 1,
+            "slug": 1,
             "title": 1,
             "excerpt": 1,
             "image": 1,
@@ -4044,7 +4073,7 @@ async def get_blog_posts(category: str = None):
             "read_time": 1,
             "published": 1
         }
-        
+
         posts = await db.blog_posts.find(query, projection).sort("date", -1).to_list(50)
         return posts
     except Exception as e:
@@ -4054,7 +4083,12 @@ async def get_blog_posts(category: str = None):
 @api_router.get("/blog/{post_id}")
 async def get_blog_post(post_id: str):
     try:
-        post = await db.blog_posts.find_one({"id": post_id, "published": True}, {"_id": 0})
+        # Look up by SEO-friendly slug first, fall back to legacy UUID id
+        # so old links (and the API contract) keep working.
+        post = await db.blog_posts.find_one(
+            {"$or": [{"slug": post_id}, {"id": post_id}], "published": True},
+            {"_id": 0}
+        )
         if not post:
             raise HTTPException(status_code=404, detail="Blog post not found")
         return post
@@ -4075,14 +4109,20 @@ async def create_blog_post(blog_post: BlogPost):
         if existing:
             raise HTTPException(status_code=400, detail="Blog post with this ID already exists")
 
+        # Never expose the raw UUID in URLs. If a slug was supplied, keep it
+        # (de-duped); otherwise derive a human-readable one from the title.
+        desired = blog_post.slug or blog_post.title
+        blog_post.slug = await generate_unique_slug(desired, exclude_id=blog_post.id)
+
         # Save to database
         blog_doc = blog_post.model_dump()
         await db.blog_posts.insert_one(blog_doc)
 
-        logger.info(f"New blog post created: {blog_post.title} (ID: {blog_post.id})")
+        logger.info(f"New blog post created: {blog_post.title} (ID: {blog_post.id}, slug: {blog_post.slug})")
         return {
             "message": "Blog post created successfully",
-            "id": blog_post.id
+            "id": blog_post.id,
+            "slug": blog_post.slug
         }
     except HTTPException:
         raise
@@ -4348,6 +4388,35 @@ async def get_razorpay_key():
     if not RAZORPAY_ENABLED:
         raise HTTPException(status_code=400, detail="Razorpay not configured")
     return {"key": os.environ.get('RAZORPAY_KEY_ID')}
+
+@api_router.get("/test-email")
+async def test_email(to: str = "indirapandey2526@gmail.com"):
+    """
+    Test endpoint — call /api/test-email?to=your@email.com to verify Gmail SMTP is working.
+    Remove or restrict this endpoint once email is confirmed working.
+    """
+    smtp_email = os.environ.get('SMTP_EMAIL', '')
+    smtp_password_set = bool(os.environ.get('SMTP_PASSWORD', '').replace(' ', ''))
+
+    if not smtp_email or not smtp_password_set:
+        return {
+            "status": "misconfigured",
+            "error": "SMTP_EMAIL or SMTP_PASSWORD env var is missing",
+            "SMTP_EMAIL_set": bool(smtp_email),
+            "SMTP_PASSWORD_set": smtp_password_set
+        }
+
+    result = await send_email(
+        to,
+        "✅ Test Email — Gmail SMTP Working",
+        "<h2>Gmail SMTP is configured correctly!</h2><p>This is a test email from your Astrology app backend.</p>"
+    )
+
+    return {
+        "status": "sent" if result else "failed",
+        "to": to,
+        "from": smtp_email
+    }
 
 # Include the router in the main app
 app.include_router(api_router)

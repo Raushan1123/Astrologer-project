@@ -220,7 +220,7 @@ const Blog = () => {
                         </Button>
                       </a>
                     ) : (
-                      <Link to={`/blog/${filteredBlogs[0].id}`}>
+                      <Link to={`/blog/${filteredBlogs[0].slug || filteredBlogs[0].id}`}>
                         <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
                           {t('blog.readFullArticle')}
                           <ArrowRight className="ml-2 w-4 h-4" />
@@ -293,7 +293,7 @@ const Blog = () => {
                           </Button>
                         </a>
                       ) : (
-                        <Link to={`/blog/${blog.id}`}>
+                        <Link to={`/blog/${blog.slug || blog.id}`}>
                           <Button
                             variant="ghost"
                             className="text-purple-700 hover:text-purple-900 p-0 hover:bg-transparent group/btn"
