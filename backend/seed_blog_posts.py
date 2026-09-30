@@ -66,42 +66,110 @@ NEW_POSTS = [
         "image": "https://images.unsplash.com/photo-1515942661900-94b3d1972591?w=800&q=80&fm=webp&fit=crop&auto=format",
         "date": "2026-09-27",
         "content": """<div class="blog-content">
-<p>Every kundli tells a story — one written in the exact position of the planets at the moment you were born. If you've been searching for reliable <strong>Kundli Reading Ghaziabad</strong> residents can trust, Acharyaa Indira Pandey offers detailed, personalized readings that go beyond generic predictions, helping you understand your strengths, challenges, and the right timing for major life decisions.</p>
+<div class="space-y-6">
 
-<h2>Understanding Kundli Reading and Why It Matters</h2>
-<p>A kundli, or Vedic birth chart, is a map of the sky at your exact time and place of birth. It captures the position of the nine planets (grahas) across the twelve houses, forming the basis for everything from career forecasts to marriage compatibility. A skilled <strong>Kundli Reading Ghaziabad</strong> clients receive goes far beyond a computer-generated printout — it involves interpreting planetary combinations (yogas), current planetary periods (dashas), and house strengths to give you insights that are actually relevant to your life today.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Every kundli tells a story — one written in the exact position of the planets at the moment you were born. If you've been searching for reliable <strong class="text-purple-900 font-semibold">Kundli Reading Ghaziabad</strong> residents can trust, Acharyaa Indira Pandey offers detailed, personalized readings that go beyond generic predictions, helping you understand your strengths, challenges, and the right timing for major life decisions.
+  </p>
 
-<h2>What a Professional Kundli Reading Covers</h2>
-<p>Under Acharyaa Indira Pandey's guidance, a kundli session typically covers:</p>
-<ul>
-<li><strong>Personality and life path</strong> – core traits, natural strengths, and areas for growth.</li>
-<li><strong>Career and finance indicators</strong> – favorable periods for job changes, business ventures, or investments.</li>
-<li><strong>Relationship and marriage timing</strong> – compatibility factors and suitable timeframes.</li>
-<li><strong>Health-related planetary influences</strong> – early indicators worth being mindful of.</li>
-<li><strong>Remedies where needed</strong> – simple, practical suggestions rather than complicated rituals.</li>
-</ul>
-<p>Clients looking for a deeper dive into any one of these areas can also book a dedicated <a href="https://www.happykismat.com/birth-chart-analysis" target="_blank">birth chart analysis</a>, <a href="https://www.happykismat.com/marriage-astrology-consultation" target="_blank">marriage astrology consultation</a>, or <a href="https://www.happykismat.com/health-astrology-prediction" target="_blank">health astrology prediction</a> session.</p>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Understanding Kundli Reading and Why It Matters</h2>
 
-<h2>Why Choose Acharyaa Indira Pandey for Kundli Reading</h2>
-<p>What sets a genuinely useful kundli reading apart is honesty and clarity — not vague statements designed to keep you coming back. Acharyaa Indira Pandey's approach is rooted in classical Vedic methodology, explained in plain, everyday language so you leave the session actually understanding your chart, not more confused by it. This straightforward style has made her <strong>Kundli Reading Ghaziabad</strong> consultations a trusted choice for both first-time visitors and long-term clients.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    A kundli, or Vedic birth chart, is a map of the sky at your exact time and place of birth. It captures the position of the nine planets (grahas) across the twelve houses, forming the basis for everything from career forecasts to marriage compatibility.
+  </p>
 
-<h2>Serving Ghaziabad and Clients Across India</h2>
-<p>While based in Ghaziabad, sessions are available both in person and online, allowing clients across Delhi NCR and the rest of India to access the same depth of reading without needing to travel. Whether you're a student planning your education path, a professional weighing a career move, or a family preparing for a wedding, a kundli reading gives you a grounded starting point for the decision ahead.</p>
+  <div class="bg-purple-50 border-l-4 border-purple-600 p-6 my-8 rounded-r-lg">
+    <p class="text-gray-700 leading-relaxed italic">
+      A skilled Kundli Reading Ghaziabad clients receive goes far beyond a computer-generated printout — it involves interpreting planetary combinations (yogas), current planetary periods (dashas), and house strengths to give you insights that are actually relevant to your life today.
+    </p>
+  </div>
 
-<h2>Book Your Kundli Reading Today</h2>
-<p>If you're ready for a clear, personalized <strong>Kundli Reading Ghaziabad</strong> trusts, explore the complete range of offerings on the <a href="https://www.happykismat.com/services" target="_blank">services</a> page, read real experiences on <a href="https://www.happykismat.com/testimonials" target="_blank">testimonials</a>, or <a href="https://www.happykismat.com/booking" target="_blank">book your consultation</a> directly to get started.</p>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">What a Professional Kundli Reading Covers</h2>
 
-<h2>FAQs</h2>
-<h3>1. What is a kundli reading, and how is it different from a horoscope?</h3>
-<p>A kundli reading is a personalized analysis based on your exact birth date, time, and place, while a horoscope is a general prediction based only on your zodiac sign. Kundli reading offers far more precise, individual guidance.</p>
-<h3>2. How accurate is Kundli Reading Ghaziabad by Acharyaa Indira Pandey?</h3>
-<p>Accuracy depends on correct birth details (date, time, and place of birth). With precise information, the reading reflects genuine planetary positions and offers meaningful, chart-based insights.</p>
-<h3>3. Can I get a kundli reading online if I don't live in Ghaziabad?</h3>
-<p>Yes. While the practice is based in Ghaziabad, consultations are available online for clients across India, so location is never a barrier to getting a detailed reading.</p>
-<h3>4. What information do I need to provide for an accurate kundli reading?</h3>
-<p>You'll need your exact date of birth, time of birth, and place of birth. Accurate birth time is especially important, as it affects house placements and overall chart interpretation.</p>
-<h3>5. How often should I get my kundli reviewed?</h3>
-<p>Most people benefit from a review during major life transitions — such as before marriage, a career change, or a significant investment — rather than on a fixed schedule.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Under Acharyaa Indira Pandey's guidance, a kundli session typically covers:
+  </p>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Personality and Life Path</h3>
+    <p class="text-gray-700 leading-relaxed">Core traits, natural strengths, and areas for growth.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Career and Finance Indicators</h3>
+    <p class="text-gray-700 leading-relaxed">Favorable periods for job changes, business ventures, or investments.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Relationship and Marriage Timing</h3>
+    <p class="text-gray-700 leading-relaxed">Compatibility factors and suitable timeframes.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Health-Related Planetary Influences</h3>
+    <p class="text-gray-700 leading-relaxed">Early indicators worth being mindful of.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Remedies Where Needed</h3>
+    <p class="text-gray-700 leading-relaxed">Simple, practical suggestions rather than complicated rituals.</p>
+  </div>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Clients looking for a deeper dive into any one of these areas can also book a dedicated <a href="https://www.happykismat.com/birth-chart-analysis" target="_blank" class="text-purple-700 hover:underline font-medium">birth chart analysis</a>, <a href="https://www.happykismat.com/marriage-astrology-consultation" target="_blank" class="text-purple-700 hover:underline font-medium">marriage astrology consultation</a>, or <a href="https://www.happykismat.com/health-astrology-prediction" target="_blank" class="text-purple-700 hover:underline font-medium">health astrology prediction</a> session.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Why Choose Acharyaa Indira Pandey for Kundli Reading</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    What sets a genuinely useful kundli reading apart is honesty and clarity — not vague statements designed to keep you coming back. Acharyaa Indira Pandey's approach is rooted in classical Vedic methodology, explained in plain, everyday language so you leave the session actually understanding your chart, not more confused by it. This straightforward style has made her <strong class="text-purple-900 font-semibold">Kundli Reading Ghaziabad</strong> consultations a trusted choice for both first-time visitors and long-term clients.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Serving Ghaziabad and Clients Across India</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    While based in Ghaziabad, sessions are available both in person and online, allowing clients across Delhi NCR and the rest of India to access the same depth of reading without needing to travel. Whether you're a student planning your education path, a professional weighing a career move, or a family preparing for a wedding, a kundli reading gives you a grounded starting point for the decision ahead.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-6">FAQs</h2>
+
+  <div class="space-y-5 mb-10">
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">1. What is a kundli reading, and how is it different from a horoscope?</h3>
+      <p class="text-gray-700 leading-relaxed">A kundli reading is a personalized analysis based on your exact birth date, time, and place, while a horoscope is a general prediction based only on your zodiac sign. Kundli reading offers far more precise, individual guidance.</p>
+    </div>
+
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">2. How accurate is Kundli Reading Ghaziabad by Acharyaa Indira Pandey?</h3>
+      <p class="text-gray-700 leading-relaxed">Accuracy depends on correct birth details (date, time, and place of birth). With precise information, the reading reflects genuine planetary positions and offers meaningful, chart-based insights.</p>
+    </div>
+
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">3. Can I get a kundli reading online if I don't live in Ghaziabad?</h3>
+      <p class="text-gray-700 leading-relaxed">Yes. While the practice is based in Ghaziabad, consultations are available online for clients across India, so location is never a barrier to getting a detailed reading.</p>
+    </div>
+
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">4. What information do I need to provide for an accurate kundli reading?</h3>
+      <p class="text-gray-700 leading-relaxed">You'll need your exact date of birth, time of birth, and place of birth. Accurate birth time is especially important, as it affects house placements and overall chart interpretation.</p>
+    </div>
+
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">5. How often should I get my kundli reviewed?</h3>
+      <p class="text-gray-700 leading-relaxed">Most people benefit from a review during major life transitions — such as before marriage, a career change, or a significant investment — rather than on a fixed schedule.</p>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-8 text-center my-10 shadow-lg">
+    <h3 class="text-2xl font-bold mb-3">Book Your Kundli Reading Today</h3>
+    <p class="text-lg mb-5 text-purple-50">Get a clear, personalized reading rooted in classical Vedic methodology</p>
+    <a href="https://www.happykismat.com/booking" target="_blank"
+       class="inline-block bg-white text-purple-700 font-bold px-8 py-3 rounded-lg text-lg hover:bg-purple-50 transition-colors shadow-md">
+      Book Your Consultation
+    </a>
+  </div>
+
+</div>
 </div>""",
     },
     {
@@ -113,32 +181,88 @@ NEW_POSTS = [
         "image": "https://images.pexels.com/photos/956999/milky-way-starry-sky-night-sky-star-956999.jpeg?auto=compress&cs=tinysrgb&w=1200",
         "date": "2026-09-28",
         "content": """<div class="blog-content">
-<p>Life in a fast-growing city like Ghaziabad brings its own share of career pressure, relationship decisions, and health worries — and for centuries, Indians have turned to the stars for clarity in exactly these moments. Acharyaa Indira Pandey offers trusted <strong>Vedic Astrology Services Ghaziabad</strong> residents rely on for honest, chart-based guidance rooted in traditional Vedic principles rather than guesswork. Whether you're facing a career crossroads, planning a marriage, or simply seeking direction, a personalized consultation can bring the clarity you need to move forward with confidence.</p>
+<div class="space-y-6">
 
-<h2>What Makes Vedic Astrology Different</h2>
-<p>Vedic astrology, or Jyotish, is one of the oldest predictive sciences in the world, using the exact position of planets at your birth moment to map out your personality, strengths, and life patterns. Unlike generic horoscope columns, a proper birth chart (kundli) analysis is deeply personal — no two charts are read the same way. This is the foundation of every session offered under our <strong>Vedic Astrology Services Ghaziabad</strong> practice, ensuring predictions are grounded in your unique planetary positions rather than one-size-fits-all forecasts.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Life in a fast-growing city like Ghaziabad brings its own share of career pressure, relationship decisions, and health worries — and for centuries, Indians have turned to the stars for clarity in exactly these moments. Acharyaa Indira Pandey offers trusted <strong class="text-purple-900 font-semibold">Vedic Astrology Services Ghaziabad</strong> residents rely on for honest, chart-based guidance rooted in traditional Vedic principles rather than guesswork.
+  </p>
 
-<h2>Our Core Astrology Services in Ghaziabad</h2>
-<p>Acharyaa Indira Pandey provides a full range of consultations designed around real, everyday concerns:</p>
-<ul>
-<li><strong>Birth Chart Analysis</strong> – A detailed reading of your kundli covering personality, life direction, and key planetary influences.</li>
-<li><strong>Marriage Astrology Consultation</strong> – Compatibility matching, guna milan, and timing guidance for a harmonious married life.</li>
-<li><strong>Business Astrology Consultation</strong> – Insights into favorable periods for investments, partnerships, and career shifts.</li>
-<li><strong>Health Astrology Prediction</strong> – Planetary indicators linked to wellness concerns, helping you plan preventive care.</li>
-</ul>
-<p>Each of these sessions can be booked individually or combined for a more complete life reading, and clients are welcome to explore gemstone recommendations as a complementary remedy where planetary strengthening is advised.</p>
+  <div class="bg-purple-50 border-l-4 border-purple-600 p-6 my-8 rounded-r-lg">
+    <p class="text-gray-700 leading-relaxed italic">
+      Whether you're facing a career crossroads, planning a marriage, or simply seeking direction, a personalized consultation can bring the clarity you need to move forward with confidence.
+    </p>
+  </div>
 
-<h2>Trusted Vedic Astrologer Serving Ghaziabad and Across India</h2>
-<p>While rooted locally, our consultations aren't limited by geography. Clients from Ghaziabad visit in person, while many others across Delhi NCR and the rest of India connect through online sessions. This flexibility has made <strong>Vedic Astrology Services Ghaziabad</strong> accessible to working professionals, business owners, and families regardless of location, without compromising the depth of a traditional one-on-one reading.</p>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">What Makes Vedic Astrology Different</h2>
 
-<h2>Why Choose Acharyaa Indira Pandey</h2>
-<p>Authenticity matters when it comes to something as personal as your life chart. Acharyaa Indira Pandey's approach blends classical Vedic methodology with clear, practical explanations — no vague statements, no fear-based selling, just an honest read of what your chart indicates and realistic remedies where needed. This straightforward style is why so many first-time clients return for ongoing guidance through different life stages, from career changes to major family decisions.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Vedic astrology, or Jyotish, is one of the oldest predictive sciences in the world, using the exact position of planets at your birth moment to map out your personality, strengths, and life patterns. Unlike generic horoscope columns, a proper birth chart (kundli) analysis is deeply personal — no two charts are read the same way. This is the foundation of every session offered under our <strong class="text-purple-900 font-semibold">Vedic Astrology Services Ghaziabad</strong> practice, ensuring predictions are grounded in your unique planetary positions rather than one-size-fits-all forecasts.
+  </p>
 
-<h2>Who Can Benefit from These Consultations</h2>
-<p>These services suit anyone at a decision point: young professionals evaluating a career move, couples preparing for marriage, business owners weighing a new venture, or families concerned about a loved one's health. Sessions are explained in simple, everyday language, so whether you're new to astrology or have consulted astrologers for years, the guidance remains easy to understand and act on.</p>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Our Core Astrology Services in Ghaziabad</h2>
 
-<h2>Book Your Vedic Astrology Consultation Today</h2>
-<p>If you're searching for dependable <strong>Vedic Astrology Services Ghaziabad</strong> trusts, Acharyaa Indira Pandey is ready to guide you with a personalized, chart-based consultation. Explore our full range of offerings on the <a href="https://www.happykismat.com/services" target="_blank">services</a> page, check real client experiences on <a href="https://www.happykismat.com/testimonials" target="_blank">testimonials</a>, or go ahead and <a href="https://www.happykismat.com/booking" target="_blank">book your session</a> today to get the clarity you've been looking for.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Acharyaa Indira Pandey provides a full range of consultations designed around real, everyday concerns:
+  </p>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Birth Chart Analysis</h3>
+    <p class="text-gray-700 leading-relaxed">A detailed reading of your kundli covering personality, life direction, and key planetary influences.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Marriage Astrology Consultation</h3>
+    <p class="text-gray-700 leading-relaxed">Compatibility matching, guna milan, and timing guidance for a harmonious married life.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Business Astrology Consultation</h3>
+    <p class="text-gray-700 leading-relaxed">Insights into favorable periods for investments, partnerships, and career shifts.</p>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8 border-l-4 border-purple-500">
+    <h3 class="text-xl font-bold text-purple-900 mb-3">Health Astrology Prediction</h3>
+    <p class="text-gray-700 leading-relaxed">Planetary indicators linked to wellness concerns, helping you plan preventive care.</p>
+  </div>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Each of these sessions can be booked individually or combined for a more complete life reading, and clients are welcome to explore gemstone recommendations as a complementary remedy where planetary strengthening is advised.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Trusted Vedic Astrologer Serving Ghaziabad and Across India</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    While rooted locally, our consultations aren't limited by geography. Clients from Ghaziabad visit in person, while many others across Delhi NCR and the rest of India connect through online sessions. This flexibility has made <strong class="text-purple-900 font-semibold">Vedic Astrology Services Ghaziabad</strong> accessible to working professionals, business owners, and families regardless of location, without compromising the depth of a traditional one-on-one reading.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Why Choose Acharyaa Indira Pandey</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Authenticity matters when it comes to something as personal as your life chart. Acharyaa Indira Pandey's approach blends classical Vedic methodology with clear, practical explanations — no vague statements, no fear-based selling, just an honest read of what your chart indicates and realistic remedies where needed.
+  </p>
+
+  <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 my-8">
+    <p class="text-gray-700 text-lg leading-relaxed italic">
+      This straightforward style is why so many first-time clients return for ongoing guidance through different life stages, from career changes to major family decisions.
+    </p>
+  </div>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Who Can Benefit from These Consultations</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    These services suit anyone at a decision point: young professionals evaluating a career move, couples preparing for marriage, business owners weighing a new venture, or families concerned about a loved one's health. Sessions are explained in simple, everyday language, so whether you're new to astrology or have consulted astrologers for years, the guidance remains easy to understand and act on.
+  </p>
+
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-8 text-center my-10 shadow-lg">
+    <h3 class="text-2xl font-bold mb-3">Book Your Vedic Astrology Consultation Today</h3>
+    <p class="text-lg mb-5 text-purple-50">Get personalized, chart-based guidance from Acharyaa Indira Pandey</p>
+    <a href="https://www.happykismat.com/booking" target="_blank"
+       class="inline-block bg-white text-purple-700 font-bold px-8 py-3 rounded-lg text-lg hover:bg-purple-50 transition-colors shadow-md">
+      Book Your Session
+    </a>
+  </div>
+
+</div>
 </div>""",
     },
     {
@@ -150,147 +274,275 @@ NEW_POSTS = [
         "image": "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&q=80&fm=webp&fit=crop&auto=format",
         "date": "2026-09-29",
         "content": """<div class="blog-content">
-<p>If you've typed "Vedic astrology Ghaziabad" or "kundli reading near me" into Google, you're probably standing at some kind of crossroads — a career decision, a marriage proposal, a health worry, or just a sense that you want more clarity before making a big move.</p>
-<p>This guide walks you through what Vedic astrology actually is, what happens in a real consultation, how kundli reading and birth chart analysis work, and how to choose someone you can trust — whether you're in Ghaziabad, Delhi NCR, or anywhere else in India.</p>
+<div class="space-y-6">
 
-<h2>What Is Vedic Astrology (Jyotish)?</h2>
-<p>Vedic astrology, known in Sanskrit as <strong>Jyotish</strong> ("science of light"), is an ancient Indian system that studies the positions of planets, the moon's lunar mansions (nakshatras), and time cycles (dashas) to understand personality, timing, and life patterns.</p>
-<p>It's built around your <strong>birth chart</strong> — a map of where the sun, moon, and planets were positioned at the exact moment and place you were born. Astrologers use this chart to study:</p>
-<ul>
-<li><strong>Career and finances</strong> – suited fields, timing of growth or setbacks</li>
-<li><strong>Marriage and relationships</strong> – compatibility, timing, family life</li>
-<li><strong>Health tendencies</strong> – general vulnerabilities to watch for</li>
-<li><strong>Major life timing</strong> – through planetary periods called dashas and transits</li>
-</ul>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    If you've typed "Vedic astrology Ghaziabad" or "kundli reading near me" into Google, you're probably standing at some kind of crossroads — a career decision, a marriage proposal, a health worry, or just a sense that you want more clarity before making a big move.
+  </p>
 
-<h3>How It's Different from Western Astrology</h3>
-<p>The most common confusion is between Vedic and Western (Tropical) astrology.</p>
-<table>
-<thead>
-<tr><th>Aspect</th><th>Vedic Astrology</th><th>Western Astrology</th></tr>
-</thead>
-<tbody>
-<tr><td>Zodiac system</td><td>Sidereal (adjusted for the stars' actual position)</td><td>Tropical (fixed to seasons)</td></tr>
-<tr><td>Core tool</td><td>Detailed birth chart + dasha timing</td><td>Sun sign + planetary transits</td></tr>
-<tr><td>Focus</td><td>Karma, timing of events, remedies</td><td>Personality traits, general trends</td></tr>
-<tr><td>Time precision needed</td><td>Exact birth time is critical</td><td>Less critical for basic readings</td></tr>
-</tbody>
-</table>
-<p>Because Vedic astrology relies on precise timing, your <strong>exact birth time, date, and place</strong> matter a great deal — more on that below.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    This guide walks you through what Vedic astrology actually is, what happens in a real consultation, how kundli reading and birth chart analysis work, and how to choose someone you can trust — whether you're in Ghaziabad, Delhi NCR, or anywhere else in India.
+  </p>
 
-<h2>When Should You Consult a Vedic Astrologer?</h2>
-<p>People usually reach out for astrology consultation in Ghaziabad and across India during specific moments, such as:</p>
-<ul>
-<li>Before finalising a <strong>marriage proposal</strong> or resolving relationship confusion</li>
-<li>When facing a <strong>career crossroads</strong> — job change, business decision, or repeated setbacks</li>
-<li>During <strong>health concerns</strong> that don't have a clear pattern</li>
-<li>Before starting something new — a business, a property purchase, or an important event</li>
-<li>When going through a difficult planetary period (commonly discussed as "Sade Sati" or a tough dasha)</li>
-<li>Simply out of curiosity to understand one's own strengths and challenges</li>
-</ul>
-<p>Astrology isn't a substitute for professional medical, legal, or financial advice — think of it as an additional lens for perspective and timing, alongside expert advice in those specific fields.</p>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">What Is Vedic Astrology (Jyotish)?</h2>
 
-<h2>What Happens During a Vedic Astrology Consultation in Ghaziabad?</h2>
-<p>A typical consultation — whether in person in Ghaziabad or online — follows a fairly consistent structure:</p>
-<ul>
-<li><strong>Details collection</strong> – your date, time, and place of birth</li>
-<li><strong>Chart preparation</strong> – the astrologer generates your birth chart (kundli)</li>
-<li><strong>Discussion of your specific concern</strong> – marriage, career, health, business, etc.</li>
-<li><strong>Analysis of relevant planets and houses</strong> tied to your question</li>
-<li><strong>Discussion of timing</strong> – when things are likely to improve or need caution</li>
-<li><strong>Remedies, if suggested</strong> – these may include gemstone suggestions, mantras, or simple lifestyle adjustments, depending on the astrologer's approach</li>
-</ul>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Vedic astrology, known in Sanskrit as <strong class="text-purple-900 font-semibold">Jyotish</strong> ("science of light"), is an ancient Indian system that studies the positions of planets, the moon's lunar mansions (nakshatras), and time cycles (dashas) to understand personality, timing, and life patterns.
+  </p>
 
-<h3>Kundli Reading Explained</h3>
-<p>A <strong>kundli</strong> (also spelled "kundali") is your Vedic birth chart — a diagram dividing the sky at your birth moment into 12 sections called <strong>houses</strong>, each governing a different area of life.</p>
-<p>Kundli reading means interpreting:</p>
-<ul>
-<li>Which <strong>zodiac sign and planet</strong> occupies each house</li>
-<li>How planets <strong>aspect</strong> (influence) one another</li>
-<li>Your current and upcoming <strong>dasha</strong> (planetary period)</li>
-<li>Special combinations called <strong>yogas</strong> that can indicate specific life outcomes</li>
-</ul>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    It's built around your <strong class="text-purple-900 font-semibold">birth chart</strong> — a map of where the sun, moon, and planets were positioned at the exact moment and place you were born. Astrologers use this chart to study:
+  </p>
 
-<h3>Birth Chart Analysis: What Astrologers Look At</h3>
-<p>Here's a simplified view of what the 12 houses generally represent in a birth chart analysis:</p>
-<table>
-<thead>
-<tr><th>House</th><th>Life Area</th></tr>
-</thead>
-<tbody>
-<tr><td>1st</td><td>Self, personality, health</td></tr>
-<tr><td>2nd</td><td>Wealth, family, speech</td></tr>
-<tr><td>3rd</td><td>Courage, siblings, communication</td></tr>
-<tr><td>4th</td><td>Home, mother, emotional comfort</td></tr>
-<tr><td>5th</td><td>Children, education, creativity</td></tr>
-<tr><td>6th</td><td>Health issues, debts, daily work, obstacles</td></tr>
-<tr><td>7th</td><td>Marriage, partnerships, business tie-ups</td></tr>
-<tr><td>8th</td><td>Transformation, longevity, unexpected events</td></tr>
-<tr><td>9th</td><td>Luck, higher learning, father, dharma</td></tr>
-<tr><td>10th</td><td>Career, public image, authority</td></tr>
-<tr><td>11th</td><td>Income, gains, social circle</td></tr>
-<tr><td>12th</td><td>Losses, expenses, foreign connections, spirituality</td></tr>
-</tbody>
-</table>
-<p>A skilled astrologer doesn't read houses in isolation — they look at how planets, houses, and current dasha periods interact together before forming a prediction.</p>
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Career and finances</strong> – suited fields, timing of growth or setbacks</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Marriage and relationships</strong> – compatibility, timing, family life</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Health tendencies</strong> – general vulnerabilities to watch for</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Major life timing</strong> – through planetary periods called dashas and transits</li>
+  </ul>
 
-<h2>Online vs In-Person Astrology Consultation in Ghaziabad</h2>
-<p>Both formats are commonly available today. Here's how they compare:</p>
-<table>
-<thead>
-<tr><th>Factor</th><th>In-Person (Ghaziabad)</th><th>Online Consultation</th></tr>
-</thead>
-<tbody>
-<tr><td>Best for</td><td>Detailed, longer sessions; remedies that need in-person guidance</td><td>Convenience, clients outside Ghaziabad/NCR</td></tr>
-<tr><td>Availability</td><td>Limited to office hours/location</td><td>Often more flexible scheduling</td></tr>
-<tr><td>Reach</td><td>Local clients</td><td>Clients anywhere in India (and abroad)</td></tr>
-<tr><td>Personal comfort</td><td>Face-to-face reassurance</td><td>Privacy from home</td></tr>
-</tbody>
-</table>
-<p>Neither format is inherently "more accurate" — what matters is the astrologer's method and the accuracy of your birth details, not whether the session happens in a room or on a call.</p>
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">How It's Different from Western Astrology</h3>
 
-<h2>How to Prepare for Your Consultation</h2>
-<p>To get a meaningful reading, come prepared with:</p>
-<ul>
-<li><strong>Exact date of birth</strong></li>
-<li><strong>Exact time of birth</strong> (check your birth certificate or hospital record — even a 15–20 minute error can shift house placements)</li>
-<li><strong>Place of birth</strong> (city is usually sufficient)</li>
-<li>A <strong>clear, specific question</strong> — "Should I take this job offer?" gets a more useful answer than "Tell me my future"</li>
-<li>Any relevant background, if it's a repeat or follow-up consultation</li>
-</ul>
-<p>If you genuinely don't know your birth time, say so upfront — a good astrologer will tell you honestly how that limits the reading rather than guessing.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">The most common confusion is between Vedic and Western (Tropical) astrology.</p>
 
-<h2>How to Choose a Genuine Vedic Astrologer in Ghaziabad or India</h2>
-<p>With so many options online and locally, a few practical checks help:</p>
-<ul>
-<li><strong>They ask for exact birth details before predicting anything.</strong> Anyone offering firm predictions without your birth time/place is skipping a foundational step.</li>
-<li><strong>They explain their reasoning</strong>, at least in simple terms, rather than only stating conclusions.</li>
-<li><strong>They avoid guaranteeing outcomes</strong> on sensitive matters like marriage, health, or legal cases — astrology speaks in probabilities and timing, not certainties.</li>
-<li><strong>Remedies are reasonable and proportionate.</strong> Be cautious of anyone pushing expensive, ongoing, high-pressure "remedy packages."</li>
-<li><strong>They're clear on consultation format, timing, and any fees</strong> before you begin.</li>
-</ul>
+  <div class="overflow-x-auto my-8 rounded-lg shadow-sm border border-purple-100">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-purple-100">
+        <tr>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">Aspect</th>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">Vedic Astrology</th>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">Western Astrology</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-purple-100">
+          <td class="p-4 text-gray-700 font-medium">Zodiac system</td>
+          <td class="p-4 text-gray-700">Sidereal (adjusted for the stars' actual position)</td>
+          <td class="p-4 text-gray-700">Tropical (fixed to seasons)</td>
+        </tr>
+        <tr class="border-b border-purple-100 bg-purple-50/40">
+          <td class="p-4 text-gray-700 font-medium">Core tool</td>
+          <td class="p-4 text-gray-700">Detailed birth chart + dasha timing</td>
+          <td class="p-4 text-gray-700">Sun sign + planetary transits</td>
+        </tr>
+        <tr class="border-b border-purple-100">
+          <td class="p-4 text-gray-700 font-medium">Focus</td>
+          <td class="p-4 text-gray-700">Karma, timing of events, remedies</td>
+          <td class="p-4 text-gray-700">Personality traits, general trends</td>
+        </tr>
+        <tr class="bg-purple-50/40">
+          <td class="p-4 text-gray-700 font-medium">Time precision needed</td>
+          <td class="p-4 text-gray-700">Exact birth time is critical</td>
+          <td class="p-4 text-gray-700">Less critical for basic readings</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-<h2>Vedic Astrology Consultation with Acharyaa Indira Pandey (Happy Kismat)</h2>
-<p>Acharyaa Indira Pandey offers Vedic astrology consultations for clients in Ghaziabad and across India through <a href="https://www.happykismat.com/" target="_blank">Happy Kismat</a>, covering birth chart analysis, kundli reading, and guidance on marriage, career, business, and health-related questions.</p>
-<p>If you're looking for a structured, birth-chart-based consultation rather than a generic prediction, this kind of detailed kundli reading approach is worth considering.</p>
+  <div class="bg-purple-50 border-l-4 border-purple-600 p-6 my-8 rounded-r-lg">
+    <p class="text-gray-700 leading-relaxed italic">
+      Because Vedic astrology relies on precise timing, your exact birth time, date, and place matter a great deal.
+    </p>
+  </div>
 
-<h2>Final Thoughts</h2>
-<p>Vedic astrology works best when it's used as a tool for clarity and timing — not as a substitute for your own judgment or professional expertise in health, legal, and financial matters. A good consultation should leave you with a clearer understanding of your chart and your options, not just a list of predictions.</p>
-<p>If you're in Ghaziabad or anywhere in India and want a detailed, birth-chart-based Vedic astrology consultation, you can explore kundli reading and astrology consultation options with Acharyaa Indira Pandey at <a href="https://www.happykismat.com/" target="_blank">Happy Kismat</a>.</p>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">When Should You Consult a Vedic Astrologer?</h2>
 
-<h2>FAQs</h2>
-<h3>Is Vedic astrology scientifically proven?</h3>
-<p>Vedic astrology is a traditional belief system rooted in ancient Indian texts, not a field validated by modern empirical science. Many people find value in it for reflection, guidance, and timing decisions; it's best approached as a complementary perspective rather than a replacement for professional advice in medical, legal, or financial matters.</p>
-<h3>What details do I need for an accurate kundli reading?</h3>
-<p>Your exact date, time, and place of birth. Birth time is especially important, since it determines your ascendant (rising sign) and house placements.</p>
-<h3>Can astrology predict exact dates for events like marriage or job change?</h3>
-<p>Most experienced astrologers give <strong>time windows</strong> (based on dasha periods and transits) rather than exact dates, since Vedic astrology deals with probable timing, not certainties.</p>
-<h3>How is kundli reading different from birth chart analysis?</h3>
-<p>They're closely related — "kundli reading" typically refers to the overall interpretation session, while "birth chart analysis" refers to the technical study of house and planet placements that forms the basis of that reading.</p>
-<h3>Is online astrology consultation as effective as an in-person one in Ghaziabad?</h3>
-<p>Yes, as long as your birth details are accurate. The medium (in-person or online) doesn't change the astrological calculations — it only affects convenience and personal comfort.</p>
-<h3>How often should I consult an astrologer?</h3>
-<p>There's no fixed rule. Many people consult once for a specific concern, then return during major life transitions (marriage, career change, health issues) rather than on a routine schedule.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    People usually reach out for astrology consultation in Ghaziabad and across India during specific moments, such as:
+  </p>
+
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ Before finalising a <strong class="text-purple-900">marriage proposal</strong> or resolving relationship confusion</li>
+    <li class="text-gray-700 leading-relaxed">✓ When facing a <strong class="text-purple-900">career crossroads</strong> — job change, business decision, or repeated setbacks</li>
+    <li class="text-gray-700 leading-relaxed">✓ During <strong class="text-purple-900">health concerns</strong> that don't have a clear pattern</li>
+    <li class="text-gray-700 leading-relaxed">✓ Before starting something new — a business, a property purchase, or an important event</li>
+    <li class="text-gray-700 leading-relaxed">✓ When going through a difficult planetary period (commonly discussed as "Sade Sati" or a tough dasha)</li>
+    <li class="text-gray-700 leading-relaxed">✓ Simply out of curiosity to understand one's own strengths and challenges</li>
+  </ul>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Astrology isn't a substitute for professional medical, legal, or financial advice — think of it as an additional lens for perspective and timing, alongside expert advice in those specific fields.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">What Happens During a Vedic Astrology Consultation in Ghaziabad?</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    A typical consultation — whether in person in Ghaziabad or online — follows a fairly consistent structure:
+  </p>
+
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Details collection</strong> – your date, time, and place of birth</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Chart preparation</strong> – the astrologer generates your birth chart (kundli)</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Discussion of your specific concern</strong> – marriage, career, health, business, etc.</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Analysis of relevant planets and houses</strong> tied to your question</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Discussion of timing</strong> – when things are likely to improve or need caution</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Remedies, if suggested</strong> – gemstone suggestions, mantras, or simple lifestyle adjustments</li>
+  </ul>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Kundli Reading Explained</h3>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    A <strong class="text-purple-900 font-semibold">kundli</strong> (also spelled "kundali") is your Vedic birth chart — a diagram dividing the sky at your birth moment into 12 sections called <strong class="text-purple-900 font-semibold">houses</strong>, each governing a different area of life. Kundli reading means interpreting which zodiac sign and planet occupies each house, how planets aspect (influence) one another, your current and upcoming dasha (planetary period), and special combinations called yogas that can indicate specific life outcomes.
+  </p>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Birth Chart Analysis: What Astrologers Look At</h3>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Here's a simplified view of what the 12 houses generally represent in a birth chart analysis:
+  </p>
+
+  <div class="overflow-x-auto my-8 rounded-lg shadow-sm border border-purple-100">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-purple-100">
+        <tr>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">House</th>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">Life Area</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-purple-100"><td class="p-4 text-gray-700 font-medium">1st</td><td class="p-4 text-gray-700">Self, personality, health</td></tr>
+        <tr class="border-b border-purple-100 bg-purple-50/40"><td class="p-4 text-gray-700 font-medium">2nd</td><td class="p-4 text-gray-700">Wealth, family, speech</td></tr>
+        <tr class="border-b border-purple-100"><td class="p-4 text-gray-700 font-medium">3rd</td><td class="p-4 text-gray-700">Courage, siblings, communication</td></tr>
+        <tr class="border-b border-purple-100 bg-purple-50/40"><td class="p-4 text-gray-700 font-medium">4th</td><td class="p-4 text-gray-700">Home, mother, emotional comfort</td></tr>
+        <tr class="border-b border-purple-100"><td class="p-4 text-gray-700 font-medium">5th</td><td class="p-4 text-gray-700">Children, education, creativity</td></tr>
+        <tr class="border-b border-purple-100 bg-purple-50/40"><td class="p-4 text-gray-700 font-medium">6th</td><td class="p-4 text-gray-700">Health issues, debts, daily work, obstacles</td></tr>
+        <tr class="border-b border-purple-100"><td class="p-4 text-gray-700 font-medium">7th</td><td class="p-4 text-gray-700">Marriage, partnerships, business tie-ups</td></tr>
+        <tr class="border-b border-purple-100 bg-purple-50/40"><td class="p-4 text-gray-700 font-medium">8th</td><td class="p-4 text-gray-700">Transformation, longevity, unexpected events</td></tr>
+        <tr class="border-b border-purple-100"><td class="p-4 text-gray-700 font-medium">9th</td><td class="p-4 text-gray-700">Luck, higher learning, father, dharma</td></tr>
+        <tr class="border-b border-purple-100 bg-purple-50/40"><td class="p-4 text-gray-700 font-medium">10th</td><td class="p-4 text-gray-700">Career, public image, authority</td></tr>
+        <tr class="border-b border-purple-100"><td class="p-4 text-gray-700 font-medium">11th</td><td class="p-4 text-gray-700">Income, gains, social circle</td></tr>
+        <tr class="bg-purple-50/40"><td class="p-4 text-gray-700 font-medium">12th</td><td class="p-4 text-gray-700">Losses, expenses, foreign connections, spirituality</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    A skilled astrologer doesn't read houses in isolation — they look at how planets, houses, and current dasha periods interact together before forming a prediction.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Online vs In-Person Astrology Consultation in Ghaziabad</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">Both formats are commonly available today. Here's how they compare:</p>
+
+  <div class="overflow-x-auto my-8 rounded-lg shadow-sm border border-purple-100">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-purple-100">
+        <tr>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">Factor</th>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">In-Person (Ghaziabad)</th>
+          <th class="p-4 font-bold text-purple-900 border-b border-purple-200">Online Consultation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b border-purple-100">
+          <td class="p-4 text-gray-700 font-medium">Best for</td>
+          <td class="p-4 text-gray-700">Detailed, longer sessions; remedies that need in-person guidance</td>
+          <td class="p-4 text-gray-700">Convenience, clients outside Ghaziabad/NCR</td>
+        </tr>
+        <tr class="border-b border-purple-100 bg-purple-50/40">
+          <td class="p-4 text-gray-700 font-medium">Availability</td>
+          <td class="p-4 text-gray-700">Limited to office hours/location</td>
+          <td class="p-4 text-gray-700">Often more flexible scheduling</td>
+        </tr>
+        <tr class="border-b border-purple-100">
+          <td class="p-4 text-gray-700 font-medium">Reach</td>
+          <td class="p-4 text-gray-700">Local clients</td>
+          <td class="p-4 text-gray-700">Clients anywhere in India (and abroad)</td>
+        </tr>
+        <tr class="bg-purple-50/40">
+          <td class="p-4 text-gray-700 font-medium">Personal comfort</td>
+          <td class="p-4 text-gray-700">Face-to-face reassurance</td>
+          <td class="p-4 text-gray-700">Privacy from home</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 my-8">
+    <p class="text-gray-700 text-lg leading-relaxed italic">
+      Neither format is inherently "more accurate" — what matters is the astrologer's method and the accuracy of your birth details, not whether the session happens in a room or on a call.
+    </p>
+  </div>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">How to Prepare for Your Consultation</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">To get a meaningful reading, come prepared with:</p>
+
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Exact date of birth</strong></li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Exact time of birth</strong> (check your birth certificate or hospital record — even a 15–20 minute error can shift house placements)</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Place of birth</strong> (city is usually sufficient)</li>
+    <li class="text-gray-700 leading-relaxed">✓ A <strong class="text-purple-900">clear, specific question</strong> — "Should I take this job offer?" gets a more useful answer than "Tell me my future"</li>
+    <li class="text-gray-700 leading-relaxed">✓ Any relevant background, if it's a repeat or follow-up consultation</li>
+  </ul>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    If you genuinely don't know your birth time, say so upfront — a good astrologer will tell you honestly how that limits the reading rather than guessing.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">How to Choose a Genuine Vedic Astrologer in Ghaziabad or India</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">With so many options online and locally, a few practical checks help:</p>
+
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">They ask for exact birth details before predicting anything.</strong> Anyone offering firm predictions without your birth time/place is skipping a foundational step.</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">They explain their reasoning</strong>, at least in simple terms, rather than only stating conclusions.</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">They avoid guaranteeing outcomes</strong> on sensitive matters like marriage, health, or legal cases — astrology speaks in probabilities and timing, not certainties.</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Remedies are reasonable and proportionate.</strong> Be cautious of anyone pushing expensive, ongoing, high-pressure "remedy packages."</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">They're clear on consultation format, timing, and any fees</strong> before you begin.</li>
+  </ul>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Vedic Astrology Consultation with Acharyaa Indira Pandey (Happy Kismat)</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Acharyaa Indira Pandey offers Vedic astrology consultations for clients in Ghaziabad and across India through <a href="https://www.happykismat.com/" target="_blank" class="text-purple-700 hover:underline font-medium">Happy Kismat</a>, covering birth chart analysis, kundli reading, and guidance on marriage, career, business, and health-related questions.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Final Thoughts</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-8">
+    Vedic astrology works best when it's used as a tool for clarity and timing — not as a substitute for your own judgment or professional expertise in health, legal, and financial matters. A good consultation should leave you with a clearer understanding of your chart and your options, not just a list of predictions.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-6">FAQs</h2>
+
+  <div class="space-y-5 mb-10">
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">Is Vedic astrology scientifically proven?</h3>
+      <p class="text-gray-700 leading-relaxed">Vedic astrology is a traditional belief system rooted in ancient Indian texts, not a field validated by modern empirical science. Many people find value in it for reflection, guidance, and timing decisions; it's best approached as a complementary perspective rather than a replacement for professional advice in medical, legal, or financial matters.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">What details do I need for an accurate kundli reading?</h3>
+      <p class="text-gray-700 leading-relaxed">Your exact date, time, and place of birth. Birth time is especially important, since it determines your ascendant (rising sign) and house placements.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">Can astrology predict exact dates for events like marriage or job change?</h3>
+      <p class="text-gray-700 leading-relaxed">Most experienced astrologers give time windows (based on dasha periods and transits) rather than exact dates, since Vedic astrology deals with probable timing, not certainties.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">How is kundli reading different from birth chart analysis?</h3>
+      <p class="text-gray-700 leading-relaxed">They're closely related — "kundli reading" typically refers to the overall interpretation session, while "birth chart analysis" refers to the technical study of house and planet placements that forms the basis of that reading.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">Is online astrology consultation as effective as an in-person one in Ghaziabad?</h3>
+      <p class="text-gray-700 leading-relaxed">Yes, as long as your birth details are accurate. The medium (in-person or online) doesn't change the astrological calculations — it only affects convenience and personal comfort.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">How often should I consult an astrologer?</h3>
+      <p class="text-gray-700 leading-relaxed">There's no fixed rule. Many people consult once for a specific concern, then return during major life transitions (marriage, career change, health issues) rather than on a routine schedule.</p>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-8 text-center my-10 shadow-lg">
+    <h3 class="text-2xl font-bold mb-3">Ready for a Detailed, Birth-Chart-Based Reading?</h3>
+    <p class="text-lg mb-5 text-purple-50">Explore kundli reading and astrology consultation options with Acharyaa Indira Pandey</p>
+    <a href="https://www.happykismat.com/booking" target="_blank"
+       class="inline-block bg-white text-purple-700 font-bold px-8 py-3 rounded-lg text-lg hover:bg-purple-50 transition-colors shadow-md">
+      Book Your Consultation
+    </a>
+  </div>
+
+</div>
 </div>""",
     },
     {
@@ -302,131 +554,198 @@ NEW_POSTS = [
         "image": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&q=80&fm=webp&fit=crop&auto=format",
         "date": "2026-09-30",
         "content": """<div class="blog-content">
-<p>Most people don't consult an astrologer out of idle curiosity — they come with a specific decision on their mind: a marriage proposal to accept or decline, a business to start, a health worry that won't go away, or a career move that feels risky.</p>
-<p>This guide breaks down how Vedic astrology approaches each of these four areas — marriage, business, health, and career — what a real consultation covers, and what's reasonable to expect (and what isn't) from an astrology prediction in Ghaziabad or anywhere in India.</p>
+<div class="space-y-6">
 
-<h2>Why People in Ghaziabad Seek Astrology for Life's Biggest Decisions</h2>
-<p>Ghaziabad, as part of the Delhi NCR belt, has a mix of traditional families and a fast-moving professional population. It's common for both to turn to astrology at similar moments:</p>
-<ul>
-<li>Before finalising an <strong>arranged marriage</strong> match</li>
-<li>When <strong>two businesses or partners</strong> are considering working together</li>
-<li>During <strong>unexplained health struggles</strong></li>
-<li>When choosing between <strong>job offers, career switches, or entrepreneurship</strong></li>
-</ul>
-<p>The common thread is timing and clarity — people generally aren't looking for a guarantee, they're looking for a second lens on a decision they're already weighing.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Most people don't consult an astrologer out of idle curiosity — they come with a specific decision on their mind: a marriage proposal to accept or decline, a business to start, a health worry that won't go away, or a career move that feels risky.
+  </p>
 
-<h2>Marriage Astrology Predictions in Ghaziabad</h2>
-<p>Marriage is one of the most common reasons people search for astrology consultation in India, and it's usually approached in one of two ways: matching two charts, or understanding one person's marriage timing and prospects.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    This guide breaks down how Vedic astrology approaches each of these four areas — marriage, business, health, and career — what a real consultation covers, and what's reasonable to expect (and what isn't) from an astrology prediction in Ghaziabad or anywhere in India.
+  </p>
 
-<h3>Kundli Milan (Guna Milan) Explained</h3>
-<p><strong>Kundli Milan</strong>, also called <strong>Guna Milan</strong>, is the traditional compatibility-matching process between two birth charts, most often used before finalising an arranged marriage. It's scored out of <strong>36 points (gunas)</strong>, based on eight categories covering temperament, mental compatibility, health, and more.</p>
-<ul>
-<li><strong>18+ points</strong> is generally considered an acceptable match</li>
-<li><strong>Below 18</strong> doesn't automatically mean incompatibility — a good astrologer looks at which specific gunas are weak, since some matter more than others depending on the couple's charts</li>
-</ul>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Why People in Ghaziabad Seek Astrology for Life's Biggest Decisions</h2>
 
-<h3>Manglik Dosha and Compatibility</h3>
-<p><strong>Manglik Dosha</strong> (also called Mangal Dosha) refers to a placement of Mars in specific houses of the birth chart, which is traditionally believed to affect marital harmony. It's one of the most searched — and most misunderstood — topics in marriage astrology.</p>
-<p>A few practical points:</p>
-<ul>
-<li>Being "Manglik" is common; it isn't automatically a serious problem</li>
-<li>Its effect depends on <strong>both partners' charts</strong>, not one chart in isolation</li>
-<li>Many traditional systems consider it neutralised when <strong>both partners are Manglik</strong>, or through specific remedial measures</li>
-<li>A one-line "Manglik/Not Manglik" answer without deeper chart analysis isn't a complete assessment</li>
-</ul>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Ghaziabad, as part of the Delhi NCR belt, has a mix of traditional families and a fast-moving professional population. It's common for both to turn to astrology at similar moments:
+  </p>
 
-<h3>What a Marriage Astrology Consultation Covers</h3>
-<p>A thorough marriage-focused consultation in Ghaziabad typically looks at:</p>
-<ul>
-<li>The <strong>7th house</strong> (marriage and partnerships) and its ruling planet</li>
-<li><strong>Venus and Jupiter</strong> placements (relationships and marital happiness)</li>
-<li>Current and upcoming <strong>dasha periods</strong> relevant to marriage timing</li>
-<li>Compatibility factors if two charts are being matched</li>
-<li>General guidance on family dynamics and adjustment, where relevant</li>
-</ul>
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ Before finalising an <strong class="text-purple-900">arranged marriage</strong> match</li>
+    <li class="text-gray-700 leading-relaxed">✓ When <strong class="text-purple-900">two businesses or partners</strong> are considering working together</li>
+    <li class="text-gray-700 leading-relaxed">✓ During <strong class="text-purple-900">unexplained health struggles</strong></li>
+    <li class="text-gray-700 leading-relaxed">✓ When choosing between <strong class="text-purple-900">job offers, career switches, or entrepreneurship</strong></li>
+  </ul>
 
-<h2>Business Astrology Consultation Ghaziabad</h2>
-<p>Entrepreneurs and business owners in Ghaziabad often consult astrology at three key moments: before starting a venture, before entering a partnership, and during a rough financial patch.</p>
+  <div class="bg-purple-50 border-l-4 border-purple-600 p-6 my-8 rounded-r-lg">
+    <p class="text-gray-700 leading-relaxed italic">
+      The common thread is timing and clarity — people generally aren't looking for a guarantee, they're looking for a second lens on a decision they're already weighing.
+    </p>
+  </div>
 
-<h3>Best Time to Start a Business (Muhurat)</h3>
-<p>Choosing an auspicious date and time — a <strong>muhurat</strong> — for registering a business, signing an agreement, or launching a product is a common practice. This is calculated based on:</p>
-<ul>
-<li>Favourable planetary transits at the time</li>
-<li>Avoiding periods considered inauspicious (such as certain lunar phases or malefic transits)</li>
-<li>The individual's personal birth chart, when a highly customised muhurat is wanted</li>
-</ul>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Marriage Astrology Predictions in Ghaziabad</h2>
 
-<h3>Partnership Compatibility</h3>
-<p>Just as marriage compatibility is checked between two people, business partnership compatibility looks at how two (or more) partners' charts interact — particularly around the <strong>7th house</strong> (partnerships), <strong>10th house</strong> (career/authority), and <strong>11th house</strong> (gains).</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Marriage is one of the most common reasons people search for astrology consultation in India, and it's usually approached in one of two ways: matching two charts, or understanding one person's marriage timing and prospects.
+  </p>
 
-<h3>Common Questions Entrepreneurs Ask</h3>
-<ul>
-<li>"Is this the right time to start my business, or should I wait?"</li>
-<li>"Will this partnership work out long-term?"</li>
-<li>"Why does my business face repeated obstacles despite hard work?"</li>
-<li>"What sectors or business types suit my chart?"</li>
-</ul>
-<p>A grounded astrology consultation treats these as <strong>timing and tendency questions</strong> — it should complement solid business planning, market research, and financial advice, not replace them.</p>
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Kundli Milan (Guna Milan) Explained</h3>
 
-<h2>Health Astrology Predictions in Ghaziabad</h2>
-<p>Health is a sensitive area, and it's worth being clear upfront: <strong>Vedic astrology is not a diagnostic or medical tool, and it should never replace a doctor's advice, diagnosis, or treatment.</strong></p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    <strong class="text-purple-900 font-semibold">Kundli Milan</strong>, also called <strong class="text-purple-900 font-semibold">Guna Milan</strong>, is the traditional compatibility-matching process between two birth charts, most often used before finalising an arranged marriage. It's scored out of <strong class="text-purple-900 font-semibold">36 points (gunas)</strong>, based on eight categories covering temperament, mental compatibility, health, and more.
+  </p>
 
-<h3>What Vedic Astrology Can Reasonably Offer</h3>
-<p>Within that boundary, astrology traditionally looks at:</p>
-<ul>
-<li>The <strong>1st house</strong> (overall vitality) and <strong>6th house</strong> (illness, daily struggles)</li>
-<li>Planets associated with specific body areas or systems in classical texts</li>
-<li>Periods (dashas/transits) traditionally associated with <strong>higher caution or stress on health</strong></li>
-<li>General lifestyle and preventive suggestions tied to planetary periods</li>
-</ul>
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">18+ points</strong> is generally considered an acceptable match</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Below 18</strong> doesn't automatically mean incompatibility — a good astrologer looks at which specific gunas are weak, since some matter more than others depending on the couple's charts</li>
+  </ul>
 
-<h3>What It Should Not Be Used For</h3>
-<ul>
-<li>Diagnosing a specific illness or condition</li>
-<li>Replacing medical tests, second opinions, or a doctor's treatment plan</li>
-<li>Delaying necessary medical care while waiting for a "better time"</li>
-</ul>
-<p>If you're facing a real health concern, see a qualified doctor first — astrology can, at most, sit alongside that care as a source of general perspective on timing and lifestyle, never in place of it.</p>
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Manglik Dosha and Compatibility</h3>
 
-<h2>Astrological Career Guidance in Ghaziabad</h2>
-<p>Career questions are among the most practical use cases for astrology, since they're closely tied to timing.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    <strong class="text-purple-900 font-semibold">Manglik Dosha</strong> (also called Mangal Dosha) refers to a placement of Mars in specific houses of the birth chart, which is traditionally believed to affect marital harmony. It's one of the most searched — and most misunderstood — topics in marriage astrology.
+  </p>
 
-<h3>Choosing a Career Direction</h3>
-<p>Career-focused chart analysis generally looks at:</p>
-<ul>
-<li>The <strong>10th house</strong> (career, public standing) and its lord</li>
-<li>Strength of planets like <strong>Saturn</strong> (discipline, structure), <strong>Mercury</strong> (communication, trade), and <strong>Jupiter</strong> (teaching, advisory, growth)</li>
-<li>Yogas (planetary combinations) associated with specific fields — government service, business, creative work, and so on</li>
-</ul>
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ Being "Manglik" is common; it isn't automatically a serious problem</li>
+    <li class="text-gray-700 leading-relaxed">✓ Its effect depends on <strong class="text-purple-900">both partners' charts</strong>, not one chart in isolation</li>
+    <li class="text-gray-700 leading-relaxed">✓ Many traditional systems consider it neutralised when <strong class="text-purple-900">both partners are Manglik</strong>, or through specific remedial measures</li>
+    <li class="text-gray-700 leading-relaxed">✓ A one-line "Manglik/Not Manglik" answer without deeper chart analysis isn't a complete assessment</li>
+  </ul>
 
-<h3>Job Change and Timing Questions</h3>
-<ul>
-<li>"Is this the right time to switch jobs?"</li>
-<li>"Why do I feel stuck despite working hard?"</li>
-<li>"Will my current dasha period support career growth?"</li>
-</ul>
-<p>These are usually addressed by mapping your <strong>current planetary period (dasha)</strong> against the strength and placement of your 10th house lord and related planets — giving a general sense of favourable versus cautious phases, rather than a guaranteed outcome.</p>
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">What a Marriage Astrology Consultation Covers</h3>
 
-<h2>How These Consultations Work with Acharyaa Indira Pandey (Happy Kismat)</h2>
-<p>Acharyaa Indira Pandey provides consultations covering marriage matching, business timing, health-related guidance, and career direction for clients in Ghaziabad and across India through <a href="https://www.happykismat.com/" target="_blank">Happy Kismat</a>, based on detailed birth chart analysis rather than generic, one-size-fits-all predictions.</p>
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">A thorough marriage-focused consultation in Ghaziabad typically looks at:</p>
 
-<h2>Final Thoughts</h2>
-<p>Whether you're weighing a marriage proposal, planning a business launch, navigating a health concern, or deciding on your next career move, astrology works best as one thoughtful input alongside sound personal judgment and, where relevant, professional medical, legal, or financial advice.</p>
-<p>If you'd like a detailed, birth-chart-based consultation on marriage, business, health, or career questions, you can connect with Acharyaa Indira Pandey at <a href="https://www.happykismat.com/" target="_blank">Happy Kismat</a> for guidance tailored to your specific chart and situation.</p>
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ The <strong class="text-purple-900">7th house</strong> (marriage and partnerships) and its ruling planet</li>
+    <li class="text-gray-700 leading-relaxed">✓ <strong class="text-purple-900">Venus and Jupiter</strong> placements (relationships and marital happiness)</li>
+    <li class="text-gray-700 leading-relaxed">✓ Current and upcoming <strong class="text-purple-900">dasha periods</strong> relevant to marriage timing</li>
+    <li class="text-gray-700 leading-relaxed">✓ Compatibility factors if two charts are being matched</li>
+    <li class="text-gray-700 leading-relaxed">✓ General guidance on family dynamics and adjustment, where relevant</li>
+  </ul>
 
-<h2>FAQs</h2>
-<h3>Is Manglik Dosha always a problem in marriage matching?</h3>
-<p>No. Being Manglik is fairly common, and its impact depends on both partners' full charts, not a single factor viewed in isolation. A proper analysis looks at the complete picture before drawing conclusions.</p>
-<h3>Can astrology tell me the exact date my business will succeed?</h3>
-<p>No. Astrology can point to generally favourable or challenging periods (through dashas and transits) for a venture, but success also depends on planning, market conditions, and execution — astrology is one input among many, not a guarantee.</p>
-<h3>Can an astrologer diagnose a health condition?</h3>
-<p>No. Astrology can highlight general periods of caution based on planetary influences, but it is not a substitute for medical diagnosis or treatment. Always consult a qualified doctor for health concerns.</p>
-<h3>What is the ideal Guna Milan score for marriage matching?</h3>
-<p>A score of 18 or above out of 36 is generally considered acceptable in traditional Kundli Milan, though which specific gunas match matters as much as the total score.</p>
-<h3>How do I know if it's the right time for a career change?</h3>
-<p>This is usually assessed by looking at your current dasha (planetary period) alongside the condition of your 10th house and its ruling planet, to see whether the phase generally supports growth or suggests patience.</p>
-<h3>Do I need both partners' birth details for marriage or business compatibility?</h3>
-<p>Yes. Compatibility analysis — whether for marriage or a business partnership — requires accurate birth details (date, time, and place) for both individuals to be meaningful.</p>
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Business Astrology Consultation Ghaziabad</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Entrepreneurs and business owners in Ghaziabad often consult astrology at three key moments: before starting a venture, before entering a partnership, and during a rough financial patch.
+  </p>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Best Time to Start a Business (Muhurat)</h3>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Choosing an auspicious date and time — a <strong class="text-purple-900 font-semibold">muhurat</strong> — for registering a business, signing an agreement, or launching a product is a common practice. This is calculated based on favourable planetary transits at the time, avoiding periods considered inauspicious, and the individual's personal birth chart when a highly customised muhurat is wanted.
+  </p>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Partnership Compatibility</h3>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Just as marriage compatibility is checked between two people, business partnership compatibility looks at how two (or more) partners' charts interact — particularly around the <strong class="text-purple-900">7th house</strong> (partnerships), <strong class="text-purple-900">10th house</strong> (career/authority), and <strong class="text-purple-900">11th house</strong> (gains).
+  </p>
+
+  <div class="bg-white rounded-lg shadow-md p-6 mb-8 border-l-4 border-purple-500">
+    <h4 class="text-lg font-bold text-purple-900 mb-3">Common Questions Entrepreneurs Ask</h4>
+    <p class="text-gray-700 leading-relaxed">"Is this the right time to start my business, or should I wait?" · "Will this partnership work out long-term?" · "Why does my business face repeated obstacles despite hard work?" · "What sectors or business types suit my chart?"</p>
+  </div>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    A grounded astrology consultation treats these as <strong class="text-purple-900">timing and tendency questions</strong> — it should complement solid business planning, market research, and financial advice, not replace them.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Health Astrology Predictions in Ghaziabad</h2>
+
+  <div class="bg-purple-50 border-l-4 border-purple-600 p-6 my-8 rounded-r-lg">
+    <p class="text-gray-700 leading-relaxed italic">
+      Health is a sensitive area, and it's worth being clear upfront: Vedic astrology is not a diagnostic or medical tool, and it should never replace a doctor's advice, diagnosis, or treatment.
+    </p>
+  </div>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">What Vedic Astrology Can Reasonably Offer</h3>
+
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ The <strong class="text-purple-900">1st house</strong> (overall vitality) and <strong class="text-purple-900">6th house</strong> (illness, daily struggles)</li>
+    <li class="text-gray-700 leading-relaxed">✓ Planets associated with specific body areas or systems in classical texts</li>
+    <li class="text-gray-700 leading-relaxed">✓ Periods (dashas/transits) traditionally associated with <strong class="text-purple-900">higher caution or stress on health</strong></li>
+    <li class="text-gray-700 leading-relaxed">✓ General lifestyle and preventive suggestions tied to planetary periods</li>
+  </ul>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">What It Should Not Be Used For</h3>
+
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✗ Diagnosing a specific illness or condition</li>
+    <li class="text-gray-700 leading-relaxed">✗ Replacing medical tests, second opinions, or a doctor's treatment plan</li>
+    <li class="text-gray-700 leading-relaxed">✗ Delaying necessary medical care while waiting for a "better time"</li>
+  </ul>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    If you're facing a real health concern, see a qualified doctor first — astrology can, at most, sit alongside that care as a source of general perspective on timing and lifestyle, never in place of it.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">Astrological Career Guidance in Ghaziabad</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">Career questions are among the most practical use cases for astrology, since they're closely tied to timing.</p>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Choosing a Career Direction</h3>
+
+  <ul class="space-y-3 mb-8 ml-6">
+    <li class="text-gray-700 leading-relaxed">✓ The <strong class="text-purple-900">10th house</strong> (career, public standing) and its lord</li>
+    <li class="text-gray-700 leading-relaxed">✓ Strength of planets like <strong class="text-purple-900">Saturn</strong> (discipline, structure), <strong class="text-purple-900">Mercury</strong> (communication, trade), and <strong class="text-purple-900">Jupiter</strong> (teaching, advisory, growth)</li>
+    <li class="text-gray-700 leading-relaxed">✓ Yogas (planetary combinations) associated with specific fields — government service, business, creative work, and so on</li>
+  </ul>
+
+  <h3 class="text-xl font-bold text-purple-900 mt-8 mb-4">Job Change and Timing Questions</h3>
+
+  <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 my-8">
+    <p class="text-gray-700 text-lg leading-relaxed italic">
+      "Is this the right time to switch jobs?" · "Why do I feel stuck despite working hard?" · "Will my current dasha period support career growth?" — these are usually addressed by mapping your current planetary period (dasha) against the strength and placement of your 10th house lord and related planets.
+    </p>
+  </div>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-5">How These Consultations Work with Acharyaa Indira Pandey (Happy Kismat)</h2>
+
+  <p class="text-lg text-gray-700 leading-relaxed mb-6">
+    Acharyaa Indira Pandey provides consultations covering marriage matching, business timing, health-related guidance, and career direction for clients in Ghaziabad and across India through <a href="https://www.happykismat.com/" target="_blank" class="text-purple-700 hover:underline font-medium">Happy Kismat</a>, based on detailed birth chart analysis rather than generic, one-size-fits-all predictions.
+  </p>
+
+  <h2 class="text-3xl font-bold text-purple-900 mt-10 mb-6">FAQs</h2>
+
+  <div class="space-y-5 mb-10">
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">Is Manglik Dosha always a problem in marriage matching?</h3>
+      <p class="text-gray-700 leading-relaxed">No. Being Manglik is fairly common, and its impact depends on both partners' full charts, not a single factor viewed in isolation. A proper analysis looks at the complete picture before drawing conclusions.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">Can astrology tell me the exact date my business will succeed?</h3>
+      <p class="text-gray-700 leading-relaxed">No. Astrology can point to generally favourable or challenging periods (through dashas and transits) for a venture, but success also depends on planning, market conditions, and execution — astrology is one input among many, not a guarantee.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">Can an astrologer diagnose a health condition?</h3>
+      <p class="text-gray-700 leading-relaxed">No. Astrology can highlight general periods of caution based on planetary influences, but it is not a substitute for medical diagnosis or treatment. Always consult a qualified doctor for health concerns.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">What is the ideal Guna Milan score for marriage matching?</h3>
+      <p class="text-gray-700 leading-relaxed">A score of 18 or above out of 36 is generally considered acceptable in traditional Kundli Milan, though which specific gunas match matters as much as the total score.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">How do I know if it's the right time for a career change?</h3>
+      <p class="text-gray-700 leading-relaxed">This is usually assessed by looking at your current dasha (planetary period) alongside the condition of your 10th house and its ruling planet, to see whether the phase generally supports growth or suggests patience.</p>
+    </div>
+    <div class="bg-white border border-purple-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+      <h3 class="text-xl font-bold text-purple-900 mb-3">Do I need both partners' birth details for marriage or business compatibility?</h3>
+      <p class="text-gray-700 leading-relaxed">Yes. Compatibility analysis — whether for marriage or a business partnership — requires accurate birth details (date, time, and place) for both individuals to be meaningful.</p>
+    </div>
+  </div>
+
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-8 text-center my-10 shadow-lg">
+    <h3 class="text-2xl font-bold mb-3">Get Guidance Tailored to Your Chart</h3>
+    <p class="text-lg mb-5 text-purple-50">Marriage, business, health, or career — connect with Acharyaa Indira Pandey for a detailed consultation</p>
+    <a href="https://www.happykismat.com/booking" target="_blank"
+       class="inline-block bg-white text-purple-700 font-bold px-8 py-3 rounded-lg text-lg hover:bg-purple-50 transition-colors shadow-md">
+      Book Your Consultation
+    </a>
+  </div>
+
+</div>
 </div>""",
     },
 ]
@@ -434,23 +753,57 @@ NEW_POSTS = [
 
 async def seed_blog_posts(db):
     """Idempotent: safe to call on every startup. Never raises - errors are
-    logged so a seeding problem can't block the app from booting."""
+    logged so a seeding problem can't block the app from booting.
+
+    Insert-or-refresh: a post already on this slug+title gets its editorial
+    fields (content, excerpt, image, category, read_time) synced to whatever
+    is defined in NEW_POSTS below - so editing the HTML in this file (e.g.
+    reformatting/beautifying a post) reaches production on the *next*
+    deploy automatically. Its id, slug and original publish date are never
+    touched, so the post's URL and position in the blog list stay stable -
+    this only ever updates content in place, never re-inserts or duplicates.
+    """
     try:
         await _backfill_existing_slugs(db)
 
         for post in NEW_POSTS:
-            already_inserted = await db.blog_posts.find_one(
-                {"title": post["title"]}, {"_id": 0, "slug": 1}
-            )
-            if already_inserted:
-                continue  # already seeded on a previous boot
+            # Idempotency is checked by TITLE, not slug: on an earlier boot
+            # this exact post may have been de-duped onto a slug other than
+            # its "desired" one below (e.g. '...-2', if a different post was
+            # already sitting on the desired slug at the time). Looking it
+            # up by desired slug would miss it and insert a duplicate.
+            existing = await db.blog_posts.find_one({"title": post["title"]}, {"_id": 0})
 
+            if existing:
+                # Same post as a previous boot - refresh its content in
+                # place if this file's copy has changed since, but never
+                # touch its id, its actual (possibly de-duped) slug, or
+                # its original publish date.
+                refreshed_fields = {
+                    "excerpt": post["excerpt"],
+                    "content": post["content"],
+                    "image": post["image"],
+                    "category": post["category"],
+                    "read_time": post["read_time"],
+                    "published": True,
+                }
+                changed = any(existing.get(k) != v for k, v in refreshed_fields.items())
+                if changed:
+                    await db.blog_posts.update_one(
+                        {"id": existing["id"]}, {"$set": refreshed_fields}
+                    )
+                    logger.info(f"Blog seed: refreshed content for '{post['title'][:50]}'")
+                continue
+
+            # Not present yet under any slug - this is genuinely new.
             desired_slug = post["slug"]
             slug_taken_by = await db.blog_posts.find_one(
                 {"slug": desired_slug}, {"_id": 0, "title": 1}
             )
             if slug_taken_by:
-                # a different, unrelated post already owns this slug
+                # A *different*, unrelated post already owns this slug (e.g.
+                # an older post targeting the same keyword) - don't touch
+                # it, give the new post a de-duped slug instead.
                 slug = await _unique_slug(db, desired_slug)
                 logger.info(
                     f"Blog seed: '{desired_slug}' already used by "
