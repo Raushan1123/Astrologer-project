@@ -34,6 +34,8 @@ import BirthChartAnalysis from "./pages/BirthChartAnalysis";
 import HealthAstrology from "./pages/HealthAstrology";
 import BusinessAstrology from "./pages/BusinessAstrology";
 import MarriageAstrology from "./pages/MarriageAstrology";
+import KundliReading from "./pages/KundliReading";
+import VedicAstrologyServices from "./pages/VedicAstrologyServices";
 import TestSEO from "./pages/TestSEO";
 
 function App() {
@@ -91,6 +93,8 @@ function App() {
               <Route path="/health-astrology-prediction" element={<HealthAstrology />} />
               <Route path="/business-astrology-consultation" element={<BusinessAstrology />} />
               <Route path="/marriage-astrology-consultation" element={<MarriageAstrology />} />
+              <Route path="/kundli-reading-ghaziabad" element={<KundliReading />} />
+              <Route path="/vedic-astrology-services-ghaziabad" element={<VedicAstrologyServices />} />
               <Route path="/test-seo" element={<TestSEO />} />
             </Routes>
               <Footer />
