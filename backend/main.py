@@ -25,6 +25,7 @@ from models import (
     TestimonialCreate, Testimonial, UserCreate, UserLogin, User,
     PasswordResetRequest, PasswordReset, BlogPost
 )
+from seed_blog_posts import seed_blog_posts
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -290,6 +291,12 @@ async def startup_event():
 
     # Run initialization in background to not block startup
     asyncio.create_task(init_db())
+
+    # Self-healing blog seed data: backfills slugs on old posts and inserts
+    # any of the blog posts in seed_blog_posts.py that aren't in the
+    # collection yet. Idempotent, so it's safe to run on every boot -
+    # no manual script or command needed, just deploy.
+    asyncio.create_task(seed_blog_posts(db))
 
     # Schedule auto-cancel of expired bookings (runs every hour)
     async def periodic_auto_cancel():
