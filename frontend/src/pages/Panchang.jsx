@@ -102,42 +102,41 @@ const Panchang = () => {
   const [panchangData, setPanchangData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch panchang from backend API
-  const fetchPanchang = async () => {
-    setLoading(true);
-    try {
-      const dateStr = selectedDate.toISOString().split('T')[0];
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/panchang/calculate`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            date: dateStr,
-            location: selectedLocation
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch panchang data');
-      }
-
-      const data = await response.json();
-      setPanchangData(data);
-    } catch (error) {
-      console.error('Error fetching panchang:', error);
-      // Fall back to local calculations if API fails
-      setPanchangData(calculatePanchang());
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Fetch panchang when date or location changes
   useEffect(() => {
+    const fetchPanchang = async () => {
+      setLoading(true);
+      try {
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/panchang/calculate`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              date: dateStr,
+              location: selectedLocation
+            })
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch panchang data');
+        }
+
+        const data = await response.json();
+        setPanchangData(data);
+      } catch (error) {
+        console.error('Error fetching panchang:', error);
+        // Fall back to local calculations if API fails
+        setPanchangData(calculatePanchang());
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPanchang();
   }, [selectedDate, selectedLocation]);
 
