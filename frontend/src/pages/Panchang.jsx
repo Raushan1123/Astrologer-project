@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { ArrowLeft, MapPin, Calendar, Sun, Moon, Navigation } from 'lucide-react';
@@ -137,7 +137,7 @@ const Panchang = () => {
   };
 
   // Fetch panchang when date or location changes
-  useMemo(() => {
+  useEffect(() => {
     fetchPanchang();
   }, [selectedDate, selectedLocation]);
 
@@ -169,10 +169,10 @@ const Panchang = () => {
     return { dayChaug, nightChaug };
   };
 
-  const chaughadiya = useMemo(() => calculateChaughadiya(), [selectedDate]);
+  const chaughadiya = useMemo(() => calculateChaughadiya(), []);
 
   // Hora calculation
-  const calculateHora = () => {
+  const calculateHora = useMemo(() => {
     const planetaryHoras = ['Sun', 'Venus', 'Mercury', 'Moon', 'Saturn', 'Jupiter', 'Mars'];
     const dayHoras = Array.from({ length: 12 }, (_, i) => ({
       hour: `${6 + i}:00 - ${7 + i}:00`,
@@ -187,9 +187,9 @@ const Panchang = () => {
     }));
 
     return { dayHoras, nightHoras };
-  };
+  }, [selectedDate]);
 
-  const hora = useMemo(() => calculateHora(), [selectedDate]);
+  const hora = calculateHora;
 
   const handleDateChange = (days) => {
     const newDate = new Date(selectedDate);
