@@ -37,6 +37,13 @@ import MarriageAstrology from "./pages/MarriageAstrology";
 import KundliReading from "./pages/KundliReading";
 import VedicAstrologyServices from "./pages/VedicAstrologyServices";
 import TestSEO from "./pages/TestSEO";
+import Calculators from "./pages/Calculators";
+import FlamesCalculator from "./pages/FlamesCalculator";
+import LoveCalculator from "./pages/LoveCalculator";
+import AscendantCalculator from "./pages/AscendantCalculator";
+import MangalDoshCalculator from "./pages/MangalDoshCalculator";
+import KaalSarpDoshCalculator from "./pages/KaalSarpDoshCalculator";
+import MoonPhaseCalculator from "./pages/MoonPhaseCalculator";
 
 function App() {
   return (
@@ -95,6 +102,13 @@ function App() {
               <Route path="/marriage-astrology-consultation" element={<MarriageAstrology />} />
               <Route path="/kundli-reading-ghaziabad" element={<KundliReading />} />
               <Route path="/vedic-astrology-services-ghaziabad" element={<VedicAstrologyServices />} />
+              <Route path="/calculators" element={<Calculators />} />
+              <Route path="/calculator/flames" element={<FlamesCalculator />} />
+              <Route path="/calculator/love" element={<LoveCalculator />} />
+              <Route path="/calculator/ascendant" element={<AscendantCalculator />} />
+              <Route path="/calculator/mangal-dosh" element={<MangalDoshCalculator />} />
+              <Route path="/calculator/kaal-sarp-dosh" element={<KaalSarpDoshCalculator />} />
+              <Route path="/calculator/moon-phase" element={<MoonPhaseCalculator />} />
               <Route path="/test-seo" element={<TestSEO />} />
             </Routes>
               <Footer />

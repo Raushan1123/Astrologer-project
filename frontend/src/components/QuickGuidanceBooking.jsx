@@ -118,7 +118,7 @@ const QuickGuidanceBooking = () => {
 
       // Create Razorpay order
       const orderResponse = await axios.post(`${API}/payments/create-order`, {
-        amount: 10 * 100, // Amount in paise - TEST: ₹10
+        amount: 299 * 100, // Amount in paise - ₹299 for 10-15 mins consultation
         description: 'Quick Guidance Consultation - 10-15 mins',
         customer_details: {
           name: formData.name,
@@ -169,7 +169,7 @@ const QuickGuidanceBooking = () => {
 📅 *Consultation Date:* ${formData.preferredDate}
 ⏰ *Consultation Time:* ${formData.preferredTime}
 ⏱️ *Duration:* 10-15 minutes
-💰 *Amount:* ₹10
+💰 *Amount:* ₹299
 
 🌟 *Your Details:*
 🎂 *Date of Birth:* ${formData.dateOfBirth}
@@ -266,7 +266,7 @@ Thank you for booking with us! 🙏`;
 
                   <div className="inline-block bg-white/80 backdrop-blur rounded-2xl px-6 md:px-8 py-5 md:py-6 shadow-xl border border-amber-200/50 mb-10">
                     <p className="text-lg md:text-2xl text-gray-800 font-semibold">
-                      Book for just <span className="text-3xl md:text-4xl text-amber-600 font-black">₹10</span>
+                      Book for just <span className="text-3xl md:text-4xl text-amber-600 font-black">₹299</span>
                       <br className="hidden sm:block" />
                       for <span className="text-orange-600 font-bold">10-15 minutes</span>
                     </p>
@@ -359,7 +359,7 @@ Thank you for booking with us! 🙏`;
                     className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 hover:from-amber-700 hover:via-orange-700 hover:to-amber-700 text-white px-8 md:px-16 py-4 md:py-5 text-base md:text-lg font-bold shadow-2xl shadow-amber-500/60 transform hover:scale-110 hover:shadow-3xl hover:shadow-amber-500/80 transition-all duration-300 rounded-2xl active:scale-95 relative overflow-hidden group"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      🎯 Book Now for ₹10
+                      🎯 Book Now for ₹299
                     </span>
                     <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </Button>
@@ -557,7 +557,7 @@ Thank you for booking with us! 🙏`;
                       disabled={loading}
                       className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-3 font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all disabled:opacity-50"
                     >
-                      {loading ? 'Processing...' : 'Proceed to Payment (₹10)'}
+                      {loading ? 'Processing...' : 'Proceed to Payment (₹299)'}
                     </Button>
                   </div>
                 </form>
