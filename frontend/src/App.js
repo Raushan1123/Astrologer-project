@@ -44,6 +44,14 @@ import AscendantCalculator from "./pages/AscendantCalculator";
 import MangalDoshCalculator from "./pages/MangalDoshCalculator";
 import KaalSarpDoshCalculator from "./pages/KaalSarpDoshCalculator";
 import MoonPhaseCalculator from "./pages/MoonPhaseCalculator";
+import FreeKundliTools from "./pages/FreeKundliTools";
+import FreeKundli from "./pages/FreeKundli";
+import YourNakshatra from "./pages/YourNakshatra";
+import DailyHoroscope from "./pages/DailyHoroscope";
+import MonthlyHoroscope from "./pages/MonthlyHoroscope";
+import YearlyHoroscope from "./pages/YearlyHoroscope";
+import KundliHindi from "./pages/KundliHindi";
+import Panchang from "./pages/Panchang";
 
 function App() {
   return (
@@ -109,6 +117,14 @@ function App() {
               <Route path="/calculator/mangal-dosh" element={<MangalDoshCalculator />} />
               <Route path="/calculator/kaal-sarp-dosh" element={<KaalSarpDoshCalculator />} />
               <Route path="/calculator/moon-phase" element={<MoonPhaseCalculator />} />
+              <Route path="/free-kundli-tools" element={<FreeKundliTools />} />
+              <Route path="/kundli" element={<FreeKundli />} />
+              <Route path="/nakshatra" element={<YourNakshatra />} />
+              <Route path="/daily-horoscope" element={<DailyHoroscope />} />
+              <Route path="/monthly-horoscope" element={<MonthlyHoroscope />} />
+              <Route path="/yearly-horoscope" element={<YearlyHoroscope />} />
+              <Route path="/kundli-hindi" element={<KundliHindi />} />
+              <Route path="/panchang" element={<Panchang />} />
               <Route path="/test-seo" element={<TestSEO />} />
             </Routes>
               <Footer />

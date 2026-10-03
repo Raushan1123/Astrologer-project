@@ -25,6 +25,7 @@ const Header = () => {
     { path: '/team', label: t('header.team') },
     { path: '/services', label: t('header.services') },
     { path: '/calculators', label: 'Calculators' },
+    { path: '/free-kundli-tools', label: 'Free Tools' },
     { path: '/gemstones', label: t('header.gemstones') },
     { path: '/testimonials', label: t('header.testimonials') },
     { path: '/blog', label: t('header.blog') },
