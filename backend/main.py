@@ -23,7 +23,8 @@ from models import (
     BookingCreate, Booking, ContactInquiry, Newsletter,
     BookingStatus, PaymentStatus, AstrologerAvailability,
     TestimonialCreate, Testimonial, UserCreate, UserLogin, User,
-    PasswordResetRequest, PasswordReset, BlogPost
+    PasswordResetRequest, PasswordReset, BlogPost,
+    QuickGuidanceBookingCreate, QuickGuidanceBooking
 )
 from seed_blog_posts import seed_blog_posts
 
@@ -512,6 +513,93 @@ SERVICE_NAMES = {
     "8": "Auspicious Childbirth Timing (Muhurat)",
     "9": "Naming Ceremony",
 }
+
+async def send_msg91_sms(to_phone: str, message: str, template_id: str = None):
+    """
+    Send SMS message using MSG91 Template API
+
+    Required environment variables:
+    - MSG91_API_KEY: Your MSG91 API Key
+    - MSG91_TEMPLATE_ID: Your MSG91 Template ID (customer)
+    - MSG91_ADMIN_TEMPLATE_ID: Your MSG91 Admin Template ID
+
+    Args:
+        to_phone: Recipient phone number (with or without country code)
+        message: Message text to send
+        template_id: Optional specific template ID to use. If not provided, uses MSG91_TEMPLATE_ID
+
+    Returns:
+        bool: True if message sent successfully, False otherwise
+    """
+    try:
+        msg91_api_key = os.environ.get('MSG91_API_KEY', '')
+
+        # Use provided template_id, otherwise default to customer template
+        if template_id is None:
+            template_id = os.environ.get('MSG91_TEMPLATE_ID', '')
+
+        if not msg91_api_key or not template_id:
+            logger.warning("MSG91_API_KEY or MSG91_TEMPLATE_ID not configured - skipping SMS")
+            return False
+
+        # Clean and validate phone number
+        phone = to_phone.replace('+', '').replace('-', '').replace(' ', '')
+
+        # Ensure phone number has country code (91 for India)
+        if not phone.startswith('91'):
+            phone = '91' + phone
+
+        # Validate phone number format
+        if len(phone) != 12 or not phone.isdigit():
+            logger.error(f"❌ Invalid phone number format: {to_phone} -> {phone}")
+            return False
+
+        # MSG91 Template-based SMS API endpoint
+        url = 'https://control.msg91.com/api/v5/flow'
+
+        # Prepare payload for template-based SMS
+        payload = {
+            "template_id": template_id,
+            "realTimeResponse": "1",
+            "recipients": [
+                {
+                    "mobiles": phone
+                }
+            ]
+        }
+
+        # Headers for template API
+        headers = {
+            'accept': 'application/json',
+            'authkey': msg91_api_key,
+            'content-type': 'application/json'
+        }
+
+        logger.info(f"📤 Sending SMS via Template API: To={phone}, Template={template_id}")
+        response = requests.post(url, json=payload, headers=headers, timeout=10, verify=False)
+
+        logger.info(f"   Response Status: {response.status_code}")
+        logger.info(f"   Response Body: {response.text}")
+
+        # Check response
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('type') == 'success':
+                message_id = result.get('message')
+                logger.info(f"✅ SMS sent successfully to {phone}")
+                logger.info(f"   Message ID: {message_id}")
+                return True
+            else:
+                logger.error(f"❌ MSG91 Error: {result.get('message')}")
+                return False
+        else:
+            logger.error(f"❌ HTTP Error {response.status_code}: {response.text}")
+            return False
+
+    except Exception as e:
+        logger.error(f"❌ Error sending SMS via MSG91: {str(e)}")
+        return False
+
 
 def get_service_name(service_id_or_name: str) -> str:
     """Convert service ID to human-readable name, or return as-is if already a name"""
@@ -4396,6 +4484,108 @@ async def get_razorpay_key():
         raise HTTPException(status_code=400, detail="Razorpay not configured")
     return {"key": os.environ.get('RAZORPAY_KEY_ID')}
 
+@api_router.post("/test/quick-guidance-booking")
+async def test_quick_guidance_booking(booking_data: dict, background_tasks: BackgroundTasks):
+    """Test endpoint - Create booking without payment verification for SMS testing"""
+    try:
+        booking_doc = {
+            "_id": str(uuid.uuid4()),
+            "name": booking_data.get("name"),
+            "email": booking_data.get("email"),
+            "phone": booking_data.get("phone"),
+            "dateOfBirth": booking_data.get("dateOfBirth"),
+            "timeOfBirth": booking_data.get("timeOfBirth"),
+            "placeOfBirth": booking_data.get("placeOfBirth"),
+            "service": booking_data.get("service", "General Consultation"),
+            "preferredDate": booking_data.get("preferredDate"),
+            "preferredTime": booking_data.get("preferredTime"),
+            "amount": 299,  # Test amount
+            "duration": "10-15 mins",
+            "payment_status": "test",
+            "razorpay_order_id": "test_order_123",
+            "razorpay_payment_id": "test_payment_123",
+            "razorpay_signature": "test_signature_123",
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
+
+        result = await db.quick_guidance_bookings.insert_one(booking_doc)
+        logger.info(f"✅ Test booking created: {result.inserted_id}")
+
+        # Generate SMS messages
+        customer_message = f"""✨ *Happy Kismat - Quick Guidance Booking Confirmation* ✨
+
+👤 *Name:* {booking_data.get('name')}
+📞 *Phone:* {booking_data.get('phone')}
+📧 *Email:* {booking_data.get('email')}
+
+📅 *Consultation Scheduled:*
+🗓️ *Date:* {booking_data.get('preferredDate')}
+⏰ *Time:* {booking_data.get('preferredTime')}
+⏱️ *Duration:* 10-15 minutes
+
+🌟 *Your Birth Details:*
+🎂 *DOB:* {booking_data.get('dateOfBirth')}
+🕐 *TOB:* {booking_data.get('timeOfBirth')}
+📍 *POB:* {booking_data.get('placeOfBirth')}
+❓ *Query:* {booking_data.get('service', 'General Consultation')}
+
+💰 *Amount Paid:* ₹299
+🎫 *Booking ID:* {result.inserted_id}
+
+Thank you for booking with us! 🙏
+📱 Contact: +91 8792967417"""
+
+        admin_message = f"""📩 *Happy Kismat - New Quick Guidance Booking* 📩
+
+👤 *Customer Name:* {booking_data.get('name')}
+📞 *Phone:* {booking_data.get('phone')}
+📧 *Email:* {booking_data.get('email')}
+
+📅 *Scheduled:*
+🗓️ *Date:* {booking_data.get('preferredDate')}
+⏰ *Time:* {booking_data.get('preferredTime')}
+
+🌟 *Birth Details:*
+🎂 *DOB:* {booking_data.get('dateOfBirth')}
+🕐 *TOB:* {booking_data.get('timeOfBirth')}
+📍 *POB:* {booking_data.get('placeOfBirth')}
+
+❓ *Query:* {booking_data.get('service', 'General Consultation')}
+💰 *Amount:* ₹299
+🎫 *Booking ID:* {result.inserted_id}
+⏲️ *Booked:* {datetime.utcnow().isoformat()}
+🧪 *TEST MODE*"""
+
+        customer_phone = booking_data.get("phone")
+        happy_kismat_phone = os.environ.get('HAPPY_KISMAT_PHONE', '918792967417')
+        admin_template_id = os.environ.get('MSG91_ADMIN_TEMPLATE_ID', '')
+
+        background_tasks.add_task(send_msg91_sms, customer_phone, customer_message)
+        background_tasks.add_task(send_msg91_sms, happy_kismat_phone, admin_message, admin_template_id)
+
+        return {
+            "success": True,
+            "message": "Test booking created successfully!",
+            "bookingId": result.inserted_id,
+            "sms_status": "SMS being sent to both numbers..."
+        }
+
+    except Exception as e:
+        logger.error(f"❌ Test booking error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Test booking failed: {str(e)}")
+
+
+@api_router.get("/razorpay-status")
+async def razorpay_status():
+    """Debug endpoint to check Razorpay initialization status"""
+    return {
+        "RAZORPAY_ENABLED": RAZORPAY_ENABLED,
+        "razorpay_client_initialized": razorpay_client is not None,
+        "RAZORPAY_KEY_ID_set": bool(os.environ.get('RAZORPAY_KEY_ID')),
+        "RAZORPAY_KEY_SECRET_set": bool(os.environ.get('RAZORPAY_KEY_SECRET')),
+    }
+
 @api_router.get("/test-email")
 async def test_email(to: str = "indirapandey2526@gmail.com"):
     """
@@ -4424,6 +4614,187 @@ async def test_email(to: str = "indirapandey2526@gmail.com"):
         "to": to,
         "from": smtp_email
     }
+
+# Quick Guidance Booking Endpoints
+@api_router.post("/payments/create-order")
+async def create_payment_order(data: dict):
+    """Create a Razorpay order for Quick Guidance Booking"""
+    try:
+        logger.info(f"DEBUG: RAZORPAY_ENABLED={RAZORPAY_ENABLED}, razorpay_client={razorpay_client is not None}")
+
+        if not RAZORPAY_ENABLED or razorpay_client is None:
+            logger.error("Razorpay is not enabled or client is not initialized")
+            raise HTTPException(status_code=400, detail="Razorpay is not configured")
+
+        amount = data.get("amount", 29900)  # Amount in paise (₹299)
+        description = data.get("description", "Quick Guidance Consultation")
+        customer_name = data.get("customer_details", {}).get("name", "Customer")
+        customer_phone = data.get("customer_details", {}).get("phone", "")
+
+        logger.info(f"Creating Razorpay order: amount={amount}, description={description}")
+
+        order = razorpay_client.order.create({
+            "amount": amount,
+            "currency": "INR",
+            "description": description,
+            "receipt": f"quick-guidance-{uuid.uuid4().hex[:8]}"
+        })
+
+        logger.info(f"✅ Created Razorpay order: {order['id']}")
+
+        return {
+            "orderId": order['id'],
+            "amount": order['amount'],
+            "currency": order['currency']
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Error creating payment order: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to create payment order: {str(e)}")
+
+
+@api_router.post("/bookings/quick-guidance")
+async def create_quick_guidance_booking(booking_data: dict, background_tasks: BackgroundTasks):
+    """Create a Quick Guidance booking after payment"""
+    try:
+        # Verify Razorpay payment signature
+        payment_id = booking_data.get("paymentId")
+        order_id = booking_data.get("orderId")
+        signature = booking_data.get("signature")
+
+        if not all([payment_id, order_id, signature]):
+            raise HTTPException(status_code=400, detail="Missing payment details")
+
+        # Verify signature
+        if RAZORPAY_ENABLED:
+            try:
+                razorpay_client.utility.verify_payment_signature({
+                    'razorpay_order_id': order_id,
+                    'razorpay_payment_id': payment_id,
+                    'razorpay_signature': signature
+                })
+            except Exception as e:
+                logger.error(f"❌ Payment signature verification failed: {str(e)}")
+                raise HTTPException(status_code=400, detail="Payment verification failed")
+
+        # Create booking document
+        booking_doc = {
+            "_id": str(uuid.uuid4()),
+            "name": booking_data.get("name"),
+            "email": booking_data.get("email"),
+            "phone": booking_data.get("phone"),
+            "dateOfBirth": booking_data.get("dateOfBirth"),
+            "timeOfBirth": booking_data.get("timeOfBirth"),
+            "placeOfBirth": booking_data.get("placeOfBirth"),
+            "service": booking_data.get("service", "General Consultation"),
+            "preferredDate": booking_data.get("preferredDate"),
+            "preferredTime": booking_data.get("preferredTime"),
+            "amount": 299,
+            "duration": "10-15 mins",
+            "payment_status": "completed",
+            "razorpay_order_id": order_id,
+            "razorpay_payment_id": payment_id,
+            "razorpay_signature": signature,
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
+
+        # Save to database
+        result = await db.quick_guidance_bookings.insert_one(booking_doc)
+        logger.info(f"✅ Quick Guidance booking created: {result.inserted_id}")
+
+        # Customer SMS Template with ##variable## format
+        customer_template = """✨ *##brandName## - Quick Guidance Booking Confirmation* ✨
+
+👤 *Name:* ##name##
+📞 *Phone:* ##phone##
+📧 *Email:* ##email##
+
+📅 *Consultation Scheduled:*
+🗓️ *Date:* ##preferredDate##
+⏰ *Time:* ##preferredTime##
+⏱️ *Duration:* 10-15 minutes
+
+🌟 *Your Birth Details:*
+🎂 *DOB:* ##dateOfBirth##
+🕐 *TOB:* ##timeOfBirth##
+📍 *POB:* ##placeOfBirth##
+❓ *Query:* ##service##
+
+💰 *Amount Paid:* ₹299
+🎫 *Booking ID:* ##bookingId##
+
+Thank you for booking with us! 🙏
+📱 Contact: +91 8792967417"""
+
+        # Admin SMS Template with ##variable## format
+        admin_template = """📩 *##brandName## - New Quick Guidance Booking* 📩
+
+👤 *Customer Name:* ##name##
+📞 *Phone:* ##phone##
+📧 *Email:* ##email##
+
+📅 *Scheduled:*
+🗓️ *Date:* ##preferredDate##
+⏰ *Time:* ##preferredTime##
+
+🌟 *Birth Details:*
+🎂 *DOB:* ##dateOfBirth##
+🕐 *TOB:* ##timeOfBirth##
+📍 *POB:* ##placeOfBirth##
+
+❓ *Query:* ##service##
+💰 *Amount:* ₹299
+🎫 *Booking ID:* ##bookingId##
+⏲️ *Booked:* ##bookedAt##"""
+
+        # Replace variables in customer message
+        customer_message = customer_template
+        brand_name = os.environ.get('BRAND_NAME', 'Happy Kismat')
+        customer_message = customer_message.replace('##brandName##', brand_name)
+        customer_message = customer_message.replace('##name##', booking_data.get('name', ''))
+        customer_message = customer_message.replace('##phone##', booking_data.get('phone', ''))
+        customer_message = customer_message.replace('##email##', booking_data.get('email', ''))
+        customer_message = customer_message.replace('##preferredDate##', booking_data.get('preferredDate', ''))
+        customer_message = customer_message.replace('##preferredTime##', booking_data.get('preferredTime', ''))
+        customer_message = customer_message.replace('##dateOfBirth##', booking_data.get('dateOfBirth', ''))
+        customer_message = customer_message.replace('##timeOfBirth##', booking_data.get('timeOfBirth', ''))
+        customer_message = customer_message.replace('##placeOfBirth##', booking_data.get('placeOfBirth', ''))
+        customer_message = customer_message.replace('##service##', booking_data.get('service', 'General Consultation'))
+        customer_message = customer_message.replace('##bookingId##', str(result.inserted_id))
+
+        # Replace variables in admin message
+        admin_message = admin_template
+        admin_message = admin_message.replace('##brandName##', brand_name)
+        admin_message = admin_message.replace('##name##', booking_data.get('name', ''))
+        admin_message = admin_message.replace('##phone##', booking_data.get('phone', ''))
+        admin_message = admin_message.replace('##email##', booking_data.get('email', ''))
+        admin_message = admin_message.replace('##preferredDate##', booking_data.get('preferredDate', ''))
+        admin_message = admin_message.replace('##preferredTime##', booking_data.get('preferredTime', ''))
+        admin_message = admin_message.replace('##dateOfBirth##', booking_data.get('dateOfBirth', ''))
+        admin_message = admin_message.replace('##timeOfBirth##', booking_data.get('timeOfBirth', ''))
+        admin_message = admin_message.replace('##placeOfBirth##', booking_data.get('placeOfBirth', ''))
+        admin_message = admin_message.replace('##service##', booking_data.get('service', 'General Consultation'))
+        admin_message = admin_message.replace('##bookingId##', str(result.inserted_id))
+        admin_message = admin_message.replace('##bookedAt##', datetime.utcnow().isoformat())
+
+        # Send SMS messages
+        customer_phone = booking_data.get("phone")
+        happy_kismat_phone = os.environ.get('HAPPY_KISMAT_PHONE', '918792967417')
+        admin_template_id = os.environ.get('MSG91_ADMIN_TEMPLATE_ID', '')
+
+        background_tasks.add_task(send_msg91_sms, customer_phone, customer_message)
+        background_tasks.add_task(send_msg91_sms, happy_kismat_phone, admin_message, admin_template_id)
+
+        return {
+            "success": True,
+            "bookingId": result.inserted_id,
+            "message": "Booking confirmed! Check your email for details."
+        }
+    except Exception as e:
+        logger.error(f"❌ Error creating quick guidance booking: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create booking: {str(e)}")
 
 # Include the router in the main app
 app.include_router(api_router)

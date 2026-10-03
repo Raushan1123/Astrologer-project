@@ -215,3 +215,44 @@ class AstrologerAvailability(BaseModel):
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class QuickGuidanceBookingCreate(BaseModel):
+    name: str
+    email: EmailStr
+    phone: str
+    dateOfBirth: str  # Format: YYYY-MM-DD
+    timeOfBirth: str  # Format: HH:MM
+    placeOfBirth: str
+    service: Optional[str] = None  # Optional service/question
+    preferredDate: str  # Format: YYYY-MM-DD (consultation date)
+    preferredTime: str  # Format: HH:MM (consultation time)
+
+
+class QuickGuidanceBooking(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    email: EmailStr
+    phone: str
+    dateOfBirth: str
+    timeOfBirth: str
+    placeOfBirth: str
+    service: Optional[str] = None
+    preferredDate: str  # Consultation appointment date
+    preferredTime: str  # Consultation appointment time
+    amount: int = 299  # Fixed price in rupees
+    duration: str = "10-15 mins"
+    payment_status: PaymentStatus = PaymentStatus.PENDING
+    razorpay_order_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    @field_validator('phone')
+    @classmethod
+    def validate_phone(cls, v):
+        """Validate phone number - must be 10 digits"""
+        if not v or len(v) != 10 or not v.isdigit():
+            raise ValueError('Phone number must be 10 digits')
+        return v
