@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { ArrowLeft, MapPin, Calendar, Sun, Moon, Navigation } from 'lucide-react';
@@ -25,11 +25,10 @@ const Panchang = () => {
     { name: 'Chandigarh', lat: 30.7333, lon: 76.7794, timezone: 'IST' },
   ];
 
-  // Calculate panchang elements
-  const calculatePanchang = () => {
+  // Calculate panchang elements (memoized with useCallback)
+  const calculatePanchang = useCallback(() => {
     const dateNum = selectedDate.getDate();
     const monthNum = selectedDate.getMonth() + 1;
-    const yearNum = selectedDate.getFullYear();
 
     // Tithi (simplified calculation - 1-30)
     const lunarDay = ((dateNum % 15) || 15);
@@ -97,7 +96,7 @@ const Panchang = () => {
       moonPhase: lunarDay <= 15 ? `Waxing (${lunarDay}/15)` : `Waning (${30 - lunarDay}/15)`,
       auspiciousTime: `${8 + (dateNum % 8)}:00 AM - ${10 + (dateNum % 8)}:00 AM`
     };
-  };
+  }, [selectedDate]);
 
   const [panchangData, setPanchangData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -138,7 +137,7 @@ const Panchang = () => {
     };
 
     fetchPanchang();
-  }, [selectedDate, selectedLocation]);
+  }, [selectedDate, selectedLocation, calculatePanchang]);
 
   const panchang = panchangData || calculatePanchang();
 
